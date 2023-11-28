@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: YumYumNow Delivery - OpenAPI 3.1.0
+  title: YumYumNow Delivery
   description: YumYumNow Delivery
   version: 1.0.0
 servers:
