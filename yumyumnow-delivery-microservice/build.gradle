@@ -6,6 +6,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.2'
+		classpath "org.openapitools:openapi-generator-gradle-plugin:6.6.0"
 	}
 }
 
@@ -24,6 +25,7 @@ plugins {
 
 	// PITest
 	id 'info.solidsoft.pitest' version '1.5.2'
+	id 'org.openapi.generator' version '4.0.1'
 }
 
 group = 'nl.tudelft.cse.sem.yumyumnow'
@@ -107,7 +109,22 @@ pmd {
 	incrementalAnalysis = true
 	sourceSets = [sourceSets.main]
 }
+apply plugin: 'org.openapi.generator'
+openApiGenerate {
+	generatorName.set("spring")
+	inputSpec.set("$rootDir/delivery-api-spec.yaml")
+	outputDir.set("$buildDir/generated")
+	apiPackage.set("nl.tudelft.sem.template.api")
+	modelPackage.set("nl.tudelft.sem.template.model")
+	configOptions.set([
+	        dateLibrary: "java15"
+	])
 
+	configOptions = [
+	        interfaceOnly: 'true'
+	]
+}
+compileJava.dependsOn tasks.named('openApiGenerate')
 apply plugin: 'info.solidsoft.pitest'
 pitest {
 	//adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
