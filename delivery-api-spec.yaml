@@ -219,11 +219,25 @@ paths:
             schema:
               type: integer
   /delivery/getAvailableInRadius:
-    post:
+    get:
       tags:
         - Delivery
       summary: 'Get available deliveries in radius (for couriers)'
       description: 'Get available deliveries in radius (for couriers). If a vendor has chosen to only deliver using its own couriers, then deliveries from that vendor will only be returned if the courier is affiliated with that vendor.'
+      parameters:
+        - in: query
+          name: radius
+          schema:
+            type: number
+          required: true
+          description: The maximum distance in kilometers
+        - in: query
+          name: courierId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The courier ID
       responses:
         '200':
           description: 'Successful response'
@@ -239,11 +253,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
 
   /delivery/admin/maxDeliveryZone:
     post:
