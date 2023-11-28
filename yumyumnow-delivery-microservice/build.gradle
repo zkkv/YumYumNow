@@ -114,8 +114,8 @@ openApiGenerate {
 	generatorName.set("spring")
 	inputSpec.set("$rootDir/delivery-api-spec.yaml")
 	outputDir.set("$buildDir/generated")
-	apiPackage.set("nl.tudelft.sem.template.api")
-	modelPackage.set("nl.tudelft.sem.template.model")
+	apiPackage.set("nl.tudelft.sem.yumyumnow.delivery.api")
+	modelPackage.set("nl.tudelft.sem.yumyumnow.delivery.model")
 	configOptions.set([
 	        dateLibrary: "java15"
 	])
