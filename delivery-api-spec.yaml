@@ -194,7 +194,7 @@ paths:
           application/json:
             schema:
               type: string
-    
+
   /delivery/admin/maxDeliveryZone:
     post:
       summary: 'Set the default maximum delivery zone'
@@ -244,28 +244,71 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Analytics'
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  totalDeliveries:
+                    type: integer
+                    example: 10
+                  successfulDeliveries:
+                    type: integer
+                    example: 5
+                  analytics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Analytic'
         '400':
           description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
+                endDate:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
 
 components:
   schemas:
-    Analytics:
+    Analytic:
       type: object
       properties:
         id:
           type: string
           example: "7ddf1042-8dfa-11ee-b9d1-0242ac120002"
-        deliveries:
+        delivery:
+            $ref: '#/components/schemas/Delivery'
+        preparationTime:
+          type: number
+          example: 10
+        deliveryTime:
+          type: number
+          example: 10
+        driverEfficiency:
+          type: integer
+          example: 10
+        encounteredIssues:
           type: array
           items:
-            $ref: '#/components/schemas/Delivery'
-        
+            type: string
+            example: "Delivery was late"
     Order:
       type: object
       properties:
@@ -281,6 +324,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1830-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
@@ -296,6 +340,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
@@ -315,7 +360,7 @@ components:
     Location:
       type: object
       properties:
-        timestamp: 
+        timestamp:
           type: string
           format: date-time
           example: "2018-12-10T13:49:51.141Z"
@@ -331,10 +376,15 @@ components:
         id:
           type: string
           example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
-        order:
-          $ref: '#/components/schemas/Order'
-        courier:
-          $ref: '#/components/schemas/Courier'
+        orderId:
+          type: string
+          format: uuid
+        courierId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
         status:
           type: string
           enum:
@@ -370,6 +420,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1c9a-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
