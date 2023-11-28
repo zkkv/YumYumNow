@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: YumYumNow Delivery API
+  description: YumYumNow Delivery
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8081'
+    description: 'Delivery Microservice'
+paths:
+  /delivery:
+    post:
+      summary: 'Create a delivery'
+      description: 'Create a delivery based on order data'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+  /delivery/{id}:
+    get:
+      summary: 'Get a delivery'
+      description: 'Get delivery details based on id'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/{id}/updateStatus:
+    post:
+      summary: 'Update the status of a delivery'
+      description: 'Update the status of a delivery. Vendors can set the status to ACCEPTED, REJECTED, PREPARING, GIVEN_TO_COURIER. Couriers can set the status to IN_TRANSIT, DELIVERED.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+  /delivery/{id}/updateLocation:
+    post:
+      summary: "Update the location of the delivery"
+      description: "Update the current location of the delivery (for couriers)"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+  /delivery/{id}/updateDeliveryTime:
+    post:
+      summary: "Update the delivery time"
+      description: "Update estimatedDeliveryTime of an existing delivery (for couriers)"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+  /delivery/{id}/accept:
+    post:
+      summary: 'Accept the delivery'
+      description: 'Change the status of an existing delivery to ACCEPTED.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Courier'
+  /delivery/getAvailableInRadius:
+    post:
+      summary: 'Get available deliveries in radius (for couriers)'
+      description: 'Get available deliveries in radius (for couriers). If a vendor has chosen to only deliver using its own couriers, then deliveries from that vendor will only be returned if the courier is affiliated with that vendor.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+    
+  /delivery/admin/maxDeliveryZone:
+    post:
+      summary: 'Set the default maximum delivery zone'
+      description: 'Set the default maximum application-wide delivery zone for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+    get:
+      summary: 'Get the default maximum delivery zone'
+      description: 'Get the default maximum application-wide delivery zone for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics:
+    get:
+      summary: 'Get delivery system analytics'
+      description: 'Get delivery system analytics collected so far.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  schemas:
+    Analytics:
+      type: object
+      properties:
+        id:
+          type: string
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        customer:
+          $ref: '#/components/schemas/Customer'
+        vendor:
+          $ref: '#/components/schemas/Vendor'
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        deliveryAddress:
+          type: string
+        phone:
+          type: string
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        allowsOnlyOwnCouriers:
+          type: boolean
+        maxDeliveryZoneMeters:
+          type: integer
+    Location:
+      type: object
+      properties:
+        timestamp: 
+          type: string
+          format: date-time
+        latitude:
+          type: number
+        longitude:
+          type: number
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+        order:
+          $ref: '#/components/schemas/Order'
+        courier:
+          $ref: '#/components/schemas/Courier'
+        status:
+          type: string
+          enum:
+            - 'PENDING'
+            - 'ACCEPTED'
+            - 'REJECTED'
+            - 'PREPARING'
+            - 'GIVEN_TO_COURIER'
+            - 'IN_TRANSIT'
+            - 'DELIVERED'
+        estimatedDeliveryTime:
+          type: string
+          format: date-time
+        estimatedPreparationFinishTime:
+          type: string
+          format: date-time
+        currentLocation:
+          $ref: '#/components/schemas/Location'
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    Courier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        affiliatedVendor:
+          $ref: '#/components/schemas/Vendor'
