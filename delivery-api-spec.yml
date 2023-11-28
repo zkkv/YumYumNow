@@ -227,6 +227,7 @@ paths:
             application/json:
               schema:
                 type: integer
+                example: 200
         '400':
           description: 'Bad request'
           content:
@@ -259,6 +260,7 @@ components:
       properties:
         id:
           type: string
+          example: "7ddf1042-8dfa-11ee-b9d1-0242ac120002"
         deliveries:
           type: array
           items:
@@ -269,6 +271,7 @@ components:
       properties:
         id:
           type: string
+          example: "7ddf136c-8dfa-11ee-b9d1-0242ac120002"
         customer:
           $ref: '#/components/schemas/Customer'
         vendor:
@@ -278,42 +281,56 @@ components:
       properties:
         id:
           type: string
+          example: "7ddf1830-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
+          example: "Max Verstappen"
         deliveryAddress:
           type: string
+          example: "Mekelweg 5, 2628 CD Delft"
         phone:
           type: string
+          example: "+31 71 520 9291"
     Vendor:
       type: object
       properties:
         id:
           type: string
+          example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
+          example: "John Smith"
         address:
           type: string
+          example: "Professor Schermerhornstraat 19 2628 CN Delft"
         phone:
           type: string
+          example: "+31 71 520 9297"
         allowsOnlyOwnCouriers:
           type: boolean
+          example: true
         maxDeliveryZoneMeters:
           type: integer
+          example: 150
     Location:
       type: object
       properties:
         timestamp: 
           type: string
           format: date-time
+          example: "2018-12-10T13:49:51.141Z"
         latitude:
           type: number
+          example: 10
         longitude:
           type: number
+          example: 20
     Delivery:
       type: object
       properties:
         id:
           type: string
+          example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
         order:
           $ref: '#/components/schemas/Order'
         courier:
@@ -328,12 +345,15 @@ components:
             - 'GIVEN_TO_COURIER'
             - 'IN_TRANSIT'
             - 'DELIVERED'
+          example: 'PREPARING'
         estimatedDeliveryTime:
           type: string
           format: date-time
+          example: "2018-11-10T13:49:51.141Z"
         estimatedPreparationFinishTime:
           type: string
           format: date-time
+          example: "2018-11-10T13:47:51.141Z"
         currentLocation:
           $ref: '#/components/schemas/Location'
     Error:
@@ -341,16 +361,21 @@ components:
       properties:
         code:
           type: integer
+          example: 404
         message:
           type: string
+          example: "Not Found"
     Courier:
       type: object
       properties:
         id:
           type: string
+          example: "7ddf1c9a-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
+          example: "Sarah Johnson"
         phone:
           type: string
+          example: "+31 71 524 9297"
         affiliatedVendor:
           $ref: '#/components/schemas/Vendor'
