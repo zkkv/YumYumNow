@@ -281,6 +281,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1830-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
@@ -296,6 +297,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
@@ -331,12 +333,15 @@ components:
         id:
           type: string
           example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
-        order:
-          $ref: '#/components/schemas/Order'
-        courier:
-          $ref: '#/components/schemas/Courier'
-        vendor:
-          $ref: '#/components/schemas/Vendor'
+        orderId:
+          type: string
+          format: uuid
+        courierId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
         status:
           type: string
           enum:
@@ -372,6 +377,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           example: "7ddf1c9a-8dfa-11ee-b9d1-0242ac120002"
         name:
           type: string
