@@ -2,7 +2,7 @@ buildscript {
 	repositories {
 		mavenCentral()
 		//Needed only for SNAPSHOT versions
-		//maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+//		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 	}
 	dependencies {
 		classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.2'
@@ -26,7 +26,7 @@ plugins {
 	id 'info.solidsoft.pitest' version '1.5.2'
 }
 
-group = 'nl.tudelft.cse.sem.template'
+group = 'nl.tudelft.cse.sem.yumyumnow'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 15
 targetCompatibility = 15
@@ -65,7 +65,7 @@ test {
 	useJUnitPlatform()
 	jacoco {
 		enabled = true
-		includes = ['nl.tudelft.sem.template.*']
+		includes = ['nl.tudelft.sem.yumyumnow.*']
 		excludes = []
 	}
 }
@@ -84,7 +84,7 @@ jacocoTestCoverageVerification() {
 		rule {
 			enabled = true
 			element = 'CLASS'
-			includes = ['nl.tudelft.sem.template.*']
+			includes = ['nl.tudelft.sem.yumyumnow.*']
 
 			limit {
 				counter = 'BRANCH'
@@ -113,7 +113,7 @@ pitest {
 	//adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
 	junit5PluginVersion = '0.12'
 
-	targetClasses = ['nl.tudelft.sem.template.*']  //by default "${project.group}.*"
+	targetClasses = ['nl.tudelft.sem.yumyumnow.*']  //by default "${project.group}.*"
 	pitestVersion = '1.5.1' //not needed when a default PIT version should be used
 	threads = 4
 	outputFormats = ['XML', 'HTML']
