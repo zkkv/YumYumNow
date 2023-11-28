@@ -335,6 +335,8 @@ components:
           $ref: '#/components/schemas/Order'
         courier:
           $ref: '#/components/schemas/Courier'
+        vendor:
+          $ref: '#/components/schemas/Vendor'
         status:
           type: string
           enum:
