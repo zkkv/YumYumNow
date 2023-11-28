@@ -170,6 +170,28 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Courier'
+  /delivery/{id}/orderRating:
+    post:
+      summary: 'Specify the order rating'
+      description: 'Customers can rate the order on scale from 1 to 5.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
   /delivery/getAvailableInRadius:
     post:
       summary: 'Get available deliveries in radius (for couriers)'
@@ -238,6 +260,23 @@ paths:
     get:
       summary: 'Get delivery system analytics'
       description: 'Get delivery system analytics collected so far.'
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of analytics.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of analytics.
+          example: "2018-11-10T13:49:51.141Z"
       responses:
         '200':
           description: 'Successful response'
@@ -270,20 +309,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                startDate:
-                  type: string
-                  format: date-time
-                  example: "2018-11-10T13:49:51.141Z"
-                endDate:
-                  type: string
-                  format: date-time
-                  example: "2018-11-10T13:49:51.141Z"
 
 components:
   schemas:
