@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: YumYumNow Delivery
-  description: YumYumNow Delivery
+  description: API Specification for YumYumNow Delivery microservice
   version: 1.0.0
 servers:
   - url: 'http://localhost:8082'
@@ -17,7 +17,7 @@ paths:
       tags:
         - Delivery
       summary: 'Create a delivery'
-      description: 'Create a delivery based on order data'
+      description: 'Create a delivery based on order data.'
       responses:
         '200':
           description: 'Successful response'
@@ -41,7 +41,7 @@ paths:
       tags:
         - Delivery
       summary: 'Get a delivery'
-      description: 'Get delivery details based on id'
+      description: 'Get delivery details based on id.'
       parameters:
         - in: path
           name: id
@@ -63,8 +63,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/{id}/updateStatus:
-    post:
+  /delivery/{id}/status:
+    put:
       tags:
         - Delivery
       summary: 'Update the status of a delivery'
@@ -100,12 +100,12 @@ paths:
                   format: uuid
                   example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
 
-  /delivery/{id}/updateLocation:
-    post:
+  /delivery/{id}/location:
+    put:
       tags:
         - Delivery
       summary: "Update the location of the delivery"
-      description: "Update the current location of the delivery (for couriers)"
+      description: "Update the current location of the delivery (for couriers)."
       parameters:
         - in: path
           name: id
@@ -139,12 +139,12 @@ paths:
                 location:
                   $ref: '#/components/schemas/Location'
 
-  /delivery/{id}/updateDeliveryTime:
-    post:
+  /delivery/{id}/time:
+    put:
       tags:
         - Delivery
       summary: "Update the delivery time"
-      description: "Update estimatedDeliveryTime of an existing delivery (for couriers)"
+      description: "Update estimated delivery time of an existing delivery (for couriers)."
       parameters:
         - in: path
           name: id
@@ -180,10 +180,10 @@ paths:
                   format: date-time
                   example: "2018-11-10T13:49:51.141Z"
   /delivery/{id}/assign:
-    post:
+    put:
       tags:
         - Delivery
-      summary: 'A courier accept the delivery'
+      summary: 'Assign the delivery to the courier'
       description: 'The delivery is assigned to a courier.'
       parameters:
         - in: path
@@ -215,8 +215,8 @@ paths:
                   type: string
                   format: uuid
                   example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
-  /delivery/{id}/orderRating:
-    post:
+  /delivery/{id}/rating:
+    put:
       tags:
         - Delivery
       summary: 'Specify the order rating'
@@ -255,11 +255,11 @@ paths:
                   type: integer
                   example: 5
 
-  /delivery/getAvailableInRadius:
+  /delivery/available:
     get:
       tags:
         - Delivery
-      summary: 'Get available deliveries in radius (for couriers)'
+      summary: 'Get available deliveries in radius'
       description: 'Get available deliveries in radius (for couriers). If a vendor has chosen to only deliver using its own couriers, then deliveries from that vendor will only be returned if the courier is affiliated with that vendor.'
       parameters:
         - in: query
@@ -291,8 +291,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /delivery/admin/maxDeliveryZone:
-    post:
+  /delivery/admin/max-zone:
+    put:
       tags:
         - Admin
       summary: 'Set the default maximum delivery zone'
@@ -522,18 +522,3 @@ components:
         message:
           type: string
           example: "Not Found"
-    Courier:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "7ddf1c9a-8dfa-11ee-b9d1-0242ac120002"
-        name:
-          type: string
-          example: "Sarah Johnson"
-        phone:
-          type: string
-          example: "+31 71 524 9297"
-        affiliatedVendor:
-          $ref: '#/components/schemas/Vendor'
