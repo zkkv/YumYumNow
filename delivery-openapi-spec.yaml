@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: YumYumNow Delivery
   description: YumYumNow Delivery
@@ -296,7 +296,7 @@ paths:
       tags:
         - Admin
       summary: 'Set the default maximum delivery zone'
-      description: 'Set the default maximum application-wide delivery zone for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      description: 'Set the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone.'
       responses:
         '200':
           description: 'Successful response'
@@ -314,24 +314,21 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                maxDeliveryZoneMeters:
-                  type: integer
-                  example: 200
+              type: number
+              example: 2
     get:
       tags:
         - Admin
       summary: 'Get the default maximum delivery zone'
-      description: 'Get the default maximum application-wide delivery zone for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      description: 'Get the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone.'
       responses:
         '200':
           description: 'Successful response'
           content:
             application/json:
               schema:
-                type: integer
-                example: 200
+                type: number
+                example: 2
         '400':
           description: 'Bad request'
           content:
@@ -464,9 +461,9 @@ components:
         allowsOnlyOwnCouriers:
           type: boolean
           example: true
-        maxDeliveryZoneMeters:
-          type: integer
-          example: 150
+        maxDeliveryZoneKm:
+          type: number
+          example: 2
     Location:
       type: object
       properties:
