@@ -99,7 +99,17 @@ paths:
                   type: string
                   format: uuid
                   example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
-
+                status:
+                  type: string
+                  enum:
+                    - 'PENDING'
+                    - 'ACCEPTED'
+                    - 'REJECTED'
+                    - 'PREPARING'
+                    - 'GIVEN_TO_COURIER'
+                    - 'IN_TRANSIT'
+                    - 'DELIVERED'
+                  example: 'PREPARING'
   /delivery/{id}/location:
     put:
       tags:
@@ -138,7 +148,6 @@ paths:
                   example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
                 location:
                   $ref: '#/components/schemas/Location'
-
   /delivery/{id}/time:
     put:
       tags:
@@ -254,7 +263,6 @@ paths:
                 rating:
                   type: integer
                   example: 5
-
   /delivery/available:
     get:
       tags:
@@ -290,7 +298,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /delivery/admin/max-zone:
     put:
       tags:
@@ -331,7 +338,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /delivery/admin/analytics:
     get:
       tags:
