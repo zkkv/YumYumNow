@@ -393,6 +393,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /delivery/vendor/{id}/max-zone:
+    put:
+      tags:
+        - Delivery
+      summary: 'Set the maximum delivery zone of a vendor'
+      description: 'Vendors can set a maximum delivery zone for their own restaurant if they have their own drivers.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the vendor
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: number
+              example: 2
 
 components:
   schemas:
