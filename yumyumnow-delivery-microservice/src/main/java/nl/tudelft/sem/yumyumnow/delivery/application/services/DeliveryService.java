@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
+    /**
+     * Create a new DeliveryService.
+     *
+     * @param deliveryRepository The repository to use.
+     */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository) {
         this.deliveryRepository = deliveryRepository;
