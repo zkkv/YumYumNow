@@ -28,7 +28,7 @@ plugins {
     id 'info.solidsoft.pitest' version '1.5.2'
 
     // OpenAPI
-    id 'org.openapi.generator' version '4.0.1'
+    id 'org.openapi.generator' version '6.0.0'
 }
 
 group = 'nl.tudelft.cse.sem.template'
