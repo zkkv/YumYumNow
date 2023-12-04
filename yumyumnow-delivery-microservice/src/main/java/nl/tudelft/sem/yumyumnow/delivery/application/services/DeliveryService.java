@@ -1,7 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyum.delivery.model.Delivery;
-import nl.tudelft.sem.yumyum.delivery.model.Order;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
