@@ -31,7 +31,7 @@ plugins {
     id 'org.openapi.generator' version '4.0.1'
 }
 
-group = 'nl.tudelft.cse.sem.template'
+group = 'nl.tudelft.sem.yumyum.delivery'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 15
 targetCompatibility = 15
@@ -72,7 +72,7 @@ test {
     useJUnitPlatform()
     jacoco {
         enabled = true
-        includes = ['nl.tudelft.sem.template.*']
+        includes = ['nl.tudelft.sem.yumyum.delivery.*']
         excludes = []
     }
 }
@@ -87,7 +87,7 @@ jacocoTestCoverageVerification() {
         rule {
             enabled = true
             element = 'CLASS'
-            includes = ['nl.tudelft.sem.template.*']
+            includes = ['nl.tudelft.sem.yumyum.delivery.*']
 
             limit {
                 counter = 'BRANCH'
@@ -133,7 +133,7 @@ pitest {
     //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
     junit5PluginVersion = '0.12'
 
-    targetClasses = ['nl.tudelft.sem.template.*']  //by default "${project.group}.*"
+    targetClasses = ['nl.tudelft.sem.yumyum.delivery.*']  //by default "${project.group}.*"
     pitestVersion = '1.5.1' //not needed when a default PIT version should be used
     threads = 4
     outputFormats = ['XML', 'HTML']
