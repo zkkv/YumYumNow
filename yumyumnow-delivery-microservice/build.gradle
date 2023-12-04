@@ -31,7 +31,7 @@ plugins {
     id 'org.openapi.generator' version '6.0.0'
 }
 
-group = 'nl.tudelft.cse.sem.template'
+group = 'nl.tudelft.sem.yumyumnow.delivery'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 15
 targetCompatibility = 15
@@ -72,7 +72,7 @@ test {
     useJUnitPlatform()
     jacoco {
         enabled = true
-        includes = ['nl.tudelft.sem.template.*']
+        includes = ['nl.tudelft.sem.yumyumnow.delivery.*']
         excludes = []
     }
 }
@@ -87,7 +87,7 @@ jacocoTestCoverageVerification() {
         rule {
             enabled = true
             element = 'CLASS'
-            includes = ['nl.tudelft.sem.template.*']
+            includes = ['nl.tudelft.sem.yumyumnow.delivery.*']
 
             limit {
                 counter = 'BRANCH'
@@ -111,7 +111,7 @@ task customCheckstyle(type: Checkstyle) {
 }
 
 checkstyle {
-    toolVersion "8.37"
+    toolVersion "10.12.5"
     // Link Checkstyle task to customCheckstyle
     configFile = customCheckstyle.configFile
     ignoreFailures = false // Set to true if you want the build to ignore Checkstyle failures
@@ -133,7 +133,7 @@ pitest {
     //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
     junit5PluginVersion = '0.12'
 
-    targetClasses = ['nl.tudelft.sem.template.*']  //by default "${project.group}.*"
+    targetClasses = ['nl.tudelft.sem.yumyumnow.delivery.*']  //by default "${project.group}.*"
     pitestVersion = '1.5.1' //not needed when a default PIT version should be used
     threads = 4
     outputFormats = ['XML', 'HTML']
@@ -145,8 +145,8 @@ openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$rootDir/delivery-openapi-spec.yaml")
     outputDir.set("$buildDir/generated")
-    apiPackage.set("nl.tudelft.sem.yumyum.delivery.api")
-    modelPackage.set("nl.tudelft.sem.yumyum.delivery.model")
+    apiPackage.set("nl.tudelft.sem.yumyumnow.delivery.api")
+    modelPackage.set("nl.tudelft.sem.yumyumnow.delivery.model")
     configOptions.set([
             dateLibrary: "java15"
     ])
