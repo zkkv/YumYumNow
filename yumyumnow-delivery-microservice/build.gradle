@@ -68,6 +68,7 @@ dependencies {
     implementation 'io.swagger.core.v3:swagger-core:2.2.15'
 }
 
+apply plugin: 'jacoco'
 test {
     useJUnitPlatform()
     jacoco {
@@ -76,9 +77,9 @@ test {
         excludes = []
     }
 }
-
-repositories {
-    mavenCentral()
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    enabled = true
 }
 
 jacocoTestCoverageVerification() {
