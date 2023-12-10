@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +21,7 @@ import javax.annotation.Generated;
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-12-05T14:49:08.361274+01:00[Europe/Amsterdam]")
 public class Vendor {
 
+  @Id
   private UUID id;
 
   private String name;
@@ -27,6 +30,7 @@ public class Vendor {
 
   private String phone;
 
+  @OneToOne
   private Boolean allowsOnlyOwnCouriers;
 
   private BigDecimal maxDeliveryZoneKm;

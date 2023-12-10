@@ -9,6 +9,8 @@ import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,9 +22,11 @@ import javax.annotation.Generated;
  * Delivery
  */
 
+@Entity
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-12-10T16:36:45.696015+01:00[Europe/Amsterdam]")
 public class Delivery {
 
+  @Id
   private UUID id;
 
   private UUID orderId;
