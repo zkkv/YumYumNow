@@ -146,14 +146,13 @@ openApiGenerate {
     inputSpec.set("$rootDir/delivery-openapi-spec.yaml")
     outputDir.set("$buildDir/generated")
     apiPackage.set("nl.tudelft.sem.yumyumnow.delivery.api")
-    modelPackage.set("nl.tudelft.sem.yumyumnow.delivery.model")
     configOptions.set([
             dateLibrary: "java15"
     ])
 
     // Exclude controller generation
     configOptions = [
-            interfaceOnly: 'true'
+            interfaceOnly: 'true',
     ]
 }
 
