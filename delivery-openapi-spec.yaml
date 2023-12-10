@@ -1,0 +1,1201 @@
+openapi: 3.0.3
+info:
+  title: YumYumNow Delivery
+  description: API Specification for YumYumNow Delivery microservice
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8082'
+    description: 'Delivery Microservice'
+tags:
+  - name: Delivery
+    description: Delivery endpoints
+  - name: Vendor
+    description: Vendor endpoints
+  - name: Admin
+    description: Admin endpoints
+paths:
+  /delivery:
+    post:
+      tags:
+        - Delivery
+      summary: 'Create a delivery'
+      description: 'Create a delivery based on order data (for vendors).'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                vendorId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+  /delivery/{id}:
+    get:
+      tags:
+        - Delivery
+      summary: 'Get a delivery'
+      description: 'Get delivery details based on id.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID of the delivery
+
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/{id}/status:
+    put:
+      tags:
+        - Delivery
+      summary: 'Update the status of a delivery'
+      description: 'Update the status of a delivery. Vendors can set the status to ACCEPTED, REJECTED, PREPARING, GIVEN_TO_COURIER. Couriers can set the status to IN_TRANSIT, DELIVERED.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                status:
+                  type: string
+                  enum:
+                    - 'PENDING'
+                    - 'ACCEPTED'
+                    - 'REJECTED'
+                    - 'PREPARING'
+                    - 'GIVEN_TO_COURIER'
+                    - 'IN_TRANSIT'
+                    - 'DELIVERED'
+                  example: 'PREPARING'
+  /delivery/{id}/location:
+    put:
+      tags:
+        - Delivery
+      summary: "Update the location of the delivery"
+      description: "Update the current location of the delivery (for couriers)."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courierId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                location:
+                  $ref: '#/components/schemas/Location'
+  /delivery/{id}/deliveryTime:
+    put:
+      tags:
+        - Delivery
+      summary: "Update the delivery time"
+      description: "Update estimated delivery time of an existing delivery (for couriers)."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courierId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                estimatedNewDeliveryTime:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
+    post:
+      tags:
+        - Delivery
+      summary: "Set the delivery time"
+      description: "Set estimated delivery time of an existing delivery (for couriers)."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                estimatedNewDeliveryTime:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
+  /delivery/{id}/prepTime:
+    put:
+      tags:
+        - Delivery
+      summary: "Update the prep time"
+      description: "Update estimated prep time of an existing delivery (for vendors)."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                estimatedNewDeliveryTime:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
+    post:
+      tags:
+        - Delivery
+      summary: "Set the prep time"
+      description: "Set estimated prep time of an existing delivery (for vendors)."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                estimatedNewDeliveryTime:
+                  type: string
+                  format: date-time
+                  example: "2018-11-10T13:49:51.141Z"
+  /delivery/{id}/assign:
+    put:
+      tags:
+        - Delivery
+      summary: 'Assign the delivery to the courier'
+      description: 'The delivery is assigned to a courier.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the delivery
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courierId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+  /delivery/available:
+    get:
+      tags:
+        - Delivery
+      summary: 'Get available deliveries in radius'
+      description: 'Get available deliveries in radius (for couriers). If a vendor has chosen to only deliver using its own couriers, then deliveries from that vendor will only be returned if the courier is affiliated with that vendor.'
+      parameters:
+        - in: query
+          name: radius
+          schema:
+            type: number
+            example: 10
+          required: true
+          description: The maximum distance in kilometers
+        - in: query
+          name: location
+          schema:
+            $ref: '#/components/schemas/Location'
+          required: true
+          description: The location for which the distances are calculated
+        - in: query
+          name: courierId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The courier ID
+
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Delivery'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/max-zone:
+    put:
+      tags:
+        - Admin
+      summary: 'Set the default maximum delivery zone'
+      description: 'Set the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  adminId:
+                    type: string
+                    format: uuid
+                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                  radiusKm:
+                    type: number
+                    example: 2
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adminId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                radiusKm:
+                  type: number
+                  example: 2
+    get:
+      tags:
+        - Admin
+      summary: 'Get the default maximum delivery zone'
+      description: 'Get the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone.'
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  adminId:
+                    type: string
+                    format: uuid
+                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                  radiusKm:
+                    type: number
+                    example: 2
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/preparation-time:
+    get:
+      tags:
+        - Admin
+      summary: "Get preparation time analytics"
+      description: "Get preparation time analytics"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  preparationTime:
+                    type: number
+                    example: 10
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/delivery-time:
+    get:
+      tags:
+        - Admin
+      summary: "Get delivery time analytics"
+      description: "Get delivery time analytics"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  deliveryTime:
+                    type: number
+                    example: 10
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/driver-efficiency:
+    get:
+      tags:
+        - Admin
+      summary: "Get driver efficiency analytics"
+      description: "Get driver efficiency analytics"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  driverEfficiency:
+                    type: number
+                    example: 10
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/issues:
+    get:
+      tags:
+        - Admin
+      summary: "Get the encountered issues"
+      description: "Get the encountered issues"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  encounteredIssues:
+                    type: array
+                    items:
+                      type: string
+                      example: "Delivery was late"
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/total-deliveries:
+    get:
+      tags:
+        - Admin
+      summary: "Get the total number of deliveries"
+      description: "Get the total number of deliveries"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  totalDeliveries:
+                    type: number
+                    example: 10
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/admin/analytics/successful-deliveries:
+    get:
+      tags:
+        - Admin
+      summary: "Get the total number of successful deliveries"
+      description: "Get the total number of successful deliveries"
+      parameters:
+        - in: query
+          name: adminId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The admin ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Start date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: End date of the analytic.
+          example: "2018-11-10T13:49:51.141Z"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2018-11-10T13:49:51.141Z"
+                  successfulDeliveries:
+                    type: number
+                    example: 10
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '451':
+          description: 'Unavailable for Legal Reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /delivery/vendor/{id}/max-zone:
+    put:
+      tags:
+        - Vendor
+      summary: 'Set the maximum delivery zone of a vendor'
+      description: 'Vendors can set a maximum delivery zone for their own restaurant if they have their own drivers.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the vendor
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vendorId:
+                    type: string
+                    format: uuid
+                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                  radiusKm:
+                    type: number
+                    example: 2
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: 'Service Unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendorId:
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                radiusKm:
+                  type: number
+                  example: 2
+  /delivery/vendor/{id}/customCouriers:
+    put:
+      tags:
+        - Vendor
+      summary: 'Set whether a vendor allows only its own couriers'
+      description: 'Vendors can set whether they allow only their own couriers to deliver their food.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: UUID of the vendor
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vendorId:
+                    type: string
+                    format: uuid
+                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                  allowsOnlyOwnCouriers:
+                    type: boolean
+                    example: true
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendorId:
+                    type: string
+                    format: uuid
+                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                allowsOnlyOwnCouriers:
+                    type: boolean
+                    example: true
+
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2018-12-10T13:49:51.141Z"
+        latitude:
+          type: number
+          example: 10
+        longitude:
+          type: number
+          example: 20
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
+        orderId:
+          type: string
+          format: uuid
+        courierId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - 'PENDING'
+            - 'ACCEPTED'
+            - 'REJECTED'
+            - 'PREPARING'
+            - 'GIVEN_TO_COURIER'
+            - 'IN_TRANSIT'
+            - 'DELIVERED'
+          example: 'PREPARING'
+        estimatedDeliveryTime:
+          type: string
+          format: date-time
+          example: "2018-11-10T13:49:51.141Z"
+        estimatedPreparationFinishTime:
+          type: string
+          format: date-time
+          example: "2018-11-10T13:47:51.141Z"
+        currentLocation:
+          $ref: '#/components/schemas/Location'
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Not Found"
