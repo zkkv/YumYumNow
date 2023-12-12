@@ -1,10 +1,11 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class DeliveryService {
@@ -26,12 +27,11 @@ public class DeliveryService {
      * @param order The order to create a delivery for.
      * @return The created delivery.
      */
-    public Delivery createDelivery(Order order) {
+    public Delivery createDelivery(UUID order, UUID vendor) {
         Delivery delivery = new Delivery();
 
-        delivery.setOrderId(order.getId());
-        delivery.setVendorId(order.getVendor().getId());
-        delivery.setCourierId(order.getCustomer().getId());
+        // TODO: Get order details from Order microservice
+        // TODO: Get vendor details from Vendor microservice
 
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 

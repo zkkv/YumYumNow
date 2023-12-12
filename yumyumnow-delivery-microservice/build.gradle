@@ -140,23 +140,6 @@ pitest {
     timestampedReports = false
 }
 
-apply plugin: 'org.openapi.generator'
-openApiGenerate {
-    generatorName.set("spring")
-    inputSpec.set("$rootDir/delivery-openapi-spec.yaml")
-    outputDir.set("$buildDir/generated")
-    apiPackage.set("nl.tudelft.sem.yumyumnow.delivery.api")
-    configOptions.set([
-            dateLibrary: "java15"
-    ])
-
-    // Exclude controller generation
-    configOptions = [
-            interfaceOnly: 'true',
-    ]
-}
-
-compileJava.dependsOn tasks.named("openApiGenerate")
 
 sourceSets {
     getByName("main") {
