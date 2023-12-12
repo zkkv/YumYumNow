@@ -2,7 +2,9 @@ package nl.tudelft.sem.yumyumnow.delivery.config;
 
 import javax.sql.DataSource;
 import lombok.Getter;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -16,8 +18,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Getter
 @Configuration
-@EnableJpaRepositories("nl.tudelft.sem.yumyumnow.delivery.domain")
+@EnableJpaRepositories("nl.tudelft.sem.yumyumnow.delivery.domain.repos")
 @PropertySource("classpath:application-dev.properties")
+@ComponentScan(basePackages = { "nl.tudelft.sem.yumyumnow.delivery.*", "nl.tudelft.sem.yumyumnow.delivery.domain.model" })
+@EntityScan("nl.tudelft.sem.yumyumnow.delivery.domain.model")
 @EnableTransactionManagement
 public class H2Config {
 

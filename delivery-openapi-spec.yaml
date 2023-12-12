@@ -1131,12 +1131,12 @@ paths:
               type: object
               properties:
                 vendorId:
-                    type: string
-                    format: uuid
-                    example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
+                  type: string
+                  format: uuid
+                  example: "7ddf1a10-8dfa-11ee-b9d1-0242ac120002"
                 allowsOnlyOwnCouriers:
-                    type: boolean
-                    example: true
+                  type: boolean
+                  example: true
 
 components:
   schemas:
