@@ -19,9 +19,18 @@ public class DeliveryController implements DeliveryApi {
         this.deliveryService = deliveryService;
     }
 
+    /**
+     * Create a delivery based on order data.
+     *
+     * @param order The order object containing the order ID to which the
+     *              delivery corresponds (UUID) and the vendor ID to which the
+     *              delivery corresponds (UUID).
+     * @return The created delivery.
+     */
     public ResponseEntity<Delivery> deliveryPost(
             @Parameter(name = "Order", description = "")
             @Valid @RequestBody DeliveryPostRequest order) {
+
         Delivery delivery = deliveryService.createDelivery(order.getOrderId(), order.getVendorId());
 
         return ResponseEntity.ok(delivery);

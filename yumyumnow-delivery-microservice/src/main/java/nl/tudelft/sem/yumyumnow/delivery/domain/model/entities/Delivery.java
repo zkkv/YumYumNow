@@ -22,7 +22,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Generated;
 
 /**
- * Delivery
+ * Delivery entity
+ * - id: UUID (primary key)
+ * - orderId: UUID (used to retrieve the order from the order microservice)
+ * - courierId: UUID (used to retrieve the courier from the user microservice)
+ * - vendorId: UUID (used to retrieve the vendor from the user microservice)
+ * - status: StatusEnum (PENDING, ACCEPTED, REJECTED, PREPARING, GIVEN_TO_COURIER, IN_TRANSIT, DELIVERED)
+ * - estimatedDeliveryTime: OffsetDateTime (time at which the delivery is expected to arrive at the customer)
+ * - estimatedPreparationFinishTime: OffsetDateTime (time at which the order is expected to be ready for delivery)
+ * - currentLocation: Location (current location of the courier, used to calculate the estimated delivery time and to display the location on the map)
  */
 
 @Entity

@@ -24,7 +24,10 @@ public class DeliveryService {
     /**
      * Create a delivery based on order data.
      *
-     * @param order The order to create a delivery for.
+     * @param order The order ID to which the delivery corresponds
+     *              (UUID).
+     * @param vendor The vendor ID to which the delivery corresponds
+     *               (UUID).
      * @return The created delivery.
      */
     public Delivery createDelivery(UUID order, UUID vendor) {

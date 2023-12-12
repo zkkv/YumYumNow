@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+/**
+ * Repository for VendorCustomizer entities.
+ */
 @Repository
 public interface VendorCustomizerRepository extends JpaRepository<VendorCustomizer, UUID> {
 }

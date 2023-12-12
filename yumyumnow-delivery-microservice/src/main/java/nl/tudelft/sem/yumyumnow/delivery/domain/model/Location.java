@@ -17,6 +17,9 @@ import javax.annotation.Generated;
 
 /**
  * Location
+ * - timestamp: 2018-12-10T13:49:51.141Z (required)
+ * - latitude: 10 (required)
+ * - longitude: 20 (required)
  */
 @Embeddable
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-12-12T16:32:44.343382+01:00[Europe/Amsterdam]")
