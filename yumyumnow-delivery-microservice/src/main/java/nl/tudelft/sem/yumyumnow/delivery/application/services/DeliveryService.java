@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -39,5 +40,10 @@ public class DeliveryService {
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
         return deliveryRepository.save(delivery);
+    }
+
+    public Delivery addPrepTime(UUID deliveryID, UUID vendor, OffsetDateTime offsetDateTime){
+
+        Delivery delivery = deliveryRepository.getOne(id);
     }
 }

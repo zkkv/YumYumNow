@@ -110,6 +110,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -169,6 +170,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -219,6 +221,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -270,6 +273,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -310,6 +314,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -349,6 +354,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -389,6 +395,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the delivery
       responses:
@@ -1042,6 +1049,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the vendor
       responses:
@@ -1101,6 +1109,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: UUID of the vendor
       responses:
