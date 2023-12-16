@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdStatusPutReq
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +17,18 @@ import java.util.UUID;
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
+    private final VendorCustomizerRepository vendorCustomizerRepository;
+
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository The repository to use.
+     * @param deliveryRepository         The repository to use.
+     * @param vendorCustomizerRepository
      */
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository) {
+    public DeliveryService(DeliveryRepository deliveryRepository, VendorCustomizerRepository vendorCustomizerRepository) {
         this.deliveryRepository = deliveryRepository;
+        this.vendorCustomizerRepository = vendorCustomizerRepository;
     }
 
     /**
@@ -55,7 +60,9 @@ public class DeliveryService {
      */
     public Delivery addPrepTime(UUID deliveryID, UUID vendor, OffsetDateTime estimatedPrepTime){
 
-        // TODO: Check if user is authorized
+        if(vendorCustomizerRepository.findById(vendor).isEmpty()){
+            return null;
+        }
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryID);
 
