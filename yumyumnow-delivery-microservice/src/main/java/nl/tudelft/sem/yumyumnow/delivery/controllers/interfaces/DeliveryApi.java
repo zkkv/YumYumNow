@@ -921,12 +921,18 @@ public interface DeliveryApi {
         description = "Update estimated prep time of an existing delivery (for vendors).",
         tags = { "Delivery" },
         responses = {
-            @ApiResponse(responseCode = "200", description = "Successful response", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
-            })
+                @ApiResponse(responseCode = "200", description = "Successful response", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
+                }),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "503", description = "Service Unavailable", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                })
         }
     )
     @RequestMapping(

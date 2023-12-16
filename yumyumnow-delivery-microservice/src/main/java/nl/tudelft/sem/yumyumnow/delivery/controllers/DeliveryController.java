@@ -7,6 +7,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdDeliveryTime
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryPostRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,11 +41,43 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+
+    /**
+     * Add the estimated time to a delivery
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdDeliveryTimePostRequest  (optional)
+     * @return the updated delivery
+     */
     public ResponseEntity<Delivery> deliveryIdPrepTimePost(
             @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
     ){
         Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+
+        if (delivery == null){
+            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Updated the estimated time of a delivery
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdDeliveryTimePostRequest  (optional)
+     * @return the updated delivery
+     */
+    public ResponseEntity<Delivery> deliveryIdPrepTimePut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
+    ){
+        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+
+        if (delivery == null){
+            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(delivery);
     }
 
 }

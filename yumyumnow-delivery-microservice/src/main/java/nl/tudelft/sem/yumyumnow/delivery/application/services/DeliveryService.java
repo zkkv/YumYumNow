@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,8 +43,35 @@ public class DeliveryService {
         return deliveryRepository.save(delivery);
     }
 
-    public Delivery addPrepTime(UUID deliveryID, UUID vendor, OffsetDateTime offsetDateTime){
+    /**
+     * Update the estimatedPrepTime of a delivery
+     * @param deliveryID the ID of the delivery to be updated
+     * @param vendor the ID of the vendor that updates the delivery
+     * @param estimatedPrepTime the new estimated time
+     * @return the updated delivery
+     */
+    public Delivery addPrepTime(UUID deliveryID, UUID vendor, OffsetDateTime estimatedPrepTime){
 
-        Delivery delivery = deliveryRepository.getOne(id);
+        // TODO: Check if user is authorized
+
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryID);
+
+
+        if(optionalDelivery.isEmpty()){
+            return null;
+        }
+
+
+        Delivery delivery = optionalDelivery.get();
+
+        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED){
+            return null;
+        }
+
+        delivery.estimatedPreparationFinishTime(estimatedPrepTime);
+
+        deliveryRepository.save(delivery);
+
+        return delivery;
     }
 }
