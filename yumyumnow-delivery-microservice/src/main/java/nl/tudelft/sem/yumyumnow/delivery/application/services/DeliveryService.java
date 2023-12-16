@@ -86,7 +86,10 @@ public class DeliveryService {
     }
 
     public Delivery updateStatus(UUID id, UUID userId, StatusEnum status){
-        // TODO: Check if user is authorized
+        if ((status == StatusEnum.ACCEPTED || status == StatusEnum.REJECTED
+                ) && vendorCustomizerRepository.findById(userId).isEmpty() ){
+            return null;
+        }
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
