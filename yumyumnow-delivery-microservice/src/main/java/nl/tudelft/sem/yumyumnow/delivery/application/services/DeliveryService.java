@@ -86,6 +86,8 @@ public class DeliveryService {
     }
 
     public Delivery updateStatus(UUID id, UUID userId, StatusEnum status){
+
+        // TODO: Add verification for other users
         if ((status == StatusEnum.ACCEPTED || status == StatusEnum.REJECTED
                 ) && vendorCustomizerRepository.findById(userId).isEmpty() ){
             return null;
