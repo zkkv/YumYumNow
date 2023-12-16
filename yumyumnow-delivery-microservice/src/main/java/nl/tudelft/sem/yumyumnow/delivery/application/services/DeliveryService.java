@@ -1,10 +1,13 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,7 +41,7 @@ public class DeliveryService {
         // TODO: Get order details from Order microservice
         // TODO: Get vendor details from Vendor microservice
 
-        delivery.setStatus(Delivery.StatusEnum.PENDING);
+        delivery.setStatus(StatusEnum.PENDING);
 
         return deliveryRepository.save(delivery);
     }
@@ -64,11 +67,31 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED){
+        if(delivery.getStatus() != StatusEnum.ACCEPTED){
             return null;
         }
 
         delivery.estimatedPreparationFinishTime(estimatedPrepTime);
+
+        deliveryRepository.save(delivery);
+
+        return delivery;
+    }
+
+    public Delivery updateStatus(UUID id, UUID userId, StatusEnum status){
+        // TODO: Check if user is authorized
+
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+
+        if(optionalDelivery.isEmpty()){
+            return null;
+        }
+
+
+        Delivery delivery = optionalDelivery.get();
+
+        delivery.setStatus(status);
 
         deliveryRepository.save(delivery);
 
