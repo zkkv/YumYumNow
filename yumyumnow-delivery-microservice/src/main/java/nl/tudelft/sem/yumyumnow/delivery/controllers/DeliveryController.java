@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.controllers.interfaces.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdDeliveryTimePostRequest;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdDeliveryTimePutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryPostRequest;
@@ -64,14 +65,14 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Updated the estimated time of a delivery
      * @param id UUID of the delivery (required)
-     * @param deliveryIdDeliveryTimePostRequest  (optional)
+     * @param deliveryIdDeliveryTimePutRequest  (optional)
      * @return the updated delivery
      */
     public ResponseEntity<Delivery> deliveryIdPrepTimePut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePutRequest deliveryIdDeliveryTimePutRequest
     ){
-        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePutRequest.getCourierId(), deliveryIdDeliveryTimePutRequest.getEstimatedNewDeliveryTime());
 
         if (delivery == null){
             return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
