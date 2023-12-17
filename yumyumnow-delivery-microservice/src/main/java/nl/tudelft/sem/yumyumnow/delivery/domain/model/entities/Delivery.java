@@ -48,7 +48,7 @@ public class Delivery {
   private UUID vendorId;
 
   /**
-   * Gets or Sets status
+   * Gets or Sets status.
    */
   public enum StatusEnum {
     PENDING("PENDING"),
