@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 public class VendorService extends UserService{
     private final VendorCustomizerRepository vendorRepository;
 
+    @Autowired
     public VendorService(VendorCustomizerRepository vendorRepository){
         this.vendorRepository = vendorRepository;
     }
