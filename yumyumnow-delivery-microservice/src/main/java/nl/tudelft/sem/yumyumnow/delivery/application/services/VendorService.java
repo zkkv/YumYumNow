@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class VendorService extends UserService{
+public class VendorService{
     private final VendorCustomizerRepository vendorRepository;
 
     @Autowired
