@@ -96,4 +96,23 @@ public class DeliveryServiceTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void setStatusAsStrangerCourier(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID actualCourierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery(id);
+        Optional<Delivery> optionalDelivery = Optional.of(delivery);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        
+        CourierToDelivery.CourierToDeliveryPrimaryKey courierDeliveryPair =
+                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id);
+        when(courierToDeliveryRepository.findById(courierDeliveryPair))
+                .thenReturn(Optional.empty());
+
+        Delivery actual =  deliveryService.updateStatus(id, userId, StatusEnum.DELIVERED);
+        assertNull(actual);
+    }
+
 }
