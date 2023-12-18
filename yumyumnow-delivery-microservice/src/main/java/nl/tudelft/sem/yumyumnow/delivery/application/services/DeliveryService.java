@@ -1,8 +1,9 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.CourierToDelivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierToDeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +19,22 @@ public class DeliveryService {
 
     private final VendorCustomizerRepository vendorCustomizerRepository;
 
-    private final CourierRepository courierRepository;
+    private final CourierToDeliveryRepository courierToDeliveryRepository;
 
     /**
      * Create a new DeliveryService.
      *
      * @param deliveryRepository         The repository to use.
      * @param vendorCustomizerRepository
-     * @param courierRepository
+     * @param courierToDeliveryRepository
      */
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository, VendorCustomizerRepository vendorCustomizerRepository, CourierRepository courierRepository) {
+    public DeliveryService(DeliveryRepository deliveryRepository,
+                           VendorCustomizerRepository vendorCustomizerRepository,
+                           CourierToDeliveryRepository courierToDeliveryRepository) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
-        this.courierRepository = courierRepository;
+        this.courierToDeliveryRepository = courierToDeliveryRepository;
     }
 
     /**
@@ -88,13 +91,25 @@ public class DeliveryService {
         return delivery;
     }
 
-    public Delivery updateStatus(UUID id, UUID userId, StatusEnum status){
+    /**
+     * Updates status of the delivery with verification of the user rights.
+     *
+     * @param id        delivery id.
+     * @param userId    user id, for valid update user has to be either a courier or a vendor,
+     *                  depending on which status they are trying to set.
+     * @param status    the new status of the delivery.
+     * @return          delivery object with the update status, or null if user has no right to
+     *                  update it or if delivery is not found.
+     * @author          Horia Radu, Kirill Zhankov
+     */
+    public Delivery updateStatus(UUID id, UUID userId, StatusEnum status) {
 
         // TODO: Add verification for other statuses
-
+        boolean isCourierMatchedWithDelivery = courierToDeliveryRepository.findById(
+                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id)).isPresent();
 
         if ((status == StatusEnum.IN_TRANSIT || status == StatusEnum.DELIVERED)
-                && courierRepository.findById(userId).isEmpty()) {
+                && !isCourierMatchedWithDelivery) {
             return null;
         }
 
@@ -106,7 +121,7 @@ public class DeliveryService {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
 
-        if(optionalDelivery.isEmpty()){
+        if (optionalDelivery.isEmpty()) {
             return null;
         }
 
