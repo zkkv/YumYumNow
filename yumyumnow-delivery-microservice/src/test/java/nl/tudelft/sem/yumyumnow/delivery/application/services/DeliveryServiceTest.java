@@ -6,7 +6,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Optional;
