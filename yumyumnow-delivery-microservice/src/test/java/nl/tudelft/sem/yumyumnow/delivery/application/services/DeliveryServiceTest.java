@@ -36,24 +36,24 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateStatusUnauthorized(){
-        assertNull(deliveryService.updateStatus(UUID.fromString("1"),UUID.fromString("1"), StatusEnum.ACCEPTED));
+    public void setStatusToAcceptedAsNonVendor(){
+        assertNull(deliveryService.updateStatus(UUID.randomUUID(),UUID.randomUUID(), StatusEnum.ACCEPTED));
     }
 
     @Test
     public void setStatusToInTransitAsNonCourier(){
-        assertNull(deliveryService.updateStatus(UUID.fromString("1"), UUID.fromString("1"), StatusEnum.IN_TRANSIT));
+        assertNull(deliveryService.updateStatus(UUID.randomUUID(), UUID.randomUUID(), StatusEnum.IN_TRANSIT));
     }
 
     @Test
     public void setStatusToDeliveredAsNonCourier(){
-        assertNull(deliveryService.updateStatus(UUID.fromString("1"), UUID.fromString("1"), StatusEnum.DELIVERED));
+        assertNull(deliveryService.updateStatus(UUID.randomUUID(), UUID.randomUUID(), StatusEnum.DELIVERED));
     }
 
     @Test
     public void setStatusToInTransitAsCourier(){
-        UUID id = UUID.fromString("1");
-        UUID userId = UUID.fromString("1");
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
 
         Delivery expected = new Delivery(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
@@ -69,8 +69,8 @@ public class DeliveryServiceTest {
 
     @Test
     public void setStatusToDeliveredAsCourier(){
-        UUID id = UUID.fromString("1");
-        UUID userId = UUID.fromString("1");
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
 
         Delivery expected = new Delivery(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
