@@ -1,14 +1,13 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,16 +18,20 @@ public class DeliveryService {
 
     private final VendorCustomizerRepository vendorCustomizerRepository;
 
+    private final CourierRepository courierRepository;
+
     /**
      * Create a new DeliveryService.
      *
      * @param deliveryRepository         The repository to use.
      * @param vendorCustomizerRepository
+     * @param courierRepository
      */
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository, VendorCustomizerRepository vendorCustomizerRepository) {
+    public DeliveryService(DeliveryRepository deliveryRepository, VendorCustomizerRepository vendorCustomizerRepository, CourierRepository courierRepository) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
+        this.courierRepository = courierRepository;
     }
 
     /**
@@ -87,9 +90,16 @@ public class DeliveryService {
 
     public Delivery updateStatus(UUID id, UUID userId, StatusEnum status){
 
-        // TODO: Add verification for other users
-        if ((status == StatusEnum.ACCEPTED || status == StatusEnum.REJECTED
-                ) && vendorCustomizerRepository.findById(userId).isEmpty() ){
+        // TODO: Add verification for other statuses
+
+
+        if ((status == StatusEnum.IN_TRANSIT || status == StatusEnum.DELIVERED)
+                && courierRepository.findById(userId).isEmpty()) {
+            return null;
+        }
+
+        if ((status == StatusEnum.ACCEPTED || status == StatusEnum.REJECTED)
+                && vendorCustomizerRepository.findById(userId).isEmpty()) {
             return null;
         }
 

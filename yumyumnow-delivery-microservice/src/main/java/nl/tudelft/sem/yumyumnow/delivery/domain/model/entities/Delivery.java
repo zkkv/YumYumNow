@@ -62,6 +62,13 @@ public class Delivery {
   @Embedded
   private Location currentLocation;
 
+  public Delivery(UUID id) {
+    this.id = id;
+  }
+
+  public Delivery() {
+  }
+
   public Delivery id(UUID id) {
     this.id = id;
     return this;

@@ -34,6 +34,7 @@ public class DeliveryController implements DeliveryApi {
      *              delivery corresponds (UUID).
      * @return The created delivery.
      */
+    @Override
     public ResponseEntity<Delivery> deliveryPost(
             @Parameter(name = "Order", description = "")
             @Valid @RequestBody DeliveryPostRequest order) {
@@ -50,6 +51,7 @@ public class DeliveryController implements DeliveryApi {
      * @param deliveryIdDeliveryTimePostRequest  (optional)
      * @return the updated delivery
      */
+    @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePost(
             @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
@@ -81,6 +83,7 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+    @Override
     public ResponseEntity<Delivery> deliveryIdStatusPut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdStatusPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
@@ -93,5 +96,7 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
+
+
 
 }
