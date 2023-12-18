@@ -27,6 +27,7 @@ public class DeliveryController implements DeliveryApi {
      *              delivery corresponds (UUID).
      * @return The created delivery.
      */
+    @Override
     public ResponseEntity<Delivery> deliveryPost(
             @Parameter(name = "Order", description = "")
             @Valid @RequestBody DeliveryPostRequest order) {

@@ -28,8 +28,8 @@ public class UserService {
     // TODO: adjust the data types
     /**
      * Gets the customer's address.
-     * @param userId the id of the user
-     * @return a Location object
+     * @param userId the id of the user.
+     * @return a Location object.
      */
     public Location getCustomerAddress(UUID userId){
         String url = userServiceUrl + "/customer/address/" + userId;
