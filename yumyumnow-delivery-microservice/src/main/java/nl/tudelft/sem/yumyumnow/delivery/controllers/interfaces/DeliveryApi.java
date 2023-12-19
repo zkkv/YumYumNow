@@ -625,7 +625,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdAssignPut(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdAssignPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdAssignPutRequest deliveryIdAssignPutRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -672,7 +672,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdDeliveryTimePost(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -727,7 +727,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdDeliveryTimePut(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdDeliveryTimePutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePutRequest deliveryIdDeliveryTimePutRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -834,7 +834,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdLocationPut(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdLocationPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdLocationPutRequest deliveryIdLocationPutRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -859,6 +859,8 @@ public interface DeliveryApi {
      * @param deliveryIdDeliveryTimePostRequest  (optional)
      * @return Successful response (status code 200)
      *         or Bad request (status code 400)
+     *         or Forbidden (status code 403)
+     *         or Service Unavailable (status code 503)
      */
     @Operation(
         operationId = "deliveryIdPrepTimePost",
@@ -866,12 +868,18 @@ public interface DeliveryApi {
         description = "Set estimated prep time of an existing delivery (for vendors).",
         tags = { "Delivery" },
         responses = {
-            @ApiResponse(responseCode = "200", description = "Successful response", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
-            })
+                @ApiResponse(responseCode = "200", description = "Successful response", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
+                }),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "503", description = "Service Unavailable", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                })
         }
     )
     @RequestMapping(
@@ -881,7 +889,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdPrepTimePost(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -913,12 +921,18 @@ public interface DeliveryApi {
         description = "Update estimated prep time of an existing delivery (for vendors).",
         tags = { "Delivery" },
         responses = {
-            @ApiResponse(responseCode = "200", description = "Successful response", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
-            })
+                @ApiResponse(responseCode = "200", description = "Successful response", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Delivery.class))
+                }),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                }),
+                @ApiResponse(responseCode = "503", description = "Service Unavailable", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))
+                })
         }
     )
     @RequestMapping(
@@ -928,7 +942,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdPrepTimePut(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -983,7 +997,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<Delivery> deliveryIdStatusPut(
-        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the delivery", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryIdStatusPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -1083,7 +1097,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<DeliveryVendorIdCustomCouriersPutRequest> deliveryVendorIdCustomCouriersPut(
-        @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryVendorIdCustomCouriersPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest
     ) {
         getRequest().ifPresent(request -> {
@@ -1138,7 +1152,7 @@ public interface DeliveryApi {
         consumes = { "application/json" }
     )
     default ResponseEntity<DeliveryVendorIdMaxZonePutRequest> deliveryVendorIdMaxZonePut(
-        @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
+        @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id,
         @Parameter(name = "DeliveryVendorIdMaxZonePutRequest", description = "") @Valid @RequestBody(required = false) DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest
     ) {
         getRequest().ifPresent(request -> {
