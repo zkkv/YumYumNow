@@ -3,7 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery.StatusEnum;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class DeliveryService {
         // TODO: Get order details from Order microservice
         // TODO: Get vendor details from Vendor microservice
 
-        delivery.setStatus(StatusEnum.PENDING);
+        delivery.setStatus(Delivery.StatusEnum.PENDING);
 
         return deliveryRepository.save(delivery);
     }
@@ -73,7 +73,7 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        if(delivery.getStatus() != StatusEnum.ACCEPTED){
+        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED){
             return null;
         }
 
@@ -95,19 +95,19 @@ public class DeliveryService {
      *                  update it or if delivery is not found.
      * @author          Horia Radu, Kirill Zhankov
      */
-    public Delivery updateStatus(UUID id, UUID userId, StatusEnum status) {
+    public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status) {
 
         // TODO: This has to be converted to a validator pattern
         boolean isCourierMatchedWithDelivery = deliveryRepository.findById(id)
                 .map(delivery -> delivery.getCourierId().equals(userId))
                 .orElse(false);
 
-        if ((status == StatusEnum.IN_TRANSIT || status == StatusEnum.DELIVERED)
+        if ((status == DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT || status == DeliveryIdStatusPutRequest.StatusEnum.DELIVERED)
                 && !isCourierMatchedWithDelivery) {
             return null;
         }
 
-        if ((status == StatusEnum.ACCEPTED || status == StatusEnum.REJECTED)
+        if ((status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED)
                 && vendorCustomizerRepository.findById(userId).isEmpty()) {
             return null;
         }
@@ -122,7 +122,15 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        delivery.setStatus(status);
+        switch (status){
+            case PENDING -> delivery.setStatus(Delivery.StatusEnum.PENDING);
+            case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
+            case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
+            case DELIVERED -> delivery.setStatus(Delivery.StatusEnum.DELIVERED);
+            case PREPARING -> delivery.setStatus(Delivery.StatusEnum.PREPARING);
+            case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
+            case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
+        }
 
         deliveryRepository.save(delivery);
 

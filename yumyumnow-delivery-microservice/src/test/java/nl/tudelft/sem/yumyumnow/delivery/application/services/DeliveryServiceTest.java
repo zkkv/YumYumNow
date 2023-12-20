@@ -2,6 +2,8 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -18,7 +20,6 @@ public class DeliveryServiceTest {
 
     private VendorCustomizerRepository vendorCustomizerRepository;
 
-    private CourierToDeliveryRepository courierToDeliveryRepository;
 
     private DeliveryService deliveryService;
 
@@ -26,30 +27,28 @@ public class DeliveryServiceTest {
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
-        this.courierToDeliveryRepository = mock(CourierToDeliveryRepository.class);
 
         deliveryService = new DeliveryService(
                 deliveryRepository,
-                vendorCustomizerRepository,
-                courierToDeliveryRepository);
+                vendorCustomizerRepository);
     }
 
     @Test
     public void setStatusToAcceptedAsNonVendor(){
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), StatusEnum.ACCEPTED));
+                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
 
     @Test
     public void setStatusToInTransitAsNonCourier(){
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), StatusEnum.IN_TRANSIT));
+                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
     }
 
     @Test
     public void setStatusToDeliveredAsNonCourier(){
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), StatusEnum.DELIVERED));
+                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
     @Test
@@ -57,18 +56,13 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Delivery expected = new Delivery(id);
+        Delivery expected = new Delivery();
+        expected.setId(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        CourierToDelivery courierToDelivery = new CourierToDelivery(userId, id);
-        Optional<CourierToDelivery> optionalCourierToDelivery = Optional.of(courierToDelivery);
-        CourierToDelivery.CourierToDeliveryPrimaryKey courierDeliveryPair =
-                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id);
-        when(courierToDeliveryRepository.findById(courierDeliveryPair))
-                .thenReturn(optionalCourierToDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, StatusEnum.IN_TRANSIT);
+        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
         assertEquals(expected, actual);
     }
 
@@ -77,18 +71,13 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Delivery expected = new Delivery(id);
+        Delivery expected = new Delivery();
+        expected.setId(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        CourierToDelivery courierToDelivery = new CourierToDelivery(userId, id);
-        Optional<CourierToDelivery> optionalCourierToDelivery = Optional.of(courierToDelivery);
-        CourierToDelivery.CourierToDeliveryPrimaryKey courierDeliveryPair =
-                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id);
-        when(courierToDeliveryRepository.findById(courierDeliveryPair))
-                .thenReturn(optionalCourierToDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, StatusEnum.DELIVERED);
+        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertEquals(expected, actual);
     }
 
@@ -98,16 +87,13 @@ public class DeliveryServiceTest {
         UUID userId = UUID.randomUUID();
         UUID actualCourierId = UUID.randomUUID();
 
-        Delivery delivery = new Delivery(id);
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        
-        CourierToDelivery.CourierToDeliveryPrimaryKey courierDeliveryPair =
-                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id);
-        when(courierToDeliveryRepository.findById(courierDeliveryPair))
-                .thenReturn(Optional.empty());
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, StatusEnum.DELIVERED);
+
+        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertNull(actual);
     }
 
