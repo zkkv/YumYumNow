@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.CourierToDelivery;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryVendorIdMaxZonePutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierToDeliveryRepository;
@@ -9,7 +10,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -133,5 +136,36 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
 
         return delivery;
+    }
+
+
+    /**
+     * Update the maximum delivery zone of a vendor
+     *
+     * @param vendorId the current vendorId
+     * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
+     *                                          and the new maximium delivery zone
+     * @param vendorService vendor service to interact with user api
+     * @return the vendorID with its updated maximum delivery zone
+     */
+    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId, DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
+                                                           VendorService vendorService){
+        UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
+        BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
+
+        if(vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) return null;
+
+        Map<String, Object> vendorMap = vendorService.getVendor(vendorId);
+
+        Object allowOwnCourier = vendorMap.get("allowOnlyOwnCouriers");
+        if(allowOwnCourier instanceof Boolean && (Boolean) allowOwnCourier){
+            vendorMap.put("maxDeliveryZone", radiusKm);
+
+            boolean response = vendorService.putVendor(vendorId,vendorMap);
+            if(response){
+                return deliveryVendorIdMaxZonePutRequest;
+            }
+        }
+        return null;
     }
 }

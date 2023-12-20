@@ -2,13 +2,12 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.controllers.interfaces.DeliveryApi;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdDeliveryTimePostRequest;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdDeliveryTimePutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryIdStatusPutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.DeliveryPostRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,9 +20,13 @@ import javax.validation.Valid;
 @RestController
 public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
+    private final UserService userService;
+    private final VendorService vendorService;
 
-    public DeliveryController(DeliveryService deliveryService) {
+    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService) {
         this.deliveryService = deliveryService;
+        this.userService = userService;
+        this.vendorService = vendorService;
     }
 
     /**
@@ -96,6 +99,31 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
+
+    /**
+     * Update the maximum delivery zone of a vendor
+     *
+     * @param id UUID of the vendor
+     * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
+     * @return the vendorID with its updated maximum delivery zone
+     */
+    @Override
+    public ResponseEntity<DeliveryVendorIdMaxZonePutRequest> deliveryVendorIdMaxZonePut(
+            @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryVendorIdMaxZonePutRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest
+    ) {
+        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
+                deliveryVendorIdMaxZonePutRequest, vendorService);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 
 
 
