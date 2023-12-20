@@ -57,7 +57,7 @@ public class DeliveryService {
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */
-    public Delivery addPrepTime(UUID deliveryID, UUID vendor, OffsetDateTime estimatedPrepTime){
+    public Delivery changePrepTime(UUID deliveryID, UUID vendor, OffsetDateTime estimatedPrepTime){
 
         if(vendorCustomizerRepository.findById(vendor).isEmpty()){
             return null;
