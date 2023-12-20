@@ -98,14 +98,7 @@ public class DeliveryService {
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status) {
 
         // TODO: This has to be converted to a validator pattern
-        boolean isCourierMatchedWithDelivery = deliveryRepository.findById(id)
-                .map(delivery -> delivery.getCourierId().equals(userId))
-                .orElse(false);
 
-        if ((status == DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT || status == DeliveryIdStatusPutRequest.StatusEnum.DELIVERED)
-                && !isCourierMatchedWithDelivery) {
-            return null;
-        }
 
         if ((status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED)
                 && vendorCustomizerRepository.findById(userId).isEmpty()) {

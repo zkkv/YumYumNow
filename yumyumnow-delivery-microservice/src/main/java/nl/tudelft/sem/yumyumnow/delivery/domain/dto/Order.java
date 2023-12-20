@@ -1,12 +1,9 @@
-package nl.tudelft.sem.yumyumnow.delivery.domain.model.dto;
+package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import nl.tudelft.sem.yumyumnow.delivery.model.Customer;
-import nl.tudelft.sem.yumyumnow.delivery.model.Vendor;
-import org.openapitools.jackson.nullable.JsonNullable;
+
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
