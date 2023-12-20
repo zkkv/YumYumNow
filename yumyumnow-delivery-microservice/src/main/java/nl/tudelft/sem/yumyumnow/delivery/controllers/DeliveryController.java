@@ -74,7 +74,7 @@ public class DeliveryController implements DeliveryApi {
         Delivery delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus());
 
         if (delivery == null) {
-            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.ok(delivery);
