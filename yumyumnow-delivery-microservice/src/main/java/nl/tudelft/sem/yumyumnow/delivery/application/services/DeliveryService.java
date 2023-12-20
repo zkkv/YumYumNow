@@ -1,11 +1,9 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.CourierToDelivery;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierToDeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery.StatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,23 +16,18 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
     private final VendorCustomizerRepository vendorCustomizerRepository;
-
-    private final CourierToDeliveryRepository courierToDeliveryRepository;
-
+    
     /**
      * Create a new DeliveryService.
      *
      * @param deliveryRepository         The repository to use.
      * @param vendorCustomizerRepository
-     * @param courierToDeliveryRepository
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
-                           VendorCustomizerRepository vendorCustomizerRepository,
-                           CourierToDeliveryRepository courierToDeliveryRepository) {
+                           VendorCustomizerRepository vendorCustomizerRepository) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
-        this.courierToDeliveryRepository = courierToDeliveryRepository;
     }
 
     /**
@@ -104,9 +97,10 @@ public class DeliveryService {
      */
     public Delivery updateStatus(UUID id, UUID userId, StatusEnum status) {
 
-        // TODO: Add verification for other statuses
-        boolean isCourierMatchedWithDelivery = courierToDeliveryRepository.findById(
-                new CourierToDelivery.CourierToDeliveryPrimaryKey(userId, id)).isPresent();
+        // TODO: This has to be converted to a validator pattern
+        boolean isCourierMatchedWithDelivery = deliveryRepository.findById(id)
+                .map(delivery -> delivery.getCourierId().equals(userId))
+                .orElse(false);
 
         if ((status == StatusEnum.IN_TRANSIT || status == StatusEnum.DELIVERED)
                 && !isCourierMatchedWithDelivery) {

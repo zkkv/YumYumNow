@@ -1,6 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.Location;
+import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;

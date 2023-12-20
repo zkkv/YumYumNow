@@ -1,9 +1,5 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.CourierToDelivery;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.StatusEnum;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.CourierToDeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.repos;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
