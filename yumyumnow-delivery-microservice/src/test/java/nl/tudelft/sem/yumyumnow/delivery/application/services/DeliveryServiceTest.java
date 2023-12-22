@@ -46,6 +46,25 @@ public class DeliveryServiceTest {
         assertNull(deliveryService.updateStatus(
                 UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
+
+    @Test
+    public void setStatusToRejectedAsNonVendor(){
+        assertNull(deliveryService.updateStatus(
+                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.REJECTED));
+    }
+
+    @Test
+    public void setStatusToGivenToCourierAsNonVendor(){
+        assertNull(deliveryService.updateStatus(
+                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER));
+    }
+
+    @Test
+    public void setStatusToPreparingAsNonVendor(){
+        assertNull(deliveryService.updateStatus(
+                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.PREPARING));
+    }
+
     @Test
     public void setStatusToDeliveredAsVendor(){
         UUID id = UUID.randomUUID();
@@ -55,7 +74,6 @@ public class DeliveryServiceTest {
         expected.setId(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertNull(actual);
@@ -68,14 +86,14 @@ public class DeliveryServiceTest {
 
         Delivery expected = new Delivery();
         expected.setId(id);
+        expected.setVendorId(userId);
         expected.setStatus(Delivery.StatusEnum.PENDING);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
         assertEquals(expected, actual);
-        assertEquals(expected.getStatus().getValue(), "ACCEPTED");
+        assertEquals(actual.getStatus().getValue(), "ACCEPTED");
     }
 
     @Test
@@ -97,12 +115,13 @@ public class DeliveryServiceTest {
 
         Delivery expected = new Delivery();
         expected.setId(id);
+        expected.setCourierId(userId);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-
         Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
         assertEquals(expected, actual);
+        assertEquals(actual.getStatus().getValue(), "IN_TRANSIT");
     }
 
     @Test
@@ -112,30 +131,15 @@ public class DeliveryServiceTest {
 
         Delivery expected = new Delivery();
         expected.setId(id);
+        expected.setCourierId(userId);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
 
         Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertEquals(expected, actual);
+        assertEquals(actual.getStatus().getValue(), "DELIVERED");
     }
-
-    // TO-DO: Redo this test
-//    @Test
-//    public void setStatusAsStrangerCourier(){
-//        UUID id = UUID.randomUUID();
-//        UUID userId = UUID.randomUUID();
-//        UUID actualCourierId = UUID.randomUUID();
-//
-//        Delivery delivery = new Delivery();
-//        delivery.setId(id);
-//        Optional<Delivery> optionalDelivery = Optional.of(delivery);
-//        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-//
-//
-//        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
-//        assertNull(actual);
-//    }
 
     @Test
     public void vendorMaxZoneTest(){
