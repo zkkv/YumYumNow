@@ -21,6 +21,8 @@ public class DeliveryService {
 
     private final CourierToDeliveryRepository courierToDeliveryRepository;
 
+    private final OrderService orderService;
+
     /**
      * Create a new DeliveryService.
      *
@@ -31,10 +33,11 @@ public class DeliveryService {
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
                            VendorCustomizerRepository vendorCustomizerRepository,
-                           CourierToDeliveryRepository courierToDeliveryRepository) {
+                           CourierToDeliveryRepository courierToDeliveryRepository, OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
         this.courierToDeliveryRepository = courierToDeliveryRepository;
+        this.orderService = orderService;
     }
 
     /**
@@ -100,7 +103,7 @@ public class DeliveryService {
      * @param status    the new status of the delivery.
      * @return          delivery object with the update status, or null if user has no right to
      *                  update it or if delivery is not found.
-     * @author          Horia Radu, Kirill Zhankov
+     * @author          Horia Radu, Kirill Zhankov, Eve Smura
      */
     public Delivery updateStatus(UUID id, UUID userId, StatusEnum status) {
 
@@ -125,6 +128,9 @@ public class DeliveryService {
             return null;
         }
 
+        if(status == StatusEnum.ACCEPTED && orderService.isPaid(id)) {
+            return null;
+        }
 
         Delivery delivery = optionalDelivery.get();
 

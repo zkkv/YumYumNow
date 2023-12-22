@@ -26,16 +26,20 @@ public class DeliveryServiceTest {
 
     private DeliveryService deliveryService;
 
+    private OrderService orderService;
+
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
         this.courierToDeliveryRepository = mock(CourierToDeliveryRepository.class);
+        this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
                 deliveryRepository,
                 vendorCustomizerRepository,
-                courierToDeliveryRepository);
+                courierToDeliveryRepository,
+                orderService);
     }
 
     @Test
