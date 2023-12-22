@@ -10,16 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.ResponseEntity;
 
-<<<<<<< HEAD
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-=======
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
->>>>>>> main
 import java.util.Optional;
 import java.util.UUID;
 
@@ -145,7 +142,6 @@ public class DeliveryServiceTest {
 //    }
 
     @Test
-<<<<<<< HEAD
     public void changePrepTimeAsNonVendor(){
         LocalDate localDate = LocalDate.of(2023, 12, 10);
 
@@ -199,14 +195,15 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void changePrepTimeAsVendor(){
+    public void changePrepTimeAsVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
         when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
-        delivery.setId(id);;
+        delivery.setId(id);
+        ;
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
 
@@ -218,9 +215,10 @@ public class DeliveryServiceTest {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
-        assertEquals(delivery ,deliveryService.changePrepTime(id,userId,offsetDateTime));
-        assertEquals(delivery.getEstimatedPreparationFinishTime() ,offsetDateTime);
-=======
+        assertEquals(delivery, deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertEquals(delivery.getEstimatedPreparationFinishTime(), offsetDateTime);
+    }
+    @Test
     public void vendorMaxZoneTest(){
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
@@ -238,8 +236,6 @@ public class DeliveryServiceTest {
         DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService);
 
         assertEquals(response, deliveryVendorIdMaxZonePutRequest);
-
->>>>>>> main
     }
 
 }
