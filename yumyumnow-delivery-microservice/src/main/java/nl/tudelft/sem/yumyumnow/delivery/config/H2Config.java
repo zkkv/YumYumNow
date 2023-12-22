@@ -18,10 +18,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Getter
 @Configuration
-@EnableJpaRepositories("nl.tudelft.sem.yumyumnow.delivery.domain.repos")
+@EnableJpaRepositories("nl.tudelft.sem.yumyumnow.delivery.model")
 @PropertySource("classpath:application-dev.properties")
 @ComponentScan(basePackages = { "nl.tudelft.sem.yumyumnow.delivery.*", "nl.tudelft.sem.yumyumnow.delivery.domain.model" })
-@EntityScan("nl.tudelft.sem.yumyumnow.delivery.domain.model")
+@EntityScan("nl.tudelft.sem.yumyumnow.delivery.model.*")
 @EnableTransactionManagement
 public class H2Config {
 
