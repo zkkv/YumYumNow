@@ -1,8 +1,11 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +19,13 @@ import javax.validation.Valid;
 @RestController
 public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
+    private final UserService userService;
+    private final VendorService vendorService;
 
-    public DeliveryController(DeliveryService deliveryService) {
+    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService) {
         this.deliveryService = deliveryService;
+        this.userService = userService;
+        this.vendorService = vendorService;
     }
 
     /**
@@ -79,12 +86,13 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
-    /**
-     * Updated the estimated time of a delivery
-     * @param id UUID of the delivery (required)
-     * @param deliveryIdDeliveryTimePutRequest  (optional)
-     * @return the updated delivery
-     */
+
+//    /**
+//     * Updated the estimated time of a delivery
+//     * @param id UUID of the delivery (required)
+//     * @param deliveryIdDeliveryTimePutRequest  (optional)
+//     * @return the updated delivery
+//     */
 //    @Override
 //    public ResponseEntity<Delivery> deliveryIdPrepTimePut(
 //            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
@@ -97,6 +105,30 @@ public class DeliveryController implements DeliveryApi {
 //
 //        return ResponseEntity.ok(delivery);
 //    }
+
+    /**
+     * Update the maximum delivery zone of a vendor
+     *
+     * @param id UUID of the vendor
+     * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
+     * @return the vendorID with its updated maximum delivery zone
+     */
+    @Override
+    public ResponseEntity<DeliveryVendorIdMaxZonePutRequest> deliveryVendorIdMaxZonePut(
+            @Parameter(name = "id", description = "UUID of the vendor", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryVendorIdMaxZonePutRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest
+    ) {
+        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
+                deliveryVendorIdMaxZonePutRequest, vendorService);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 
 
 }

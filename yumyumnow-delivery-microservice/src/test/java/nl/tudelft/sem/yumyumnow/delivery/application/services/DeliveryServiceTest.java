@@ -5,9 +5,14 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,11 +28,13 @@ public class DeliveryServiceTest {
 
 
     private DeliveryService deliveryService;
+    private VendorService vendorService;
 
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
+        this.vendorService = mock(VendorService.class);
 
         deliveryService = new DeliveryService(
                 deliveryRepository,
@@ -129,5 +136,26 @@ public class DeliveryServiceTest {
 //        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
 //        assertNull(actual);
 //    }
+
+    @Test
+    public void vendorMaxZoneTest(){
+        UUID vendorId = UUID.randomUUID();
+        DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
+
+        deliveryVendorIdMaxZonePutRequest.setVendorId(vendorId);
+        deliveryVendorIdMaxZonePutRequest.setRadiusKm(BigDecimal.valueOf(5));
+
+        Map<String, Object> vendorMap = new HashMap<>();
+        vendorMap.put("allowOnlyOwnCouriers", true);
+        vendorMap.put("maxDeliveryZone",BigDecimal.valueOf(2));
+
+        when(vendorService.getVendor(vendorId)).thenReturn(vendorMap);
+        when(vendorService.putVendor(vendorId,vendorMap)).thenReturn(true);
+
+        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService);
+
+        assertEquals(response, deliveryVendorIdMaxZonePutRequest);
+
+    }
 
 }
