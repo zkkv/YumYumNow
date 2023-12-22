@@ -99,9 +99,13 @@ public class DeliveryService {
 
         // TODO: This has to be converted to a validator pattern
 
-
-        if ((status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED)
-                && vendorCustomizerRepository.findById(userId).isEmpty()) {
+        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
+                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
+        if (isValidStatusForVendor
+                && (vendorCustomizerRepository.findById(userId).isEmpty())) {
+            return null;
+        }
+        if(vendorCustomizerRepository.findById(userId).isPresent() && !isValidStatusForVendor){
             return null;
         }
 

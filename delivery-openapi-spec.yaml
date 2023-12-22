@@ -1152,9 +1152,6 @@ components:
     Location:
       type: object
       properties:
-        locationId:
-          type: string
-          format: uuid
         timestamp:
           type: string
           format: date-time
@@ -1165,50 +1162,54 @@ components:
         longitude:
           type: number
           example: 20
-        deliveries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Delivery'
     Delivery:
-        type: object
-        x-class-extra-annotation: "@javax.persistence.Entity"
-        properties:
-          id:
-            x-field-extra-annotation: "@javax.persistence.Id @javax.persistence.GeneratedValue(generator = \"UUID\")"
-            type: string
-            format: uuid
-            example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
-          orderId:
-            type: string
-            format: uuid
-          courierId:
-            type: string
-            format: uuid
-          vendorId:
-            type: string
-            format: uuid
-          status:
-            type: string
-            enum:
-              - 'PENDING'
-              - 'ACCEPTED'
-              - 'REJECTED'
-              - 'PREPARING'
-              - 'GIVEN_TO_COURIER'
-              - 'IN_TRANSIT'
-              - 'DELIVERED'
-            example: 'PREPARING'
-          estimatedDeliveryTime:
-            type: string
-            format: date-time
-            example: "2018-11-10T13:49:51.141Z"
-          estimatedPreparationFinishTime:
-            type: string
-            format: date-time
-            example: "2018-11-10T13:47:51.141Z"
-          currentLocation:
-            $ref: '#/components/schemas/Location'
-
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
+        orderId:
+          type: string
+          format: uuid
+        courierId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - 'PENDING'
+            - 'ACCEPTED'
+            - 'REJECTED'
+            - 'PREPARING'
+            - 'GIVEN_TO_COURIER'
+            - 'IN_TRANSIT'
+            - 'DELIVERED'
+          example: 'PREPARING'
+        estimatedDeliveryTime:
+          type: string
+          format: date-time
+          example: "2018-11-10T13:49:51.141Z"
+        estimatedPreparationFinishTime:
+          type: string
+          format: date-time
+          example: "2018-11-10T13:47:51.141Z"
+        currentLocation:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+              example: "2018-12-10T13:49:51.141Z"
+            latitude:
+              type: number
+              example: 10
+            longitude:
+              type: number
+              example: 20
     Error:
       type: object
       properties:

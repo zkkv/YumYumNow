@@ -43,6 +43,37 @@ public class DeliveryServiceTest {
         assertNull(deliveryService.updateStatus(
                 UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
+    @Test
+    public void setStatusToDeliveredAsVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+        assertNull(actual);
+    }
+
+    @Test
+    public void setStatusToAcceptedAsVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setStatus(Delivery.StatusEnum.PENDING);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+        assertEquals(expected, actual);
+        assertEquals(expected.getStatus().getValue(), "ACCEPTED");
+    }
 
     @Test
     public void setStatusToInTransitAsNonCourier(){

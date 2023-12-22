@@ -1,7 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
@@ -61,12 +60,32 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+
+    /**
+     * Change the status of the delivery
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdStatusPutRequest  (optional)
+     * @return the updated delivery
+     */
+    public ResponseEntity<Delivery> deliveryIdStatusPut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdStatusPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
+    ) {
+        Delivery delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus());
+
+        if (delivery == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(delivery);
+    }
     /**
      * Update the estimated time of a delivery
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
      */
+
     @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
@@ -79,4 +98,6 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
+
+
 }
