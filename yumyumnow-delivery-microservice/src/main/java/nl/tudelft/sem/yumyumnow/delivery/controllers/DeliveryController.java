@@ -86,7 +86,7 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
-<<<<<<< HEAD
+
     /**
      * Update the estimated time of a delivery
      * @param id UUID of the delivery (required)
@@ -106,27 +106,8 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
-=======
 
-//    /**
-//     * Updated the estimated time of a delivery
-//     * @param id UUID of the delivery (required)
-//     * @param deliveryIdDeliveryTimePutRequest  (optional)
-//     * @return the updated delivery
-//     */
-//    @Override
-//    public ResponseEntity<Delivery> deliveryIdPrepTimePut(
-//            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-//            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePutRequest
-//    ){
-//        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePutRequest.getCourierId(), deliveryIdDeliveryTimePutRequest.getEstimatedNewDeliveryTime());
-//        if (delivery == null){
-//            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
-//        }
-//
-//        return ResponseEntity.ok(delivery);
-//    }
->>>>>>> main
+
 
     /**
      * Update the maximum delivery zone of a vendor
