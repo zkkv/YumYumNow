@@ -5,10 +5,12 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -55,23 +57,19 @@ public class DeliveryService {
 
     /**
      * Update the estimatedPrepTime of a delivery
-     * @param deliveryID the ID of the delivery to be updated
+     * @param deliveryId the ID of the delivery to be updated
      * @param vendor the ID of the vendor that updates the delivery
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */
-    public Delivery changePrepTime(UUID deliveryID, UUID vendor, OffsetDateTime estimatedPrepTime){
-
-        if(vendorCustomizerRepository.findById(vendor).isEmpty()){
-            return null;
-        }
+    public Delivery changePrepTime(UUID deliveryId, UUID vendor, OffsetDateTime estimatedPrepTime) {
 
 
 
-        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryID);
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
 
 
-        if(optionalDelivery.isEmpty()){
+        if (optionalDelivery.isEmpty()) {
             return null;
         }
 
@@ -80,7 +78,7 @@ public class DeliveryService {
 
         boolean isVendorMatchedWithDelivery = delivery.getVendorId() == vendor;
 
-        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !isVendorMatchedWithDelivery){
+        if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !isVendorMatchedWithDelivery) {
             return null;
         }
 
@@ -106,13 +104,15 @@ public class DeliveryService {
 
         // TODO: This has to be converted to a validator pattern
 
-        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
+        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED
+                || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
+                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER
+                || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
         if (isValidStatusForVendor
                 && (vendorCustomizerRepository.findById(userId).isEmpty())) {
             return null;
         }
-        if(vendorCustomizerRepository.findById(userId).isPresent() && !isValidStatusForVendor){
+        if (vendorCustomizerRepository.findById(userId).isPresent() && !isValidStatusForVendor) {
             return null;
         }
 
@@ -126,7 +126,7 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        switch (status){
+        switch (status) {
             case PENDING -> delivery.setStatus(Delivery.StatusEnum.PENDING);
             case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
             case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
@@ -144,7 +144,6 @@ public class DeliveryService {
 
     /**
      * Update the maximum delivery zone of a vendor
-     *
      * @param vendorId the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
      *                                          and the new maximium delivery zone
@@ -152,23 +151,24 @@ public class DeliveryService {
      * @return the vendorID with its updated maximum delivery zone
      */
     public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId, DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
-                                                           VendorService vendorService){
+                                                           VendorService vendorService) {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if(vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) return null;
+        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) return null;
 
         Map<String, Object> vendorMap = vendorService.getVendor(vendorId);
 
         Object allowOwnCourier = vendorMap.get("allowOnlyOwnCouriers");
-        if(allowOwnCourier instanceof Boolean && (Boolean) allowOwnCourier){
+        if (allowOwnCourier instanceof Boolean && (Boolean) allowOwnCourier) {
             vendorMap.put("maxDeliveryZone", radiusKm);
 
             boolean response = vendorService.putVendor(vendorId,vendorMap);
-            if(response){
+            if (response) {
                 return deliveryVendorIdMaxZonePutRequest;
             }
         }
         return null;
     }
+
 }
