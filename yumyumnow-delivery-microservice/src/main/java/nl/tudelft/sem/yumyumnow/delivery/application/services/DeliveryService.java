@@ -102,25 +102,33 @@ public class DeliveryService {
 
         // TODO: This has to be converted to a validator pattern
 
-        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
-        if (isValidStatusForVendor
-                && (vendorCustomizerRepository.findById(userId).isEmpty())) {
-            return null;
-        }
-        if(vendorCustomizerRepository.findById(userId).isPresent() && !isValidStatusForVendor){
-            return null;
-        }
-
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
-
 
         if (optionalDelivery.isEmpty()) {
             return null;
         }
 
-
         Delivery delivery = optionalDelivery.get();
+
+        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED
+                || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
+                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER
+                || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
+
+        boolean isVendorMatchedWithDelivery = delivery.getVendorId() == userId;
+
+        if (isValidStatusForVendor && !isVendorMatchedWithDelivery) {
+            return null;
+        }
+
+        boolean isValidStatusForCourier = status == DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT
+                || status == DeliveryIdStatusPutRequest.StatusEnum.DELIVERED;
+
+        boolean isCourierMatchedWithDelivery = delivery.getCourierId() == userId;
+
+        if (isValidStatusForCourier && !isCourierMatchedWithDelivery) {
+            return null;
+        }
 
         switch (status){
             case PENDING -> delivery.setStatus(Delivery.StatusEnum.PENDING);
