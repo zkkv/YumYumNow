@@ -5,6 +5,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.UUID;
+
+import lombok.Setter;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -19,7 +21,7 @@ import javax.annotation.Generated;
  * Customer
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-12-05T14:01:31.567768+01:00[Europe/Amsterdam]")
+@Setter
 public class Customer {
 
     private UUID id;
@@ -46,10 +48,6 @@ public class Customer {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public Customer name(String name) {
         this.name = name;
         return this;
@@ -64,10 +62,6 @@ public class Customer {
     @JsonProperty("name")
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Customer deliveryAddress(String deliveryAddress) {
@@ -86,10 +80,6 @@ public class Customer {
         return deliveryAddress;
     }
 
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-
     public Customer phone(String phone) {
         this.phone = phone;
         return this;
@@ -104,10 +94,6 @@ public class Customer {
     @JsonProperty("phone")
     public String getPhone() {
         return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     @Override

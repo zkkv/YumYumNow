@@ -1164,10 +1164,8 @@ components:
           example: 20
     Delivery:
       type: object
-      x-class-extra-annotation: "@javax.persistence.Entity"
       properties:
         id:
-          x-field-extra-annotation: "@javax.persistence.Id @javax.persistence.GeneratedValue(generator = \"UUID\")"
           type: string
           format: uuid
           example: "7ddf1b64-8dfa-11ee-b9d1-0242ac120002"
@@ -1212,7 +1210,6 @@ components:
             longitude:
               type: number
               example: 20
-
     Error:
       type: object
       properties:
