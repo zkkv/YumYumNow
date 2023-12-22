@@ -1,4 +1,4 @@
-package nl.tudelft.sem.yumyumnow.delivery.domain.model.dto;
+package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import java.net.URI;
 import java.util.Objects;
