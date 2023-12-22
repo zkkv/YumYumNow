@@ -66,6 +66,8 @@ public class DeliveryService {
             return null;
         }
 
+
+
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryID);
 
 
@@ -76,7 +78,9 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED){
+        boolean isVendorMatchedWithDelivery = delivery.getVendorId() == vendor;
+
+        if(delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !isVendorMatchedWithDelivery){
             return null;
         }
 

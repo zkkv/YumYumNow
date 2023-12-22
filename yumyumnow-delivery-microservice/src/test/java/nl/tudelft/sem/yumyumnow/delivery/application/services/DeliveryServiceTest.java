@@ -195,6 +195,32 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void changePrepTimeUnathorizedVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+
+
+        delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        
+    }
+
+    @Test
     public void changePrepTimeAsVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
@@ -203,7 +229,8 @@ public class DeliveryServiceTest {
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
-        ;
+        delivery.setVendorId(userId);
+
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
 
