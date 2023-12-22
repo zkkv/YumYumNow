@@ -62,7 +62,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Updated the estimated time of a delivery
+     * Update the estimated time of a delivery
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
