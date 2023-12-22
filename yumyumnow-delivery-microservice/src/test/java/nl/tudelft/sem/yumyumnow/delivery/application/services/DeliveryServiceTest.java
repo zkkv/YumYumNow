@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,6 +146,110 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void changePrepTimeAsNonVendor(){
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+        assertNull(deliveryService.changePrepTime(UUID.randomUUID(), UUID.randomUUID(), offsetDateTime));
+    }
+
+    @Test
+    public void changePrepTimeOnNonExistingOrder(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        when(deliveryRepository.findById(id)).thenReturn(Optional.empty());
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        assertNull(deliveryService.changePrepTime(id,userId,offsetDateTime));
+    }
+
+    @Test
+    public void changePrepTimeAsVendorNonAccepted(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);;
+
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        assertNull(deliveryService.changePrepTime(id,userId,offsetDateTime));
+    }
+
+    @Test
+    public void changePrepTimeUnathorizedVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+
+
+        delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        
+    }
+
+    @Test
+    public void changePrepTimeAsVendor() {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        delivery.setVendorId(userId);
+
+        delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        assertEquals(delivery, deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertEquals(delivery.getEstimatedPreparationFinishTime(), offsetDateTime);
+    }
+    @Test
     public void vendorMaxZoneTest(){
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
@@ -159,7 +267,6 @@ public class DeliveryServiceTest {
         DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService);
 
         assertEquals(response, deliveryVendorIdMaxZonePutRequest);
-
     }
 
 }

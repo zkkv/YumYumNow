@@ -58,10 +58,10 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
     ){
-        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
 
         if (delivery == null){
-            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.ok(delivery);
@@ -87,24 +87,27 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
-//    /**
-//     * Updated the estimated time of a delivery
-//     * @param id UUID of the delivery (required)
-//     * @param deliveryIdDeliveryTimePutRequest  (optional)
-//     * @return the updated delivery
-//     */
-//    @Override
-//    public ResponseEntity<Delivery> deliveryIdPrepTimePut(
-//            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-//            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePutRequest
-//    ){
-//        Delivery delivery = deliveryService.addPrepTime(id, deliveryIdDeliveryTimePutRequest.getCourierId(), deliveryIdDeliveryTimePutRequest.getEstimatedNewDeliveryTime());
-//        if (delivery == null){
-//            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
-//        }
-//
-//        return ResponseEntity.ok(delivery);
-//    }
+    /**
+     * Update the estimated time of a delivery
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdDeliveryTimePostRequest1  (optional)
+     * @return the updated delivery
+     */
+
+    @Override
+    public ResponseEntity<Delivery> deliveryIdPrepTimePut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
+    ){
+        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(), deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
+        if (delivery == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(delivery);
+    }
+
+
 
     /**
      * Update the maximum delivery zone of a vendor

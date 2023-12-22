@@ -6,7 +6,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Clock;
 
-
 @Configuration
 public class Config {
     /**
