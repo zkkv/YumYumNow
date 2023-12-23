@@ -133,13 +133,13 @@ public class DeliveryService {
         }
 
         switch (status){
-            case PENDING -> delivery.setStatus(Delivery.StatusEnum.PENDING);
             case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
             case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
             case DELIVERED -> delivery.setStatus(Delivery.StatusEnum.DELIVERED);
             case PREPARING -> delivery.setStatus(Delivery.StatusEnum.PREPARING);
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
+            default -> { return null; }
         }
 
         deliveryRepository.save(delivery);

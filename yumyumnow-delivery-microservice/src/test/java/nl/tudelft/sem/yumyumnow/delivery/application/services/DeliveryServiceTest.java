@@ -70,6 +70,12 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void setStatusToPendingNotAllowed(){
+        assertNull(deliveryService.updateStatus(
+                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.PENDING));
+    }
+
+    @Test
     public void setStatusToDeliveredAsVendor(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
