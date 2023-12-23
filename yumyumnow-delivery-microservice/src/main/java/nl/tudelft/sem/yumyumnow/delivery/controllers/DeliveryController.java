@@ -3,6 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
@@ -11,21 +12,33 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @RestController
 public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
     private final UserService userService;
     private final VendorService vendorService;
+    private final AdminService adminService;
 
-    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService) {
+    /**
+     * Constructor for delivery controller.
+     *
+     * @param deliveryService delivery service for the logic
+     * @param userService user service from User microservice
+     * @param vendorService vendor service from User microservice
+     * @param adminService admin service from User microservice
+     */
+    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService, AdminService adminService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
+        this.adminService = adminService;
     }
 
     /**
@@ -130,5 +143,24 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Get default maximum delivery zone.
+     *
+     * @param adminId The admin ID (required)
+     * @return The response that contains admin id and default maximum zone.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZoneGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId
+    ){
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 
 }

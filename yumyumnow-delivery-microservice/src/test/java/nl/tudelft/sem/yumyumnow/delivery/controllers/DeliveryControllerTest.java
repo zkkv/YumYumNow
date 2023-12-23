@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
+import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
@@ -25,6 +26,7 @@ class DeliveryControllerTest {
     private DeliveryController deliveryController;
     private UserService userService;
     private VendorService vendorService;
+    private AdminService adminService;
 
 
     @BeforeEach
@@ -32,7 +34,8 @@ class DeliveryControllerTest {
         this.deliveryService = mock(DeliveryService.class);
         this.userService = mock(UserService.class);
         this.vendorService = mock(VendorService.class);
-        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService);
+        this.adminService = mock(AdminService.class);
+        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, adminService);
     }
 
     @Test

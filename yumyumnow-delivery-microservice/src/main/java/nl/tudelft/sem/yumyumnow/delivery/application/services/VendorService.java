@@ -17,9 +17,15 @@ public class VendorService extends UserService {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl;
 
+    /**
+     * Constructor for vendor service.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     */
     @Autowired
-    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl){
-        super(restTemplate,userServiceUrl);
+    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        super(restTemplate, userServiceUrl);
         this.restTemplate = restTemplate;
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
     }
@@ -30,7 +36,7 @@ public class VendorService extends UserService {
      * @param vendorId The id of the vendor.
      * @return the vendor as a map of response JSON
      */
-    public Map<String, Object> getVendor(UUID vendorId){
+    public Map<String, Object> getVendor(UUID vendorId) {
         String url = vendorServiceUrl + vendorId;
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
         return response;
@@ -42,7 +48,7 @@ public class VendorService extends UserService {
      * @param vendorId The id of updated vendor
      * @param vendorMap The updated vendor
      */
-    public boolean putVendor(UUID vendorId, Map<String, Object> vendorMap){
+    public boolean putVendor(UUID vendorId, Map<String, Object> vendorMap) {
         String url = vendorServiceUrl + vendorId;
 
         HttpHeaders headers = new HttpHeaders();

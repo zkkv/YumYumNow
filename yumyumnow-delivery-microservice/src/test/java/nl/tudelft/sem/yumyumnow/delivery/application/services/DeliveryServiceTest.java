@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.VendorCustomizer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
@@ -23,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DeliveryServiceTest {
     private DeliveryRepository deliveryRepository;
-
     private VendorCustomizerRepository vendorCustomizerRepository;
+    private GlobalConfigRepository globalConfigRepository;
 
 
     private DeliveryService deliveryService;
@@ -38,7 +39,8 @@ public class DeliveryServiceTest {
 
         deliveryService = new DeliveryService(
                 deliveryRepository,
-                vendorCustomizerRepository);
+                vendorCustomizerRepository,
+                globalConfigRepository);
     }
 
     @Test

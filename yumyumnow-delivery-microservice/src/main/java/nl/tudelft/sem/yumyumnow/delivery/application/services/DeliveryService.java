@@ -1,8 +1,10 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +19,23 @@ import java.util.UUID;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
-
     private final VendorCustomizerRepository vendorCustomizerRepository;
+    private final GlobalConfigRepository globalConfigRepository;
     
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository         The repository to use.
-     * @param vendorCustomizerRepository
+     * @param deliveryRepository    The repository to use for delivery
+     * @param vendorCustomizerRepository   The repository for customized vendor
+     * @param globalConfigRepository    The repository for global configuration
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
-                           VendorCustomizerRepository vendorCustomizerRepository) {
+                           VendorCustomizerRepository vendorCustomizerRepository,
+                           GlobalConfigRepository globalConfigRepository) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
+        this.globalConfigRepository = globalConfigRepository;
     }
 
     /**
@@ -165,6 +170,18 @@ public class DeliveryService {
                 return deliveryVendorIdMaxZonePutRequest;
             }
         }
+        return null;
+    }
+
+    /**
+     * Get the default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService){
+//        BigDecimal defaultMaxZone = globalConfigRepository.findById(globalConfigId);
         return null;
     }
 }
