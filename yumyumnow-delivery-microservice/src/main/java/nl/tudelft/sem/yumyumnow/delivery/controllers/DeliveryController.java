@@ -3,6 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
@@ -21,11 +22,13 @@ public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
     private final UserService userService;
     private final VendorService vendorService;
+    private final OrderService orderService;
 
-    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService) {
+    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService, OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
+        this.orderService = orderService;
     }
 
     /**
@@ -133,5 +136,25 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Update the total delivery time of an order.
+     *
+     * @param id UUID of the delivery (required).
+     * @param deliveryIdDeliveryTimePostRequest1  (optional)/
+     * @return a Delivery ResponseEntity representing the updated delivery.
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdDeliveryTimePost(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
+    ) {
+        Delivery delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        if (delivery == null) {
+            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(delivery);
+    }
 
 }
