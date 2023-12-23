@@ -154,12 +154,15 @@ public class DeliveryService {
      * @param vendorService vendor service to interact with user api
      * @return the vendorID with its updated maximum delivery zone
      */
-    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId, DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
+    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId,
+                                                           DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
                                                            VendorService vendorService) {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) return null;
+        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) {
+            return null;
+        }
 
         Map<String, Object> vendorMap = vendorService.getVendor(vendorId);
 
@@ -167,7 +170,7 @@ public class DeliveryService {
         if (allowOwnCourier instanceof Boolean && (Boolean) allowOwnCourier) {
             vendorMap.put("maxDeliveryZone", radiusKm);
 
-            boolean response = vendorService.putVendor(vendorId,vendorMap);
+            boolean response = vendorService.putVendor(vendorId, vendorMap);
             if (response) {
                 return deliveryVendorIdMaxZonePutRequest;
             }
@@ -222,7 +225,7 @@ public class DeliveryService {
         Delivery delivery = optionalDelivery.get();
 
         // get preparation time
-        OffsetDateTime preparationTime = delivery.getEstimatedPreparationFinishTime();
+        final OffsetDateTime preparationTime = delivery.getEstimatedPreparationFinishTime();
 
         // get the location of the customer
         UUID orderId = delivery.getOrderId();
@@ -235,13 +238,13 @@ public class DeliveryService {
             return null;
         }
         Location customerLocation = userService.getCustomerAddress(customer.getId());
-        if (customerLocation == null){
+        if (customerLocation == null) {
             return null;
         }
 
         // location of vendor
         @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
-        if (vendorLocation == null){
+        if (vendorLocation == null) {
             return null;
         }
         Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
