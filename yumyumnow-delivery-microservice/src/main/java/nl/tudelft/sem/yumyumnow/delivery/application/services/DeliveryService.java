@@ -132,7 +132,7 @@ public class DeliveryService {
             return null;
         }
 
-        switch (status){
+        switch (status) {
             case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
             case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
             case DELIVERED -> delivery.setStatus(Delivery.StatusEnum.DELIVERED);
