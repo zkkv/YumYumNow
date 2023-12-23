@@ -8,7 +8,6 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -47,32 +46,72 @@ public class DeliveryServiceTest {
 
     @Test
     public void setStatusToAcceptedAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
 
     @Test
     public void setStatusToRejectedAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.REJECTED));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.REJECTED));
     }
 
     @Test
     public void setStatusToGivenToCourierAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER));
     }
 
     @Test
     public void setStatusToPreparingAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.PREPARING));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.PREPARING));
     }
 
     @Test
     public void setStatusToPendingNotAllowed(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.PENDING));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.PENDING));
     }
 
     @Test
@@ -85,7 +124,8 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+        Delivery actual =  deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertNull(actual);
     }
 
@@ -108,14 +148,30 @@ public class DeliveryServiceTest {
 
     @Test
     public void setStatusToInTransitAsNonCourier(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
     }
 
     @Test
     public void setStatusToDeliveredAsNonCourier(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
         assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
     @Test
@@ -159,7 +215,16 @@ public class DeliveryServiceTest {
         ZoneOffset zoneOffset = ZoneOffset.UTC;
 
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
-        assertNull(deliveryService.changePrepTime(UUID.randomUUID(), UUID.randomUUID(), offsetDateTime));
+
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
@@ -189,7 +254,7 @@ public class DeliveryServiceTest {
         when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
-        delivery.setId(id);;
+        delivery.setId(id);
 
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
 
@@ -205,7 +270,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void changePrepTimeUnathorizedVendor(){
+    public void changePrepTimeUnauthorizedVendor(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
