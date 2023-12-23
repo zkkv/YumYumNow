@@ -171,4 +171,20 @@ public class DeliveryService {
         return null;
     }
 
+    /**
+     * Returns the delivery specified by {@code id} from deliveryRepository, or {@code null}
+     * if it's not present.
+     *
+     * @param id UUID of the delivery
+     * @return the delivery object if it's present in the repository or null otherwise
+     * @author Kirill Zhankov
+     */
+    public Delivery getDelivery(UUID id) {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+        if (optionalDelivery.isEmpty()) {
+            return null;
+        }
+        return optionalDelivery.get();
+    }
 }
