@@ -3,6 +3,9 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
@@ -63,7 +66,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    public void updateStatusFail() {
+    public void updateStatusFail() throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.PENDING;
@@ -71,7 +74,9 @@ class DeliveryControllerTest {
         deliveryIdStatusPutRequest.setUserId(userId);
         deliveryIdStatusPutRequest.setStatus(status);
 
-        when(deliveryService.updateStatus(id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus())).thenReturn(null);
+        when(deliveryService.updateStatus(
+                id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
+                .thenThrow(BadArgumentException.class);
 
         ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
@@ -174,7 +179,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void updateStatusSuccess() {
+    void updateStatusSuccess() throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
@@ -186,7 +191,9 @@ class DeliveryControllerTest {
         delivery.setStatus(Delivery.StatusEnum.PREPARING);
         delivery.setId(id);
 
-        when(deliveryService.updateStatus(id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus())).thenReturn(delivery);
+        when(deliveryService.updateStatus(
+                id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
+                .thenReturn(delivery);
 
         ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
 
