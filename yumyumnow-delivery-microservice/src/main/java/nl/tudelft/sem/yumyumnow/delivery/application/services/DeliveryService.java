@@ -1,5 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
@@ -21,35 +23,48 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
     private final VendorCustomizerRepository vendorCustomizerRepository;
+
+    private final OrderService orderService;
+
+    private final VendorService vendorService;
     
     /**
      * Create a new DeliveryService.
      *
      * @param deliveryRepository         The repository to use.
-     * @param vendorCustomizerRepository
+     * @param vendorCustomizerRepository The repository holding minimal information about vendors.
+     * @param orderService               Order service.
+     * @param vendorService              Vendor service class communicating with User microservice.
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
-                           VendorCustomizerRepository vendorCustomizerRepository) {
+                           VendorCustomizerRepository vendorCustomizerRepository,
+                           OrderService orderService,
+                           VendorService vendorService) {
         this.deliveryRepository = deliveryRepository;
         this.vendorCustomizerRepository = vendorCustomizerRepository;
+        this.orderService = orderService;
+        this.vendorService = vendorService;
     }
 
     /**
      * Create a delivery based on order data.
      *
-     * @param order The order ID to which the delivery corresponds
+     * @param orderId The order ID to which the delivery corresponds
      *              (UUID).
-     * @param vendor The vendor ID to which the delivery corresponds
+     * @param vendorId The vendor ID to which the delivery corresponds
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID order, UUID vendor) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) {
         Delivery delivery = new Delivery();
 
         // TODO: Get order details from Order microservice
         // TODO: Get vendor details from Vendor microservice
 
+        delivery.setId(UUID.randomUUID());
+        delivery.setOrderId(orderId);
+        delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
         return deliveryRepository.save(delivery);

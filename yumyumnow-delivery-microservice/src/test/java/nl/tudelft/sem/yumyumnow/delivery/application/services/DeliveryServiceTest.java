@@ -8,7 +8,6 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,16 +32,18 @@ public class DeliveryServiceTest {
 
     private DeliveryService deliveryService;
     private VendorService vendorService;
+    private OrderService orderService;
 
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
         this.vendorService = mock(VendorService.class);
+        this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
                 deliveryRepository,
-                vendorCustomizerRepository);
+                vendorCustomizerRepository, orderService, vendorService);
     }
 
     @Test
