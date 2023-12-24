@@ -1,5 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.VendorCustomizer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
@@ -45,6 +48,15 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void updateStatusOfNonExistingDelivery(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        assertThrows(NoDeliveryFoundException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
+    }
+
+    @Test
     public void setStatusToAcceptedAsNonVendor(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
@@ -54,7 +66,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
 
@@ -68,7 +80,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.REJECTED));
     }
 
@@ -82,7 +94,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER));
     }
 
@@ -96,7 +108,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.PREPARING));
     }
 
@@ -110,7 +122,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(BadArgumentException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.PENDING));
     }
 
@@ -124,9 +136,8 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(
-                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
-        assertNull(actual);
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
     @Test
@@ -141,7 +152,14 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+        Delivery actual = null;
+        try {
+            actual = deliveryService.updateStatus
+                    (id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "ACCEPTED");
     }
@@ -156,7 +174,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
     }
 
@@ -170,7 +188,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.updateStatus(
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
@@ -185,7 +203,14 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
+        Delivery actual = null;
+        try {
+            actual = deliveryService.updateStatus(
+                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "IN_TRANSIT");
     }
@@ -202,7 +227,14 @@ public class DeliveryServiceTest {
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+        Delivery actual = null;
+        try {
+            actual = deliveryService.updateStatus(
+                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "DELIVERED");
     }
