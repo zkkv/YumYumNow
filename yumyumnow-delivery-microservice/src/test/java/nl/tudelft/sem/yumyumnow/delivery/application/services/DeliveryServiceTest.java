@@ -141,7 +141,8 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToAcceptedAsVendor(){
+    public void setStatusToAcceptedAsVendor()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -152,14 +153,8 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual = null;
-        try {
-            actual = deliveryService.updateStatus
-                    (id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+        Delivery actual = deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "ACCEPTED");
     }
@@ -193,7 +188,8 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToInTransitAsCourier(){
+    public void setStatusToInTransitAsCourier()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -203,20 +199,15 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        Delivery actual = null;
-        try {
-            actual = deliveryService.updateStatus(
+        Delivery actual = deliveryService.updateStatus(
                     id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "IN_TRANSIT");
     }
 
     @Test
-    public void setStatusToDeliveredAsCourier(){
+    public void setStatusToDeliveredAsCourier()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -227,14 +218,8 @@ public class DeliveryServiceTest {
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
 
-        Delivery actual = null;
-        try {
-            actual = deliveryService.updateStatus(
+        Delivery actual = actual = deliveryService.updateStatus(
                     id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "DELIVERED");
     }
