@@ -1,5 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
@@ -100,14 +103,15 @@ public class DeliveryService {
      *                  update it or if delivery is not found.
      * @author          Horia Radu, Kirill Zhankov
      */
-    public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status) {
+    public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
 
         // TODO: This has to be converted to a validator pattern
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
         Delivery delivery = optionalDelivery.get();
@@ -120,7 +124,7 @@ public class DeliveryService {
         boolean isVendorMatchedWithDelivery = delivery.getVendorId() == userId;
 
         if (isValidStatusForVendor && !isVendorMatchedWithDelivery) {
-            return null;
+            throw new AccessForbiddenException("Delivery contains a different vendor id.");
         }
 
         boolean isValidStatusForCourier = status == DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT
@@ -129,7 +133,7 @@ public class DeliveryService {
         boolean isCourierMatchedWithDelivery = delivery.getCourierId() == userId;
 
         if (isValidStatusForCourier && !isCourierMatchedWithDelivery) {
-            return null;
+            throw new AccessForbiddenException("Delivery contains a different vendor id.");
         }
 
         switch (status) {
@@ -139,7 +143,10 @@ public class DeliveryService {
             case PREPARING -> delivery.setStatus(Delivery.StatusEnum.PREPARING);
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
-            default -> { return null; }
+            default ->
+                throw new BadArgumentException(
+                        "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
+                                "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
