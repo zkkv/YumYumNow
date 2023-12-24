@@ -185,18 +185,19 @@ public class DeliveryService {
     }
 
     /**
-     * Returns the delivery specified by {@code id} from deliveryRepository, or {@code null}
-     * if it's not present.
+     * Returns the delivery specified by {@code id} from deliveryRepository, or throws
+     * {@link NoDeliveryFoundException} if it's not present.
      *
-     * @param id UUID of the delivery
-     * @return the delivery object if it's present in the repository or null otherwise
+     * @param id UUID of the delivery.
+     * @return the delivery object if it's present in the repository or null otherwise.
+     * @throws NoDeliveryFoundException if delivery was not found.
      * @author Kirill Zhankov
      */
-    public Delivery getDelivery(UUID id) {
+    public Delivery getDelivery(UUID id) throws NoDeliveryFoundException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("No delivery found by id.");
         }
         return optionalDelivery.get();
     }

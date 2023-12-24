@@ -52,10 +52,10 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Returns a delivery based on its {@code id} or BAD REQUEST otherwise.
+     * Returns a delivery based on its {@code id} or BAD REQUEST if no delivery was found.
      *
      * @param id UUID of the delivery (required)
-     * @return the delivery object if OK, or BAD REQUEST otherwise.
+     * @return the delivery object and OK, or BAD REQUEST if no delivery was found.
      * @author Kirill Zhankov
      */
     @Override
@@ -63,9 +63,10 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "id", description = "UUID of the delivery", required = true)
             @PathVariable("id") UUID id
     ) {
-        Delivery delivery = deliveryService.getDelivery(id);
-
-        if (delivery == null){
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.getDelivery(id);
+        } catch (NoDeliveryFoundException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
