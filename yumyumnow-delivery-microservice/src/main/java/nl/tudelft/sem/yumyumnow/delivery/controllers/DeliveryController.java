@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
@@ -101,9 +104,11 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdStatusPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
     ) {
-        Delivery delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus());
-
-        if (delivery == null) {
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(),
+                    deliveryIdStatusPutRequest.getStatus());
+        } catch (NoDeliveryFoundException | BadArgumentException | AccessForbiddenException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
