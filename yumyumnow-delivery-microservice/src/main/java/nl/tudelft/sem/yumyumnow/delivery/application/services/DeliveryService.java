@@ -187,7 +187,7 @@ public class DeliveryService {
     }
 
     private static final int EARTH_RADIUS_KM = 6378; // constant for the earth radius needed to calculate the distance
-    private static final int AVERAGE_SPEED = 50; // constant for the average speed
+    private static final int AVERAGE_SPEED_KMH = 50; // constant for the average speed
 
     /**
      * This method calculates the delivery time based on the distance between the vendor and the customer.
@@ -212,7 +212,7 @@ public class DeliveryService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double dist = EARTH_RADIUS_KM * c;
 
-        double timeInHours = dist / AVERAGE_SPEED; // the average speed is set to 50 km/h
+        double timeInHours = dist / AVERAGE_SPEED_KMH; // the average speed is set to 50 km/h
         long timeInSeconds = (long) (timeInHours * 3600); // Convert time to seconds
         return Duration.ofSeconds(timeInSeconds);
     }
