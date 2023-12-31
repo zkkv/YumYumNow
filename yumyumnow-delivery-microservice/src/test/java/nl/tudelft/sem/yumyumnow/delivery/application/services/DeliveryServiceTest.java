@@ -4,9 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.VendorCustomizer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
@@ -18,8 +16,6 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,21 +27,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DeliveryServiceTest {
     private DeliveryRepository deliveryRepository;
 
-    private VendorCustomizerRepository vendorCustomizerRepository;
-
-
     private DeliveryService deliveryService;
     private VendorService vendorService;
 
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
-        this.vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
         this.vendorService = mock(VendorService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository,
-                vendorCustomizerRepository);
+                deliveryRepository, vendorService);
     }
 
     @Test
@@ -219,7 +210,7 @@ public class DeliveryServiceTest {
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
 
-        Delivery actual = actual = deliveryService.updateStatus(
+        Delivery actual = deliveryService.updateStatus(
                     id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "DELIVERED");
@@ -250,8 +241,6 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
-
         when(deliveryRepository.findById(id)).thenReturn(Optional.empty());
 
         LocalDate localDate = LocalDate.of(2023, 12, 10);
@@ -268,8 +257,6 @@ public class DeliveryServiceTest {
     public void changePrepTimeAsVendorNonAccepted(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
@@ -291,8 +278,6 @@ public class DeliveryServiceTest {
     public void changePrepTimeUnauthorizedVendor(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
@@ -317,8 +302,6 @@ public class DeliveryServiceTest {
     public void changePrepTimeAsVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
