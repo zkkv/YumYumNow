@@ -10,7 +10,6 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,13 +29,12 @@ public class DeliveryServiceTest {
 
     private DeliveryService deliveryService;
     private VendorService vendorService;
-    private CourierService courierService;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
         vendorService = mock(VendorService.class);
-        courierService = mock(CourierService.class);
+        CourierService courierService = mock(CourierService.class);
 
 
         deliveryService = new DeliveryService(
@@ -44,7 +42,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateStatusOfNonExistingDelivery(){
+    public void updateStatusOfNonExistingDelivery() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -53,7 +51,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToAcceptedAsNonVendor(){
+    public void setStatusToAcceptedAsNonVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -67,7 +65,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToRejectedAsNonVendor(){
+    public void setStatusToRejectedAsNonVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -81,7 +79,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToGivenToCourierAsNonVendor(){
+    public void setStatusToGivenToCourierAsNonVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -95,7 +93,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToPreparingAsNonVendor(){
+    public void setStatusToPreparingAsNonVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -109,7 +107,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToPendingNotAllowed(){
+    public void setStatusToPendingNotAllowed() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -123,7 +121,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToDeliveredAsVendor(){
+    public void setStatusToDeliveredAsVendor() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -156,7 +154,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToInTransitAsNonCourier(){
+    public void setStatusToInTransitAsNonCourier() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -170,7 +168,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToDeliveredAsNonCourier(){
+    public void setStatusToDeliveredAsNonCourier() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -196,7 +194,7 @@ public class DeliveryServiceTest {
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
         Delivery actual = deliveryService.updateStatus(
-                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "IN_TRANSIT");
     }
@@ -215,13 +213,13 @@ public class DeliveryServiceTest {
 
 
         Delivery actual = deliveryService.updateStatus(
-                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertEquals(expected, actual);
         assertEquals(actual.getStatus().getValue(), "DELIVERED");
     }
 
     @Test
-    public void changePrepTimeAsNonVendor(){
+    public void changePrepTimeAsNonVendor() {
         LocalDate localDate = LocalDate.of(2023, 12, 10);
 
         LocalTime localTime = LocalTime.of(12, 0);
@@ -241,7 +239,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void changePrepTimeOnNonExistingOrder(){
+    public void changePrepTimeOnNonExistingOrder() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -254,11 +252,11 @@ public class DeliveryServiceTest {
 
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
-        assertNull(deliveryService.changePrepTime(id,userId,offsetDateTime));
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeAsVendorNonAccepted(){
+    public void changePrepTimeAsVendorNonAccepted() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -275,11 +273,11 @@ public class DeliveryServiceTest {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
-        assertNull(deliveryService.changePrepTime(id,userId,offsetDateTime));
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeUnauthorizedVendor(){
+    public void changePrepTimeUnauthorizedVendor() {
         UUID id = UUID.randomUUID();
 
         Vendor vendor = new Vendor();
@@ -288,7 +286,6 @@ public class DeliveryServiceTest {
         Delivery delivery = new Delivery();
         delivery.setId(id);
         delivery.setVendorId(UUID.randomUUID());
-
 
 
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
@@ -304,7 +301,7 @@ public class DeliveryServiceTest {
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
         assertNull(deliveryService.changePrepTime(id, vendor.getId(), offsetDateTime));
-        
+
     }
 
     @Test
@@ -334,8 +331,9 @@ public class DeliveryServiceTest {
         assertEquals(delivery, deliveryService.changePrepTime(id, userId, offsetDateTime));
         assertEquals(delivery.getEstimatedPreparationFinishTime(), offsetDateTime);
     }
+
     @Test
-    public void vendorMaxZoneTest(){
+    public void vendorMaxZoneTest() {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
@@ -349,7 +347,7 @@ public class DeliveryServiceTest {
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
         when(vendorService.putVendor(vendor)).thenReturn(true);
 
-        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService);
+        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId, deliveryVendorIdMaxZonePutRequest, vendorService);
 
         assertEquals(response, deliveryVendorIdMaxZonePutRequest);
     }

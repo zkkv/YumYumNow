@@ -1,6 +1,5 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
@@ -24,14 +23,12 @@ public class DeliveryTimeTest {
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
-    private VendorService vendorService;
-    private CourierService courierService;
 
     @BeforeEach
     void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
-        vendorService = mock(VendorService.class);
-        courierService = mock(CourierService.class);
+        VendorService vendorService = mock(VendorService.class);
+        CourierService courierService = mock(CourierService.class);
 
         deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService);
 
