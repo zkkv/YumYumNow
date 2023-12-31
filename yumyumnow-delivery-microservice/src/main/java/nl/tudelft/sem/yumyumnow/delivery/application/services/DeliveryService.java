@@ -12,11 +12,14 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.validation.Valid;
+import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -83,9 +86,7 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        Vendor vendor = vendorService.getVendor(vendorId.toString());
-
-        VendorValidator vendorValidator = new VendorValidator(null, vendor);
+        VendorValidator vendorValidator = new VendorValidator(null, vendorId, vendorService);
 
         if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !vendorValidator.process(delivery)) {
             return null;
@@ -112,7 +113,9 @@ public class DeliveryService {
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
             throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
 
-        // TODO: This has to be converted to a validator pattern
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.PENDING) {
+            throw new BadArgumentException("Status cannot be PENDING.");
+        }
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
@@ -122,11 +125,13 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
-                Map.of(
-                    Vendor.class, new VendorValidator(null, vendorService.getVendor(userId.toString())),
-                    Courier.class, new CourierValidator(null, courierService.getCourier(userId.toString()), vendorService)
-        ), status, userId);
+         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+                 Map.of(
+                         Vendor.class, new VendorValidator(null, userId, vendorService),
+                         Courier.class, new CourierValidator(null, userId, courierService, vendorService)
+                 ), status, userId, vendorService, courierService);
+
+
 
         if (!statusPermissionValidator.process(delivery)) {
             throw new AccessForbiddenException("User has no right to update delivery status.");
@@ -191,7 +196,7 @@ public class DeliveryService {
      * This method calculates the delivery time based on the distance between the vendor and the customer.
      *
      * @param customerLocation the customer's location stored as a Location object.
-     * @param vendorLocation the vendor's location stored as a Location object.
+     * @param vendorLocation   the vendor's location stored as a Location object.
      * @return the time expressed in seconds.
      */
     public Duration getDeliveryTimeHelper(Location customerLocation, @Valid DeliveryCurrentLocation vendorLocation) {
@@ -218,9 +223,9 @@ public class DeliveryService {
     /**
      * This method adds the total delivery time to a delivery.
      *
-     * @param deliveryId the id of the delivery.
+     * @param deliveryId   the id of the delivery.
      * @param orderService the instance of the order service.
-     * @param userService the instance of the user service.
+     * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
      */
     public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {

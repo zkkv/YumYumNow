@@ -1,14 +1,17 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.validators;
 
+import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+
+import java.util.UUID;
 
 public class VendorValidator extends AuthProcessor<Vendor> {
     private Vendor toValidate;
 
-    public VendorValidator(AuthProcessor next, Vendor toValidate) {
-        super(next);
-        this.toValidate = toValidate;
+    public VendorValidator(AuthProcessor next, UUID toValidate, VendorService vendorService) {
+        super(next, toValidate);
+        this.toValidate = vendorService.getVendor(toValidate.toString());
     }
 
     @Override
