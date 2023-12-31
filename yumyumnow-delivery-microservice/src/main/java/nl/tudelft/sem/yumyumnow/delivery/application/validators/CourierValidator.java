@@ -1,11 +1,32 @@
-//package nl.tudelft.sem.yumyumnow.delivery.application.validators;
-//
-//import nl.tudelft.sem.yumyumnow.delivery.domain.model.dto.Vendor;
-//import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-//
-//public class CourierValidator extends AuthProcessor<Courier> {
-//    @Override
-//    public boolean process(Courier toValidate, Delivery delivery) {
-//        return false;
-//    }
-//}
+package nl.tudelft.sem.yumyumnow.delivery.application.validators;
+
+import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+
+
+public class CourierValidator extends AuthProcessor<Courier> {
+    VendorService vendorService;
+    Courier toValidate;
+
+    public CourierValidator(AuthProcessor<Courier> next, Courier toValidate, VendorService vendorService) {
+        super(next);
+        this.vendorService = vendorService;
+        this.toValidate = toValidate;
+    }
+
+    @Override
+    public boolean process(Delivery delivery) {
+        Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
+        if (!delivery.getCourierId().equals(toValidate.getId()))
+            return false;
+        if (vendor.getAllowsOnlyOwnCouriers() &&
+                !vendor.getId().equals(toValidate.getVendor().getId()))
+            return false;
+
+        if (next == null) return true;
+
+        return next.process(delivery);
+    }
+}
