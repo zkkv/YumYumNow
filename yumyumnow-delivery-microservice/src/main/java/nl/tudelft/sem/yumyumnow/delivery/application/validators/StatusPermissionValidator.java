@@ -25,15 +25,14 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
         Vendor vendor = vendorService.getVendor(user.toString());
         Courier courier = courierService.getCourier(user.toString());
 
-        Object gotUser = null;
+        Object gotUser;
 
-        if (vendor != null) {
+        if (vendor != null)
             gotUser = vendor;
-        } else if (courier != null) {
+        else if (courier != null)
             gotUser = courier;
-        } else {
-            gotUser = null;
-        }
+        else return;
+
 
         this.next = next.get(gotUser.getClass());
 
@@ -43,6 +42,7 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
 
     @Override
     public boolean process(Delivery delivery) {
+        if (user == null) return false;
         if (user.getClass() == Vendor.class) {
             if (toValidate == StatusEnum.IN_TRANSIT ||
                     toValidate == StatusEnum.DELIVERED ||
