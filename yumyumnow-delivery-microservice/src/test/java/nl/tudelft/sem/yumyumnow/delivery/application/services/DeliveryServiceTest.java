@@ -1,5 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.VendorCustomizer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
@@ -8,7 +11,6 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -46,10 +48,84 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void setStatusToAcceptedAsNonVendor(){
-        assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(),UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
+    public void updateStatusOfNonExistingDelivery(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        assertThrows(NoDeliveryFoundException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
     }
+
+    @Test
+    public void setStatusToAcceptedAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED));
+    }
+
+    @Test
+    public void setStatusToRejectedAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.REJECTED));
+    }
+
+    @Test
+    public void setStatusToGivenToCourierAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER));
+    }
+
+    @Test
+    public void setStatusToPreparingAsNonVendor(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.PREPARING));
+    }
+
+    @Test
+    public void setStatusToPendingNotAllowed(){
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.PENDING));
+    }
+
     @Test
     public void setStatusToDeliveredAsVendor(){
         UUID id = UUID.randomUUID();
@@ -59,43 +135,46 @@ public class DeliveryServiceTest {
         expected.setId(id);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
-        assertNull(actual);
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
     @Test
-    public void setStatusToAcceptedAsVendor(){
+    public void setStatusToAcceptedAsVendor()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
         Delivery expected = new Delivery();
         expected.setId(id);
+        expected.setVendorId(userId);
         expected.setStatus(Delivery.StatusEnum.PENDING);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+        Delivery actual = deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
         assertEquals(expected, actual);
-        assertEquals(expected.getStatus().getValue(), "ACCEPTED");
+        assertEquals(actual.getStatus().getValue(), "ACCEPTED");
     }
 
     @Test
     public void setStatusToInTransitAsNonCourier(){
-        assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT));
     }
 
     @Test
     public void setStatusToDeliveredAsNonCourier(){
-        assertNull(deliveryService.updateStatus(
-                UUID.randomUUID(), UUID.randomUUID(), DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
-    }
-
-    @Test
-    public void setStatusToInTransitAsCourier(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -104,42 +183,46 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
-        assertEquals(expected, actual);
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.updateStatus(
+                id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED));
     }
 
     @Test
-    public void setStatusToDeliveredAsCourier(){
+    public void setStatusToInTransitAsCourier()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
         Delivery expected = new Delivery();
         expected.setId(id);
+        expected.setCourierId(userId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Delivery actual = deliveryService.updateStatus(
+                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT);
+        assertEquals(expected, actual);
+        assertEquals(actual.getStatus().getValue(), "IN_TRANSIT");
+    }
+
+    @Test
+    public void setStatusToDeliveredAsCourier()
+            throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(userId);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
 
-        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
+        Delivery actual = actual = deliveryService.updateStatus(
+                    id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
         assertEquals(expected, actual);
+        assertEquals(actual.getStatus().getValue(), "DELIVERED");
     }
-
-    // TO-DO: Redo this test
-//    @Test
-//    public void setStatusAsStrangerCourier(){
-//        UUID id = UUID.randomUUID();
-//        UUID userId = UUID.randomUUID();
-//        UUID actualCourierId = UUID.randomUUID();
-//
-//        Delivery delivery = new Delivery();
-//        delivery.setId(id);
-//        Optional<Delivery> optionalDelivery = Optional.of(delivery);
-//        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-//
-//
-//        Delivery actual =  deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.DELIVERED);
-//        assertNull(actual);
-//    }
 
     @Test
     public void changePrepTimeAsNonVendor(){
@@ -149,7 +232,16 @@ public class DeliveryServiceTest {
         ZoneOffset zoneOffset = ZoneOffset.UTC;
 
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
-        assertNull(deliveryService.changePrepTime(UUID.randomUUID(), UUID.randomUUID(), offsetDateTime));
+
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
@@ -179,7 +271,7 @@ public class DeliveryServiceTest {
         when(vendorCustomizerRepository.findById(userId)).thenReturn(Optional.of(new VendorCustomizer()));
 
         Delivery delivery = new Delivery();
-        delivery.setId(id);;
+        delivery.setId(id);
 
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
 
@@ -195,7 +287,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void changePrepTimeUnathorizedVendor(){
+    public void changePrepTimeUnauthorizedVendor(){
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
