@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
@@ -345,12 +346,12 @@ public class DeliveryServiceTest {
         deliveryVendorIdMaxZonePutRequest.setVendorId(vendorId);
         deliveryVendorIdMaxZonePutRequest.setRadiusKm(BigDecimal.valueOf(5));
 
-        Map<String, Object> vendorMap = new HashMap<>();
-        vendorMap.put("allowOnlyOwnCouriers", true);
-        vendorMap.put("maxDeliveryZone",BigDecimal.valueOf(2));
+        Vendor vendor = new Vendor();
+        vendor.setAllowsOnlyOwnCouriers(true);
+        vendor.setMaxDeliveryZoneKm(BigDecimal.valueOf(2));
 
-        when(vendorService.getVendor(vendorId)).thenReturn(vendorMap);
-        when(vendorService.putVendor(vendorId,vendorMap)).thenReturn(true);
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+        when(vendorService.putVendor(vendor)).thenReturn(true);
 
         DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService);
 
