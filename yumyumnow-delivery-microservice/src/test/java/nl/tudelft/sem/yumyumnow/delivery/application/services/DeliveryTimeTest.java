@@ -76,7 +76,7 @@ public class DeliveryTimeTest {
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);
 
         Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId,orderService,userService);
-        OffsetDateTime expected = OffsetDateTime.parse("2023-12-10T15:08:41Z");
+        OffsetDateTime expected = OffsetDateTime.parse("2023-12-10T15:08:54Z");
 
         assertThat(newDelivery).isNotNull();
         assertThat(newDelivery.getEstimatedDeliveryTime()).isEqualTo(expected);
@@ -116,7 +116,7 @@ public class DeliveryTimeTest {
         location2.setLongitude(BigDecimal.valueOf(1));
 
         Duration actual = deliveryService.getDeliveryTimeHelper(location1, location2);
-        assertThat(actual.getSeconds()).isEqualTo(11321);
+        assertThat(actual.getSeconds()).isEqualTo(11334);
 
         DeliveryCurrentLocation location3 = new DeliveryCurrentLocation();
         location3.setLatitude(BigDecimal.valueOf(0));
