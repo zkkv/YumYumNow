@@ -178,7 +178,7 @@ public class DeliveryService {
         return null;
     }
 
-    private static final int EARTH_RADIUS_KM = 6371; // constant for the earth radius needed to calculate the distance
+    private static final int EARTH_RADIUS_KM = 6378; // constant for the earth radius needed to calculate the distance
     private static final int AVERAGE_SPEED = 50; // constant for the average speed
 
     /**
