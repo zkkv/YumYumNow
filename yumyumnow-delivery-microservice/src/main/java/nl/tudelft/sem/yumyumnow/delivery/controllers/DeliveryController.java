@@ -151,7 +151,7 @@ public class DeliveryController implements DeliveryApi {
     ) {
         Delivery delivery = deliveryService.addDeliveryTime(id, orderService, userService);
         if (delivery == null) {
-            return (ResponseEntity<Delivery>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(delivery);
     }
