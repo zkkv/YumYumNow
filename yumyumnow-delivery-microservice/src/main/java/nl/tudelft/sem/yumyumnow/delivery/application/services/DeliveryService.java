@@ -1,6 +1,9 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final VendorService vendorService;
+    private final CourierService courierService;
 
     /**
      * Create a new DeliveryService.
@@ -30,9 +35,14 @@ public class DeliveryService {
      * @param deliveryRepository The repository to use.
      */
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository, VendorService vendorService) {
+    public DeliveryService(
+            DeliveryRepository deliveryRepository,
+            VendorService vendorService,
+            CourierService courierService
+    ) {
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
+        this.courierService = courierService;
     }
 
     /**
@@ -81,7 +91,7 @@ public class DeliveryService {
             return null;
         }
 
-        delivery.estimatedPreparationFinishTime(estimatedPrepTime);
+        delivery.setEstimatedPreparationFinishTime(estimatedPrepTime);
 
         deliveryRepository.save(delivery);
 
@@ -112,24 +122,14 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER
-                || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
+        StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+                Map.of(
+                    Vendor.class, new VendorValidator(null, vendorService.getVendor(userId.toString())),
+                    Courier.class, new CourierValidator(null, courierService.getCourier(userId.toString()), vendorService)
+        ), status, userId);
 
-        boolean isVendorMatchedWithDelivery = delivery.getVendorId() == userId;
-
-        if (isValidStatusForVendor && !isVendorMatchedWithDelivery) {
-            throw new AccessForbiddenException("Delivery contains a different vendor id.");
-        }
-
-        boolean isValidStatusForCourier = status == DeliveryIdStatusPutRequest.StatusEnum.IN_TRANSIT
-                || status == DeliveryIdStatusPutRequest.StatusEnum.DELIVERED;
-
-        boolean isCourierMatchedWithDelivery = delivery.getCourierId() == userId;
-
-        if (isValidStatusForCourier && !isCourierMatchedWithDelivery) {
-            throw new AccessForbiddenException("Delivery contains a different vendor id.");
+        if (!statusPermissionValidator.process(delivery)) {
+            throw new AccessForbiddenException("User has no right to update delivery status.");
         }
 
         switch (status) {
@@ -159,9 +159,11 @@ public class DeliveryService {
      * @param vendorService                     vendor service to interact with user api
      * @return the vendorID with its updated maximum delivery zone
      */
-    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId,
-                                                           DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
-                                                           VendorService vendorService) {
+    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(
+            UUID vendorId,
+            DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
+            VendorService vendorService) {
+
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 

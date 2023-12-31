@@ -40,6 +40,10 @@ public class CourierService {
     public Courier getCourier(String courierId) {
         Map<String, Object> response = getCourierRaw(courierId);
 
+        if (response == null) {
+            return null;
+        }
+
         Courier courier = new Courier();
 
         courier.setId(UUID.fromString((String) response.get("userID")));

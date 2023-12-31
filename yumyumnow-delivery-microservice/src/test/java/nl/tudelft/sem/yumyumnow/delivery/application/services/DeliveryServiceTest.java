@@ -30,14 +30,17 @@ public class DeliveryServiceTest {
 
     private DeliveryService deliveryService;
     private VendorService vendorService;
+    private CourierService courierService;
 
     @BeforeEach
     void setUp(){
         deliveryRepository = mock(DeliveryRepository.class);
         vendorService = mock(VendorService.class);
+        courierService = mock(CourierService.class);
+
 
         deliveryService = new DeliveryService(
-                deliveryRepository, vendorService);
+                deliveryRepository, vendorService, courierService);
     }
 
     @Test

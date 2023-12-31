@@ -10,7 +10,7 @@ public class CourierValidator extends AuthProcessor<Courier> {
     VendorService vendorService;
     Courier toValidate;
 
-    public CourierValidator(AuthProcessor<Courier> next, Courier toValidate, VendorService vendorService) {
+    public CourierValidator(AuthProcessor next, Courier toValidate, VendorService vendorService) {
         super(next);
         this.vendorService = vendorService;
         this.toValidate = toValidate;
@@ -18,6 +18,7 @@ public class CourierValidator extends AuthProcessor<Courier> {
 
     @Override
     public boolean process(Delivery delivery) {
+        if (toValidate == null) return false;
         Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
         if (!delivery.getCourierId().equals(toValidate.getId()))
             return false;

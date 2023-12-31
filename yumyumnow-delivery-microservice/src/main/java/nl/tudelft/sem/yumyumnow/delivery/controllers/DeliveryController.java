@@ -63,7 +63,10 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
     ){
-        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+        Delivery delivery = deliveryService.changePrepTime(
+                id, deliveryIdDeliveryTimePostRequest.getUserId(),
+                deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()
+        );
 
         if (delivery == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

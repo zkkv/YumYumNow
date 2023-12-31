@@ -38,6 +38,10 @@ public class CustomerService {
     public Customer getCustomer(String customerId) {
         Map<String, Object> response = getCustomerRaw(customerId);
 
+        if (response == null) {
+            return null;
+        }
+
         Customer customer = new Customer();
         customer.setId(UUID.fromString((String) response.get("userID")));
         customer.setName((String) response.get("name"));

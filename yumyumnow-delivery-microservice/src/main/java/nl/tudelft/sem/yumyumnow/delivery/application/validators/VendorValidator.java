@@ -6,13 +6,14 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 public class VendorValidator extends AuthProcessor<Vendor> {
     private Vendor toValidate;
 
-    public VendorValidator(AuthProcessor<Vendor> next, Vendor toValidate) {
+    public VendorValidator(AuthProcessor next, Vendor toValidate) {
         super(next);
         this.toValidate = toValidate;
     }
 
     @Override
     public boolean process(Delivery delivery) {
+        if (toValidate == null) return false;
         if (!delivery.getVendorId().equals(toValidate.getId()))
             return false;
 

@@ -47,6 +47,10 @@ public class VendorService {
     public Vendor getVendor(String vendorId) {
         Map<String, Object> response = getVendorRaw(vendorId);
 
+        if (response == null) {
+            return null;
+        }
+
         Vendor vendor = new Vendor();
         vendor.setId(UUID.fromString((String) response.get("userID")));
 
