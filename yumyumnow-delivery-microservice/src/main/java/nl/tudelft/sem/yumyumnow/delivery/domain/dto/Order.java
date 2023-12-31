@@ -15,6 +15,7 @@ public class Order {
     private UUID id;
 
     private Vendor vendor;
+    private Customer customer;
 
     @Override
     public boolean equals(Object o) {

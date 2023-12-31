@@ -17,13 +17,18 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class VendorService extends UserService {
+public class VendorService {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl;
 
+    /**
+     * Creates a new VendorService object.
+     *
+     * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
+     * @param userServiceUrl the url of the User Microservice.
+     */
     @Autowired
     public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
-        super(restTemplate, userServiceUrl);
         this.restTemplate = restTemplate;
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
     }
@@ -62,7 +67,6 @@ public class VendorService extends UserService {
     /**
      * Update a vendor.
      *
-     * @param vendorId  The id of updated vendor
      * @param vendor The updated vendor
      */
     public boolean putVendor(Vendor vendor) {

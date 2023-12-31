@@ -1,8 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
-import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -12,20 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class CourierService extends UserService {
+public class CourierService {
     private final RestTemplate restTemplate;
     private final String courierServiceUrl;
     private final VendorService vendorService;
 
     @Autowired
     public CourierService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl, VendorService vendorService) {
-        super(restTemplate, userServiceUrl);
         this.restTemplate = restTemplate;
         this.courierServiceUrl = userServiceUrl + "/courier/";
         this.vendorService = vendorService;
