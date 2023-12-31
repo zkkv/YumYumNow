@@ -60,7 +60,6 @@ public class DeliveryService {
      * Update the estimatedPrepTime of a delivery
      *
      * @param deliveryId        the ID of the delivery to be updated
-     * @param vendor            the ID of the vendor that updates the delivery
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */

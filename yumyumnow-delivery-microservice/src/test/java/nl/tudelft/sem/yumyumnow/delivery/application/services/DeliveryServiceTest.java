@@ -10,6 +10,7 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,8 +33,8 @@ public class DeliveryServiceTest {
 
     @BeforeEach
     void setUp(){
-        this.deliveryRepository = mock(DeliveryRepository.class);
-        this.vendorService = mock(VendorService.class);
+        deliveryRepository = mock(DeliveryRepository.class);
+        vendorService = mock(VendorService.class);
 
         deliveryService = new DeliveryService(
                 deliveryRepository, vendorService);
@@ -277,14 +278,19 @@ public class DeliveryServiceTest {
     @Test
     public void changePrepTimeUnauthorizedVendor(){
         UUID id = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
+
+        Vendor vendor = new Vendor();
+        vendor.setId(UUID.randomUUID());
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
+        delivery.setVendorId(UUID.randomUUID());
+
 
 
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+        when(vendorService.getVendor(vendor.getId().toString())).thenReturn(vendor);
 
         LocalDate localDate = LocalDate.of(2023, 12, 10);
 
@@ -294,7 +300,7 @@ public class DeliveryServiceTest {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
-        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertNull(deliveryService.changePrepTime(id, vendor.getId(), offsetDateTime));
         
     }
 
@@ -307,8 +313,12 @@ public class DeliveryServiceTest {
         delivery.setId(id);
         delivery.setVendorId(userId);
 
+        Vendor vendor = new Vendor();
+        vendor.setId(userId);
+
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+        when(vendorService.getVendor(userId.toString())).thenReturn(vendor);
 
         LocalDate localDate = LocalDate.of(2023, 12, 10);
 
