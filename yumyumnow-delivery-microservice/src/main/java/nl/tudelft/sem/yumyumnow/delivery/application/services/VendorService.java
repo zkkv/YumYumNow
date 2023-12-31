@@ -8,7 +8,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,9 +16,15 @@ public class VendorService extends UserService {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl;
 
+    /**
+     * Creates a new VendorService object.
+     *
+     * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
+     * @param userServiceUrl the url of the User Microservice.
+     */
     @Autowired
-    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl){
-        super(restTemplate,userServiceUrl);
+    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        super(restTemplate, userServiceUrl);
         this.restTemplate = restTemplate;
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
     }
@@ -30,7 +35,7 @@ public class VendorService extends UserService {
      * @param vendorId The id of the vendor.
      * @return the vendor as a map of response JSON
      */
-    public Map<String, Object> getVendor(UUID vendorId){
+    public Map<String, Object> getVendor(UUID vendorId) {
         String url = vendorServiceUrl + vendorId;
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
         return response;
@@ -42,7 +47,7 @@ public class VendorService extends UserService {
      * @param vendorId The id of updated vendor
      * @param vendorMap The updated vendor
      */
-    public boolean putVendor(UUID vendorId, Map<String, Object> vendorMap){
+    public boolean putVendor(UUID vendorId, Map<String, Object> vendorMap) {
         String url = vendorServiceUrl + vendorId;
 
         HttpHeaders headers = new HttpHeaders();
