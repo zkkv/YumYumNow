@@ -3,39 +3,41 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Optional;
 import java.util.UUID;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeliveryTimeTest {
     private DeliveryRepository deliveryRepository;
-    private VendorCustomizerRepository vendorCustomizerRepository;
     private DeliveryService deliveryService;
     private OrderService orderService;
-    private UserService userService;
+    private CustomerService userService;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
-        vendorCustomizerRepository = mock(VendorCustomizerRepository.class);
-        deliveryService = new DeliveryService(deliveryRepository,
-                vendorCustomizerRepository);
+        VendorService vendorService = mock(VendorService.class);
+        CourierService courierService = mock(CourierService.class);
+
+        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService);
+
         orderService = mock(OrderService.class);
-        userService = mock(UserService.class);
+        userService = mock(CustomerService.class);
     }
 
     @Test
-    void successfulTest(){
+    void successfulTest() {
         // set up the delivery with the preparation time fixed
         UUID deliveryId = UUID.randomUUID();
         LocalDate localDate = LocalDate.of(2023, 12, 10);
@@ -75,7 +77,7 @@ public class DeliveryTimeTest {
         when(orderService.findOrderById(orderId)).thenReturn(order);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);
 
-        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId,orderService,userService);
+        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId, orderService, userService);
         OffsetDateTime expected = OffsetDateTime.parse("2023-12-10T15:08:54Z");
 
         assertThat(newDelivery).isNotNull();
@@ -83,7 +85,7 @@ public class DeliveryTimeTest {
     }
 
     @Test
-    void unsuccessfulTest(){
+    void unsuccessfulTest() {
         // we will have some fields set to null, resulting in a bad request
 
         // set up the delivery with the preparation time fixed
@@ -100,13 +102,13 @@ public class DeliveryTimeTest {
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);
 
-        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId,orderService,userService);
+        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId, orderService, userService);
 
         assertThat(newDelivery).isNull();
     }
 
     @Test
-    void getDeliveryTimeHelperTest(){
+    void getDeliveryTimeHelperTest() {
         Location location1 = new Location();
         location1.setLatitude(BigDecimal.valueOf(0));
         location1.setLongitude(BigDecimal.valueOf(0));
