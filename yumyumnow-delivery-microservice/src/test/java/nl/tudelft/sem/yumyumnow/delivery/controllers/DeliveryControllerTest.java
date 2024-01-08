@@ -2,7 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
@@ -29,14 +29,14 @@ class DeliveryControllerTest {
 
     private DeliveryService deliveryService;
     private DeliveryController deliveryController;
-    private UserService userService;
+    private CustomerService userService;
     private VendorService vendorService;
     private OrderService orderService;
 
     @BeforeEach
     void setUp(){
         this.deliveryService = mock(DeliveryService.class);
-        this.userService = mock(UserService.class);
+        this.userService = mock(CustomerService.class);
         this.vendorService = mock(VendorService.class);
         this.orderService = mock(OrderService.class);
         this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, orderService);

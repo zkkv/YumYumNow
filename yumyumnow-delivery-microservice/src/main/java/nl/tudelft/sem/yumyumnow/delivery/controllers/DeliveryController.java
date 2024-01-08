@@ -8,7 +8,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.http.HttpStatus;
@@ -22,11 +22,11 @@ import javax.validation.Valid;
 @RestController
 public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
-    private final UserService userService;
+    private final CustomerService userService;
     private final VendorService vendorService;
     private final OrderService orderService;
 
-    public DeliveryController(DeliveryService deliveryService, UserService userService, VendorService vendorService, OrderService orderService) {
+    public DeliveryController(DeliveryService deliveryService, CustomerService userService, VendorService vendorService, OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
@@ -63,7 +63,10 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
     ){
-        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+        Delivery delivery = deliveryService.changePrepTime(
+                id, deliveryIdDeliveryTimePostRequest.getUserId(),
+                deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()
+        );
 
         if (delivery == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
