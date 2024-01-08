@@ -1,7 +1,5 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.validators;
 
-import lombok.Setter;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 
 public abstract class AuthProcessor<T> {
