@@ -25,8 +25,6 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
 
     @Override
     public boolean process(Delivery delivery) {
-        if (toValidate == null) return false;
-
         Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
         if (vendor == null) return true;
 
