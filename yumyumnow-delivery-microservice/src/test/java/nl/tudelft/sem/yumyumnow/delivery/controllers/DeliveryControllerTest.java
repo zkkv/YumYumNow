@@ -1,8 +1,12 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
@@ -25,16 +29,17 @@ class DeliveryControllerTest {
 
     private DeliveryService deliveryService;
     private DeliveryController deliveryController;
-    private UserService userService;
+    private CustomerService userService;
     private VendorService vendorService;
-
+    private OrderService orderService;
 
     @BeforeEach
     void setUp(){
         this.deliveryService = mock(DeliveryService.class);
-        this.userService = mock(UserService.class);
+        this.userService = mock(CustomerService.class);
         this.vendorService = mock(VendorService.class);
-        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService);
+        this.orderService = mock(OrderService.class);
+        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, orderService);
     }
 
     @Test
@@ -63,7 +68,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    public void updateStatusFail() {
+    public void updateStatusFail() throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.PENDING;
@@ -71,7 +76,9 @@ class DeliveryControllerTest {
         deliveryIdStatusPutRequest.setUserId(userId);
         deliveryIdStatusPutRequest.setStatus(status);
 
-        when(deliveryService.updateStatus(id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus())).thenReturn(null);
+        when(deliveryService.updateStatus(
+                id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
+                .thenThrow(BadArgumentException.class);
 
         ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
@@ -174,7 +181,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void updateStatusSuccess() {
+    void updateStatusSuccess() throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
@@ -186,7 +193,9 @@ class DeliveryControllerTest {
         delivery.setStatus(Delivery.StatusEnum.PREPARING);
         delivery.setId(id);
 
-        when(deliveryService.updateStatus(id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus())).thenReturn(delivery);
+        when(deliveryService.updateStatus(
+                id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
+                .thenReturn(delivery);
 
         ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
 
@@ -221,5 +230,37 @@ class DeliveryControllerTest {
 
         ResponseEntity<DeliveryVendorIdMaxZonePutRequest> response = deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest);
         assertEquals(response, ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest));
+    }
+
+    @Test
+    void totalDeliveryTimeSuccessfulTest(){
+        UUID deliveryId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliveryId);
+
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
+
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1 = new DeliveryIdDeliveryTimePostRequest1();
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void totalDeliveryTimeUnsuccessfulTest(){
+        UUID deliveryId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliveryId);
+
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(null);
+
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1 = new DeliveryIdDeliveryTimePostRequest1();
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1);
+
+        assertEquals(expected, actual);
     }
 }

@@ -1,18 +1,29 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
-import java.math.BigDecimal;
-import org.springframework.beans.factory.annotation.Autowired;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 
+import java.math.BigDecimal;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import javax.validation.Valid;
+import javax.validation.constraints.Null;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -21,30 +32,23 @@ import java.util.UUID;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
-
-    private final VendorCustomizerRepository vendorCustomizerRepository;
-
-    private final OrderService orderService;
-
     private final VendorService vendorService;
-    
+    private final CourierService courierService;
+
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository         The repository to use.
-     * @param vendorCustomizerRepository The repository holding minimal information about vendors.
-     * @param orderService               Order service.
-     * @param vendorService              Vendor service class communicating with User microservice.
+     * @param deliveryRepository The repository to use.
      */
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository,
-                           VendorCustomizerRepository vendorCustomizerRepository,
-                           OrderService orderService,
-                           VendorService vendorService) {
+    public DeliveryService(
+            DeliveryRepository deliveryRepository,
+            VendorService vendorService,
+            CourierService courierService
+    ) {
         this.deliveryRepository = deliveryRepository;
-        this.vendorCustomizerRepository = vendorCustomizerRepository;
-        this.orderService = orderService;
         this.vendorService = vendorService;
+        this.courierService = courierService;
     }
 
     /**
@@ -59,9 +63,6 @@ public class DeliveryService {
     public Delivery createDelivery(UUID orderId, UUID vendorId) {
         Delivery delivery = new Delivery();
 
-        // TODO: Get order details from Order microservice
-        // TODO: Get vendor details from Vendor microservice
-
         delivery.setId(UUID.randomUUID());
         delivery.setOrderId(orderId);
         delivery.setVendorId(vendorId);
@@ -72,13 +73,12 @@ public class DeliveryService {
 
     /**
      * Update the estimatedPrepTime of a delivery
-     * @param deliveryId the ID of the delivery to be updated
-     * @param vendor the ID of the vendor that updates the delivery
+     *
+     * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */
-    public Delivery changePrepTime(UUID deliveryId, UUID vendor, OffsetDateTime estimatedPrepTime) {
-
+    public Delivery changePrepTime(UUID deliveryId, UUID vendorId, OffsetDateTime estimatedPrepTime) {
 
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
@@ -88,16 +88,15 @@ public class DeliveryService {
             return null;
         }
 
-
         Delivery delivery = optionalDelivery.get();
 
-        boolean isVendorMatchedWithDelivery = delivery.getVendorId() == vendor;
+        VendorValidator vendorValidator = new VendorValidator(null, vendorId, vendorService);
 
-        if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !isVendorMatchedWithDelivery) {
+        if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !vendorValidator.process(delivery)) {
             return null;
         }
 
-        delivery.estimatedPreparationFinishTime(estimatedPrepTime);
+        delivery.setEstimatedPreparationFinishTime(estimatedPrepTime);
 
         deliveryRepository.save(delivery);
 
@@ -107,48 +106,51 @@ public class DeliveryService {
     /**
      * Updates status of the delivery with verification of the user rights.
      *
-     * @param id        delivery id.
-     * @param userId    user id, for valid update user has to be either a courier or a vendor,
-     *                  depending on which status they are trying to set.
-     * @param status    the new status of the delivery.
-     * @return          delivery object with the update status, or null if user has no right to
-     *                  update it or if delivery is not found.
-     * @author          Horia Radu, Kirill Zhankov
+     * @param id     delivery id.
+     * @param userId user id, for valid update user has to be either a courier or a vendor,
+     *               depending on which status they are trying to set.
+     * @param status the new status of the delivery.
+     * @return delivery object with the update status, or null if user has no right to
+     * update it or if delivery is not found.
+     * @author Horia Radu, Kirill Zhankov
      */
-    public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status) {
+    public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
 
-        // TODO: This has to be converted to a validator pattern
-
-        boolean isValidStatusForVendor = status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.REJECTED
-                || status == DeliveryIdStatusPutRequest.StatusEnum.GIVEN_TO_COURIER
-                || status == DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
-        if (isValidStatusForVendor
-                && (vendorCustomizerRepository.findById(userId).isEmpty())) {
-            return null;
-        }
-        if (vendorCustomizerRepository.findById(userId).isPresent() && !isValidStatusForVendor) {
-            return null;
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.PENDING) {
+            throw new BadArgumentException("Status cannot be PENDING.");
         }
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
-
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("No delivery found by id.");
         }
-
 
         Delivery delivery = optionalDelivery.get();
 
+         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+                 Map.of(
+                         Vendor.class, new VendorValidator(null, userId, vendorService),
+                         Courier.class, new CourierValidator(null, userId, courierService, vendorService)
+                 ), status, userId, vendorService, courierService);
+
+
+
+        if (!statusPermissionValidator.process(delivery)) {
+            throw new AccessForbiddenException("User has no right to update delivery status.");
+        }
+
         switch (status) {
-            case PENDING -> delivery.setStatus(Delivery.StatusEnum.PENDING);
             case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
             case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
             case DELIVERED -> delivery.setStatus(Delivery.StatusEnum.DELIVERED);
             case PREPARING -> delivery.setStatus(Delivery.StatusEnum.PREPARING);
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
+            default -> throw new BadArgumentException(
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
+                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -159,31 +161,114 @@ public class DeliveryService {
 
     /**
      * Update the maximum delivery zone of a vendor
-     * @param vendorId the current vendorId
+     *
+     * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
      *                                          and the new maximium delivery zone
-     * @param vendorService vendor service to interact with user api
+     * @param vendorService                     vendor service to interact with user api
      * @return the vendorID with its updated maximum delivery zone
      */
-    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(UUID vendorId, DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
-                                                           VendorService vendorService) {
+    public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(
+            UUID vendorId,
+            DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
+            VendorService vendorService) {
+
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId) == null) return null;
+        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId.toString()) == null) {
+            return null;
+        }
 
-        Map<String, Object> vendorMap = vendorService.getVendor(vendorId);
+        Vendor vendor = vendorService.getVendor(vendorId.toString());
 
-        Object allowOwnCourier = vendorMap.get("allowOnlyOwnCouriers");
-        if (allowOwnCourier instanceof Boolean && (Boolean) allowOwnCourier) {
-            vendorMap.put("maxDeliveryZone", radiusKm);
+        if (vendor.getAllowsOnlyOwnCouriers()) {
+            vendor.setMaxDeliveryZoneKm(radiusKm);
 
-            boolean response = vendorService.putVendor(vendorId,vendorMap);
+            boolean response = vendorService.putVendor(vendor);
             if (response) {
                 return deliveryVendorIdMaxZonePutRequest;
             }
         }
         return null;
+    }
+
+    private static final int EARTH_RADIUS_KM = 6378; // constant for the earth radius needed to calculate the distance
+    private static final int AVERAGE_SPEED_KMH = 50; // constant for the average speed
+
+    /**
+     * This method calculates the delivery time based on the distance between the vendor and the customer.
+     *
+     * @param customerLocation the customer's location stored as a Location object.
+     * @param vendorLocation   the vendor's location stored as a Location object.
+     * @return the time expressed in seconds.
+     */
+    public Duration getDeliveryTimeHelper(Location customerLocation, @Valid DeliveryCurrentLocation vendorLocation) {
+        // Convert the latitudes and longitudes from degrees to radians.
+        double lat1 = customerLocation.getLatitude().doubleValue();
+        double lat2 = vendorLocation.getLatitude().doubleValue();
+        double long1 = customerLocation.getLongitude().doubleValue();
+        double long2 = vendorLocation.getLongitude().doubleValue();
+        double latDistance = Math.toRadians(lat1 - lat2);
+        double lonDistance = Math.toRadians(long1 - long2);
+
+        // Apply the Haversine formula
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = EARTH_RADIUS_KM * c;
+
+        double timeInHours = dist / AVERAGE_SPEED_KMH; // the average speed is set to 50 km/h
+        long timeInSeconds = (long) (timeInHours * 3600); // Convert time to seconds
+        return Duration.ofSeconds(timeInSeconds);
+    }
+
+    /**
+     * This method adds the total delivery time to a delivery.
+     *
+     * @param deliveryId   the id of the delivery.
+     * @param orderService the instance of the order service.
+     * @param userService  the instance of the user service.
+     * @return a Delivery object representing the update delivery.
+     */
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
+        if (optionalDelivery.isEmpty()) {
+            return null;
+        }
+        Delivery delivery = optionalDelivery.get();
+
+        // get preparation time
+        final OffsetDateTime preparationTime = delivery.getEstimatedPreparationFinishTime();
+
+        // get the location of the customer
+        UUID orderId = delivery.getOrderId();
+        Order order = orderService.findOrderById(orderId);
+        if (order == null) {
+            return null;
+        }
+        Customer customer = order.getCustomer();
+        if (customer == null) {
+            return null;
+        }
+        Location customerLocation = userService.getCustomerAddress(customer.getId());
+        if (customerLocation == null) {
+            return null;
+        }
+
+        // location of vendor
+        @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
+        if (vendorLocation == null) {
+            return null;
+        }
+        Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
+
+        OffsetDateTime totalTime = preparationTime.plus(deliveryTime);
+        delivery.setEstimatedDeliveryTime(totalTime);
+
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
 }
