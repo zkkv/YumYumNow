@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +39,7 @@ public class DeliveryTimeTest {
     }
 
     @Test
-    void successfulTest() {
+    void successfulTest() throws Exception{
         // set up the delivery with the preparation time fixed
         UUID deliveryId = UUID.randomUUID();
         LocalDate localDate = LocalDate.of(2023, 12, 10);
@@ -85,7 +87,7 @@ public class DeliveryTimeTest {
     }
 
     @Test
-    void unsuccessfulTest() {
+    void unsuccessfulTest() throws Exception{
         // we will have some fields set to null, resulting in a bad request
 
         // set up the delivery with the preparation time fixed
@@ -102,9 +104,9 @@ public class DeliveryTimeTest {
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);
 
-        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId, orderService, userService);
-
-        assertThat(newDelivery).isNull();
+        assertThatThrownBy(() -> {
+            deliveryService.addDeliveryTime(deliveryId, orderService, userService);
+        }).isInstanceOf(BadArgumentException.class).hasMessageContaining("The order is non existing.");
     }
 
     @Test

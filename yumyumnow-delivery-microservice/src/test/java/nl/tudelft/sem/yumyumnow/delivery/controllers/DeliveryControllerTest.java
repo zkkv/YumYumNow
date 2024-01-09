@@ -233,7 +233,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void totalDeliveryTimeSuccessfulTest(){
+    void totalDeliveryTimeSuccessfulTest() throws Exception {
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new Delivery();
         delivery.setId(deliveryId);
@@ -249,12 +249,12 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void totalDeliveryTimeUnsuccessfulTest(){
+    void totalDeliveryTimeUnsuccessfulTest() throws Exception{
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new Delivery();
         delivery.setId(deliveryId);
 
-        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(null);
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenThrow(NoDeliveryFoundException.class);
 
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1 = new DeliveryIdDeliveryTimePostRequest1();
 
