@@ -223,13 +223,13 @@ public class DeliveryService {
      * @param orderService the instance of the order service.
      * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
-     * @throws Exception the exeption to be thrown.
+     * @throws Exception the exception to be thrown.
      *
      */
     public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) throws Exception{
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
-            throw new NoDeliveryFoundException("You cannot update the time of a non existing delivery.");
+            throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
         Delivery delivery = optionalDelivery.get();
 
@@ -240,21 +240,21 @@ public class DeliveryService {
         UUID orderId = delivery.getOrderId();
         Order order = orderService.findOrderById(orderId);
         if (order == null) {
-            throw new BadArgumentException("The order is non existing.");
+            throw new BadArgumentException("The order is non-existent.");
         }
         Customer customer = order.getCustomer();
         if (customer == null) {
-            throw new BadArgumentException("The customer is non existing.");
+            throw new BadArgumentException("The customer is non-existing.");
         }
         Location customerLocation = userService.getCustomerAddress(customer.getId());
         if (customerLocation == null) {
-            throw new BadArgumentException("The customer's location non existing.");
+            throw new BadArgumentException("The customer's location is non-existing.");
         }
 
         // location of vendor
         @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
         if (vendorLocation == null) {
-            throw new BadArgumentException("The vendor's location non existing.");
+            throw new BadArgumentException("The vendor's location is non-existing.");
         }
         Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
 

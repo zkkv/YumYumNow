@@ -106,7 +106,7 @@ public class DeliveryTimeTest {
 
         assertThatThrownBy(() -> {
             deliveryService.addDeliveryTime(deliveryId, orderService, userService);
-        }).isInstanceOf(BadArgumentException.class).hasMessageContaining("The order is non existing.");
+        }).isInstanceOf(BadArgumentException.class).hasMessageContaining("The order is non-existent.");
     }
 
     @Test
