@@ -4,13 +4,13 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -40,6 +40,64 @@ class DeliveryControllerTest {
         this.vendorService = mock(VendorService.class);
         this.orderService = mock(OrderService.class);
         this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, orderService);
+    }
+
+    @Test
+    void deliveryPostSuccess() throws BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        Order order = new Order();
+        order.setId(orderId);
+        Vendor vendor = new Vendor();
+        vendor.setId(vendorId);
+        order.setVendor(vendor);
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+
+        when(deliveryService.createDelivery(orderId, vendorId)).thenReturn(delivery);
+
+        DeliveryPostRequest request = new DeliveryPostRequest();
+        request.setOrderId(orderId);
+        request.setVendorId(vendorId);
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+
+        ResponseEntity<Delivery> actual = deliveryController.deliveryPost(request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void deliveryPostFail() throws BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        Order order = new Order();
+        order.setId(orderId);
+        Vendor vendor = new Vendor();
+        vendor.setId(vendorId);
+        order.setVendor(vendor);
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+
+        when(deliveryService.createDelivery(orderId, vendorId))
+                .thenThrow(BadArgumentException.class);
+
+
+        DeliveryPostRequest request = new DeliveryPostRequest();
+        request.setOrderId(orderId);
+        request.setVendorId(vendorId);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        ResponseEntity<Delivery> actual = deliveryController.deliveryPost(request);
+
+        assertEquals(expected, actual);
     }
 
     @Test

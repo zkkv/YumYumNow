@@ -60,19 +60,24 @@ public class DeliveryService {
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID orderId, UUID vendorId) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
         Delivery delivery = new Delivery();
+
+        if (vendorService.getVendor(vendorId.toString()) == null) {
+            throw new BadArgumentException("Vendor does not exist");
+        }
 
         delivery.setId(UUID.randomUUID());
         delivery.setOrderId(orderId);
         delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
-        return deliveryRepository.save(delivery);
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
     /**
-     * Update the estimatedPrepTime of a delivery
+     * Update the estimatedPrepTime of a delivery.
      *
      * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
@@ -149,8 +154,8 @@ public class DeliveryService {
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
-                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
-                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
+                            + "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -160,7 +165,7 @@ public class DeliveryService {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
