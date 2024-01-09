@@ -67,6 +67,31 @@ public class DeliveryServiceTest {
                 deliveryService.createDelivery(orderId, vendorId));
     }
 
+    public void getExistingDelivery() throws NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Delivery actual = deliveryService.getDelivery(id);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getNonExistingDelivery() {
+        UUID id = UUID.randomUUID();
+        UUID otherId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(NoDeliveryFoundException.class, () -> deliveryService.getDelivery(otherId));
+    }
+
     @Test
     public void updateStatusOfNonExistingDelivery() {
         UUID id = UUID.randomUUID();

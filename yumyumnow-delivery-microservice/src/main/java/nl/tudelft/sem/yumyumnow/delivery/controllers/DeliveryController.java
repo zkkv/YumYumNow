@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -12,6 +13,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,6 +66,28 @@ public class DeliveryController implements DeliveryApi {
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Returns a delivery based on its {@code id} or BAD REQUEST if no delivery was found.
+     *
+     * @param id UUID of the delivery (required)
+     * @return the delivery object and OK, or BAD REQUEST if no delivery was found.
+     * @author Kirill Zhankov
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdGet(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id
+    ) {
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.getDelivery(id);
+        } catch (NoDeliveryFoundException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         return ResponseEntity.ok(delivery);
     }
 
