@@ -7,10 +7,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -287,6 +284,74 @@ class DeliveryControllerTest {
 
         ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void assignCourierSuccess()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId)).thenReturn(delivery);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void assignCourierBadRequest()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId))
+                .thenThrow(NoDeliveryFoundException.class);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void assignCourierForbidden()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId))
+                .thenThrow(AccessForbiddenException.class);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
 
         assertEquals(expected, actual);
     }

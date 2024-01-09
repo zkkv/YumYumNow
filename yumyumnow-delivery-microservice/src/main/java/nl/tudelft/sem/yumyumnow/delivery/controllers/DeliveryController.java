@@ -199,8 +199,10 @@ public class DeliveryController implements DeliveryApi {
         Delivery delivery = null;
         try {
             delivery = deliveryService.assignCourier(id, courierId);
-        } catch (NoDeliveryFoundException e) {
+        } catch (NoDeliveryFoundException | BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(delivery);
     }

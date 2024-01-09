@@ -290,7 +290,8 @@ public class DeliveryService {
     }
 
 
-    public Delivery assignCourier(UUID id, UUID courierId) throws NoDeliveryFoundException {
+    public Delivery assignCourier(UUID id, UUID courierId)
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
         if (optionalDelivery.isEmpty()) {
@@ -298,6 +299,24 @@ public class DeliveryService {
         }
 
         Delivery delivery = optionalDelivery.get();
+
+        var validator = new CourierExistsValidator(null, courierId, courierService);
+        boolean exists = courierService.getCourier(courierId.toString()) != null;
+
+        if (!validator.process(delivery)) {
+            throw new BadArgumentException("No courier found by id.");
+        }
+
+        UUID oldCourierId = delivery.getCourierId();
+        if (courierId.equals(oldCourierId)) {
+            throw new BadArgumentException("Courier with that id is assigned to the delivery.");
+        }
+
+        if (oldCourierId != null && !courierId.equals(oldCourierId)) {
+            throw new AccessForbiddenException("Another courier is assigned to the delivery");
+        }
+
+
         delivery.setCourierId(courierId);
         deliveryRepository.save(delivery);
 

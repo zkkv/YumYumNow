@@ -455,4 +455,67 @@ public class DeliveryServiceTest {
         assertEquals(response, deliveryVendorIdMaxZonePutRequest);
     }
 
+    @Test
+    public void assignCourierSuccess()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier());
+
+        Delivery actual = deliveryService.assignCourier(id, courierId);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void assignCourierNoSuchCourier() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void assignCourierAnotherAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID oldCourierId = UUID.randomUUID();
+        UUID newCourierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(oldCourierId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        when(courierService.getCourier(newCourierId.toString())).thenReturn(new Courier());
+
+        assertThrows(AccessForbiddenException.class,
+                () -> deliveryService.assignCourier(id, newCourierId));
+    }
+
+    @Test
+    public void assignCourierSameAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(courierId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier());
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
 }
