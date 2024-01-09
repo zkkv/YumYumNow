@@ -188,4 +188,21 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+    @Override
+    public ResponseEntity<Delivery> deliveryIdAssignPut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdAssignPutRequest", description = "") @Valid
+            @RequestBody(required = false) DeliveryIdAssignPutRequest deliveryIdAssignPutRequest
+    ) {
+        UUID courierId = deliveryIdAssignPutRequest.getCourierId();
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.assignCourier(id, courierId);
+        } catch (NoDeliveryFoundException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(delivery);
+    }
+
 }

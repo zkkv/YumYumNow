@@ -286,4 +286,17 @@ public class DeliveryService {
     }
 
 
+    public Delivery assignCourier(UUID id, UUID courierId) throws NoDeliveryFoundException {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+        if (optionalDelivery.isEmpty()) {
+            throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+
+        Delivery delivery = optionalDelivery.get();
+        delivery.setCourierId(courierId);
+        deliveryRepository.save(delivery);
+
+        return delivery;
+    }
 }
