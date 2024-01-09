@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -43,7 +42,8 @@ public class DeliveryService {
     public DeliveryService(
             DeliveryRepository deliveryRepository,
             VendorService vendorService,
-            CourierService courierService
+            CourierService courierService,
+            OrderService orderService
     ) {
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
@@ -238,10 +238,6 @@ public class DeliveryService {
     public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
-            return null;
-        }
-
-        if(status == StatusEnum.ACCEPTED && orderService.isPaid(id)) {
             return null;
         }
 
