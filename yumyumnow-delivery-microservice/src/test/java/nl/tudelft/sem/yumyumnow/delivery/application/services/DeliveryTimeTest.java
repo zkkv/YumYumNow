@@ -29,10 +29,10 @@ public class DeliveryTimeTest {
         deliveryRepository = mock(DeliveryRepository.class);
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
-
-        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService);
-
         orderService = mock(OrderService.class);
+
+        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService, orderService);
+
         userService = mock(CustomerService.class);
     }
 
