@@ -39,7 +39,7 @@ public class DeliveryServiceTest {
         deliveryRepository = mock(DeliveryRepository.class);
         vendorService = mock(VendorService.class);
         courierService = mock(CourierService.class);
-        this.orderService = mock(OrderService.class);
+        orderService = mock(OrderService.class);
 
 
         deliveryService = new DeliveryService(
@@ -204,6 +204,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
         when(vendorService.getVendor(vendor.getId().toString())).thenReturn(vendor);
+        when(orderService.isPaid(id)).thenReturn(true);
 
         Delivery actual = deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
@@ -433,4 +434,24 @@ public class DeliveryServiceTest {
         assertEquals(response, deliveryVendorIdMaxZonePutRequest);
     }
 
+    @Test
+    public void unpaidStatusChangeTest() {
+        //need to mock the isPaid method
+        //assert that it throws an exception
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        delivery.setVendorId(UUID.randomUUID());
+
+
+        delivery.setStatus(Delivery.StatusEnum.PENDING);
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+        when(orderService.isPaid(id)).thenReturn(false);
+        assertThrows(AccessForbiddenException.class,
+                ()->{
+                    deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+                });
+    }
 }

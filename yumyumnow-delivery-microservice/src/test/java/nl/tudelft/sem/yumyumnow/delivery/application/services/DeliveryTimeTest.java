@@ -127,4 +127,5 @@ public class DeliveryTimeTest {
         actual = deliveryService.getDeliveryTimeHelper(location1, location3);
         assertThat(actual.getSeconds()).isEqualTo(0);
     }
+
 }
