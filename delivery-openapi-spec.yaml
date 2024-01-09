@@ -1198,7 +1198,18 @@ components:
           format: date-time
           example: "2018-11-10T13:47:51.141Z"
         currentLocation:
-          $ref: '#/components/schemas/Location'
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+              example: "2018-12-10T13:49:51.141Z"
+            latitude:
+              type: number
+              example: 10
+            longitude:
+              type: number
+              example: 20
     Error:
       type: object
       properties:
