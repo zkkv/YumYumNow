@@ -126,6 +126,10 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
+        if(status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+            throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
+        }
+
         Delivery delivery = optionalDelivery.get();
 
          StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
