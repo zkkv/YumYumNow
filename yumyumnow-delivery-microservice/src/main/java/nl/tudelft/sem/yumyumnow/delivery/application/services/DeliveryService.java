@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
@@ -209,8 +210,12 @@ public class DeliveryService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and default maximum delivery zone
      */
-    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService){
-        //TODO: validate the admin
+    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException{
+
+        if(!adminService.validate(adminId)){
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
 
         Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
         if(optionalGlobalConfig.isEmpty()){
@@ -235,10 +240,15 @@ public class DeliveryService {
      *
      * @param adminId the id of admin
      * @param defaultMaxZone the new default maximum delivery zone
+     * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
-    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone){
-        //TODO: validate the admin
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone, AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException{
+
+        if(!adminService.validate(adminId)){
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
 
         Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
         if(optionalGlobalConfig.isEmpty()){
