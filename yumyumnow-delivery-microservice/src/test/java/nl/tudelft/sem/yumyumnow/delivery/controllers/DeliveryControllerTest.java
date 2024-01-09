@@ -48,6 +48,33 @@ class DeliveryControllerTest {
     }
 
     @Test
+    void getDeliverySuccess() throws NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+
+        when(deliveryService.getDelivery(id)).thenReturn(delivery);
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdGet(id);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getDeliveryFail() throws NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+
+        when(deliveryService.getDelivery(id)).thenThrow(NoDeliveryFoundException.class);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdGet(id);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void deliveryIdPrepTimePostFail() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();

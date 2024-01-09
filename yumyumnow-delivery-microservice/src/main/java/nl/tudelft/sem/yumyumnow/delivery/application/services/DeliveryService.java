@@ -263,6 +263,23 @@ public class DeliveryService {
         response.setRadiusKm(defaultMaxZone);
 
         return response;
+
+    /**
+     * Returns the delivery specified by {@code id} from deliveryRepository, or throws
+     * {@link NoDeliveryFoundException} if it's not present.
+     *
+     * @param id UUID of the delivery.
+     * @return the delivery object if it's present in the repository or null otherwise.
+     * @throws NoDeliveryFoundException if delivery was not found.
+     * @author Kirill Zhankov
+     */
+    public Delivery getDelivery(UUID id) throws NoDeliveryFoundException {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+        if (optionalDelivery.isEmpty()) {
+            throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+        return optionalDelivery.get();
     }
 
     private static final int EARTH_RADIUS_KM = 6378; // constant for the earth radius needed to calculate the distance
@@ -342,5 +359,6 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
         return delivery;
     }
+
 
 }
