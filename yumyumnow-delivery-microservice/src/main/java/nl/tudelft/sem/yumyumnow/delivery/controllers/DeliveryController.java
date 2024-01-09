@@ -2,7 +2,6 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
@@ -15,7 +14,6 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -140,8 +138,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Update the estimated time of a delivery
-     *
+     * Update the estimated time of a delivery.
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
@@ -240,7 +237,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Update the total delivery time of an order.
+     * Update the total delivery time of an order for a POST request.
      *
      * @param id UUID of the delivery (required).
      * @param deliveryIdDeliveryTimePostRequest1  (optional)/
@@ -253,10 +250,36 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
             @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
     ) {
-        Delivery delivery = deliveryService.addDeliveryTime(id, orderService, userService);
-        if (delivery == null) {
+        Delivery delivery;
+        try {
+            delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Update the total delivery time of an order for PUT request.
+     *
+     * @param id UUID of the delivery (required).
+     * @param deliveryIdDeliveryTimePostRequest  (optional).
+     * @return a Delivery ResponseEntity representing the updated delivery.
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdDeliveryTimePut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
+    ) {
+        Delivery delivery;
+        try {
+            delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         return ResponseEntity.ok(delivery);
     }
 
