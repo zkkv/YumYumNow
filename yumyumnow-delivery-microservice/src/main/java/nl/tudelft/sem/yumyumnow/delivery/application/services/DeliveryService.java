@@ -12,14 +12,10 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;

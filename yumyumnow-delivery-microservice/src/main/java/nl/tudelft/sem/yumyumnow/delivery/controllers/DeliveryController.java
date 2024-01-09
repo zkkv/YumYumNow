@@ -98,7 +98,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Update the estimated time of a delivery
+     * Update the estimated time of a delivery.
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
@@ -120,7 +120,7 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param id UUID of the vendor
      * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
@@ -168,14 +168,17 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Update the total delivery time of an order for PUT request.
+     *
      * @param id UUID of the delivery (required).
      * @param deliveryIdDeliveryTimePostRequest  (optional).
      * @return a Delivery ResponseEntity representing the updated delivery.
      */
     @Override
     public ResponseEntity<Delivery> deliveryIdDeliveryTimePut(
-            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
     ) {
         Delivery delivery;
         try {
