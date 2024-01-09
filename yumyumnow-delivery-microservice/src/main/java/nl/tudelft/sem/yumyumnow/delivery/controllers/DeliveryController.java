@@ -8,6 +8,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
@@ -38,7 +39,9 @@ public class DeliveryController implements DeliveryApi {
      * @param vendorService vendor service from User microservice
      * @param adminService admin service from User microservice
      */
-    public DeliveryController(DeliveryService deliveryService, CustomerService userService, VendorService vendorService, AdminService adminService, OrderService orderService) {
+    public DeliveryController(DeliveryService deliveryService, CustomerService userService,
+                              VendorService vendorService, AdminService adminService,
+                              OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
@@ -67,6 +70,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Add the estimated time to a delivery
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest  (optional)
      * @return the updated delivery
@@ -91,6 +95,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Change the status of the delivery
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdStatusPutRequest  (optional)
      * @return the updated delivery
@@ -112,11 +117,11 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Update the estimated time of a delivery
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
      */
-
     @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
@@ -166,13 +171,19 @@ public class DeliveryController implements DeliveryApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId
     ){
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
-
-        if (response == null) {
-            return ResponseEntity.badRequest().body(null);
+        try{
+            DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+            if (response == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return ResponseEntity.ok(response);
         }
-
-        return ResponseEntity.ok(response);
+        catch (ServiceUnavailableException e){
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        catch (AccessForbiddenException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -186,15 +197,22 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryAdminMaxZoneGet200Response", description = "")
             @Valid @RequestBody(required = false) DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response
     ) {
-        DeliveryAdminMaxZoneGet200Response response =
-                deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
-                        deliveryAdminMaxZoneGet200Response.getRadiusKm());
+        try{
+            DeliveryAdminMaxZoneGet200Response response =
+                    deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
+                            deliveryAdminMaxZoneGet200Response.getRadiusKm(), adminService);
 
-        if (response == null) {
-            return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
+            if (response == null) {
+                return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
+            }
+            return ResponseEntity.ok(response);
         }
-
-        return ResponseEntity.ok(response);
+        catch (ServiceUnavailableException e){
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        catch (AccessForbiddenException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
@@ -237,7 +238,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void adminMaxZoneGetSuccessTest(){
+    void adminMaxZoneGetSuccessTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
@@ -251,7 +252,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void adminMaxZoneGetFailTest(){
+    void adminMaxZoneGetFailTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
         when(deliveryService.adminGetMaxZone(adminId,adminService)).thenReturn(null);
@@ -260,7 +261,25 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void adminMaxZoneSetSuccessTest(){
+    void adminMaxZoneGetServiceUnavailableTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.adminGetMaxZone(adminId,adminService)).thenThrow(new ServiceUnavailableException(""));
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZoneGet(adminId);
+        assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
+    }
+
+    @Test
+    void adminMaxZoneGetAccessForbiddenTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.adminGetMaxZone(adminId,adminService)).thenThrow(new AccessForbiddenException(""));
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZoneGet(adminId);
+        assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
+    }
+
+    @Test
+    void adminMaxZoneSetSuccessTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
@@ -268,22 +287,48 @@ class DeliveryControllerTest {
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(deliveryService.adminSetMaxZone(adminId, defaultMaxZone)).thenReturn(deliveryAdminMaxZoneGet200Response);
+        when(deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService)).thenReturn(deliveryAdminMaxZoneGet200Response);
         ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
         assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
     }
 
     @Test
-    void adminMaxZoneSetFailTest(){
+    void adminMaxZoneSetFailTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
         DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(deliveryService.adminSetMaxZone(adminId,defaultMaxZone)).thenReturn(null);
+        when(deliveryService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenReturn(null);
         ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
         assertEquals(ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response), response);
+    }
+
+    @Test
+    void adminMaxZoneSetServiceUnavailableTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(deliveryService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new ServiceUnavailableException(""));
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
+    }
+
+    @Test
+    void adminMaxZoneSetAccessForbiddenTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(deliveryService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new AccessForbiddenException(""));
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
     }
 
     @Test
@@ -305,8 +350,6 @@ class DeliveryControllerTest {
     @Test
     void totalDeliveryTimeUnsuccessfulTest(){
         UUID deliveryId = UUID.randomUUID();
-        Delivery delivery = new Delivery();
-        delivery.setId(deliveryId);
 
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(null);
 
