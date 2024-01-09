@@ -1,9 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierBelongsToDeliveryValidator;
-import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierBelongsToVendorValidator;
-import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
-import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -87,7 +84,8 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        VendorValidator vendorValidator = new VendorValidator(null, vendorId, vendorService);
+        VendorBelongsToDeliveryValidator vendorValidator = new VendorBelongsToDeliveryValidator(
+                null, vendorId, vendorService);
 
         if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !vendorValidator.process(delivery)) {
             return null;
@@ -128,10 +126,13 @@ public class DeliveryService {
 
          StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                  Map.of(
-                         Vendor.class, new VendorValidator(null, userId, vendorService),
-                         Courier.class, new CourierBelongsToVendorValidator(
+                         Vendor.class, new VendorExistsValidator(
+                                 new VendorBelongsToDeliveryValidator(null, userId, vendorService),
+                                 userId, vendorService),
+                         Courier.class, new CourierExistsValidator(
+                                 new CourierBelongsToVendorValidator(
                                  new CourierBelongsToDeliveryValidator(null, userId, courierService),
-                                 userId, courierService, vendorService)
+                                 userId, courierService, vendorService), userId, courierService)
                  ), status, userId, vendorService, courierService);
 
 

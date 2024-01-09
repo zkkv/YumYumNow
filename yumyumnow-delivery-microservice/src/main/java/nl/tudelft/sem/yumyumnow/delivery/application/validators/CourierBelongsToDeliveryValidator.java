@@ -20,8 +20,6 @@ public class CourierBelongsToDeliveryValidator extends AuthProcessor<Courier> {
 
     @Override
     public boolean process(Delivery delivery) {
-        if (toValidate == null) return false;
-
         if (!delivery.getCourierId().equals(toValidate.getId()))
             return false;
 
