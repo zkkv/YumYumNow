@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.VendorCustomizerRepository;
@@ -8,6 +9,7 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Respons
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,6 +23,8 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final VendorCustomizerRepository vendorCustomizerRepository;
     private final GlobalConfigRepository globalConfigRepository;
+    @Value("${globalConfigId}$")
+    private UUID globalConfigId;
     
     /**
      * Create a new DeliveryService.
@@ -181,7 +185,48 @@ public class DeliveryService {
      * @return the response contains admin id and default maximum delivery zone
      */
     public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService){
-//        BigDecimal defaultMaxZone = globalConfigRepository.findById(globalConfigId);
-        return null;
+        //TODO: validate the admin
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if(optionalGlobalConfig.isEmpty()){
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+        if(defaultMaxZone == null){
+            globalConfig.setDefaultMaxZone(BigDecimal.valueOf(0));
+            globalConfigRepository.save(globalConfig);
+            defaultMaxZone = BigDecimal.valueOf(0);
+        }
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+        return response;
+    }
+
+    /**
+     * Set a new default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param defaultMaxZone the new default maximum delivery zone
+     * @return the response contains admin id and updated default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone){
+        //TODO: validate the admin
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if(optionalGlobalConfig.isEmpty()){
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        globalConfig.setDefaultMaxZone(defaultMaxZone);
+        globalConfigRepository.save(globalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+
+        return response;
     }
 }

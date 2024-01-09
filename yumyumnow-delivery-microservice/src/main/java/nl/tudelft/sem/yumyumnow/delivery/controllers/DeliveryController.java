@@ -120,7 +120,7 @@ public class DeliveryController implements DeliveryApi {
 //    }
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param id UUID of the vendor
      * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
@@ -144,7 +144,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Get default maximum delivery zone.
+     * Get default maximum delivery zone as an admin.
      *
      * @param adminId The admin ID (required)
      * @return The response that contains admin id and default maximum zone.
@@ -158,6 +158,28 @@ public class DeliveryController implements DeliveryApi {
 
         if (response == null) {
             return ResponseEntity.badRequest().body(null);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     *  Set default maximum delivery zone as an admin.
+     *
+     * @param deliveryAdminMaxZoneGet200Response  (optional)
+     * @return The response that contains admin id and default maximum zone.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZonePut(
+            @Parameter(name = "DeliveryAdminMaxZoneGet200Response", description = "")
+            @Valid @RequestBody(required = false) DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response
+    ) {
+        DeliveryAdminMaxZoneGet200Response response =
+                deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
+                                                deliveryAdminMaxZoneGet200Response.getRadiusKm());
+
+        if (response == null) {
+            return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
         }
 
         return ResponseEntity.ok(response);

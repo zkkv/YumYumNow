@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.UserService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +80,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void deliveryVendorIdMaxZonePutSuccessTest(){
+    void vendorMaxZonePutSuccessTest(){
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
@@ -89,11 +90,11 @@ class DeliveryControllerTest {
         when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenReturn(deliveryVendorIdMaxZonePutRequest);
 
         ResponseEntity<DeliveryVendorIdMaxZonePutRequest> response = deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest);
-        assertEquals(response, ResponseEntity.ok(deliveryVendorIdMaxZonePutRequest));
+        assertEquals(ResponseEntity.ok(deliveryVendorIdMaxZonePutRequest), response);
     }
 
     @Test
-    void deliveryVendorIdMaxZonePutFailedTest(){
+    void vendorMaxZonePutFailedTest(){
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
@@ -103,6 +104,56 @@ class DeliveryControllerTest {
         when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenReturn(null);
 
         ResponseEntity<DeliveryVendorIdMaxZonePutRequest> response = deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest);
-        assertEquals(response, ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest));
+        assertEquals(ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest), response);
+    }
+
+    @Test
+    void adminMaxZoneGetSuccessTest(){
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(deliveryService.adminGetMaxZone(adminId,adminService)).thenReturn(deliveryAdminMaxZoneGet200Response);
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZoneGet(adminId);
+        assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
+    }
+
+    @Test
+    void adminMaxZoneGetFailTest(){
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.adminGetMaxZone(adminId,adminService)).thenReturn(null);
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZoneGet(adminId);
+        assertEquals(ResponseEntity.badRequest().body(null), response);
+    }
+
+    @Test
+    void adminMaxZoneSetSuccessTest(){
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(deliveryService.adminSetMaxZone(adminId, defaultMaxZone)).thenReturn(deliveryAdminMaxZoneGet200Response);
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
+    }
+
+    @Test
+    void adminMaxZoneSetFailTest(){
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(deliveryService.adminSetMaxZone(adminId,defaultMaxZone)).thenReturn(null);
+        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = deliveryController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        assertEquals(ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response), response);
     }
 }
