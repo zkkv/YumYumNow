@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierBelongsToDeliveryValidator;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierBelongsToVendorValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
@@ -128,7 +129,9 @@ public class DeliveryService {
          StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                  Map.of(
                          Vendor.class, new VendorValidator(null, userId, vendorService),
-                         Courier.class, new CourierValidator(null, userId, courierService, vendorService)
+                         Courier.class, new CourierBelongsToVendorValidator(
+                                 new CourierBelongsToDeliveryValidator(null, userId, courierService),
+                                 userId, courierService, vendorService)
                  ), status, userId, vendorService, courierService);
 
 
