@@ -18,15 +18,11 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -82,7 +78,7 @@ public class DeliveryService {
     }
 
     /**
-     * Update the estimatedPrepTime of a delivery
+     * Update the estimatedPrepTime of a delivery.
      *
      * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
@@ -121,7 +117,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     * update it or if delivery is not found.
+     *               update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -139,7 +135,7 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+        StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                  Map.of(
                          Vendor.class, new VendorValidator(null, userId, vendorService),
                          Courier.class, new CourierValidator(null, userId, courierService, vendorService)
@@ -159,8 +155,8 @@ public class DeliveryService {
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
-                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
-                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
+                            + "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -170,7 +166,7 @@ public class DeliveryService {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
@@ -211,19 +207,19 @@ public class DeliveryService {
      * @return the response contains admin id and default maximum delivery zone
      */
     public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
-            throws AccessForbiddenException, ServiceUnavailableException{
+            throws AccessForbiddenException, ServiceUnavailableException {
 
-        if(!adminService.validate(adminId)){
+        if (!adminService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
         Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if(optionalGlobalConfig.isEmpty()){
+        if (optionalGlobalConfig.isEmpty()) {
             return null;
         }
         GlobalConfig globalConfig = optionalGlobalConfig.get();
         BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
-        if(defaultMaxZone == null){
+        if (defaultMaxZone == null) {
             globalConfig.setDefaultMaxZone(BigDecimal.valueOf(0));
             globalConfigRepository.save(globalConfig);
             defaultMaxZone = BigDecimal.valueOf(0);
@@ -243,15 +239,16 @@ public class DeliveryService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
-    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone, AdminService adminService)
-            throws AccessForbiddenException, ServiceUnavailableException{
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
+                                                              AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
 
-        if(!adminService.validate(adminId)){
+        if (!adminService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
         Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if(optionalGlobalConfig.isEmpty()){
+        if (optionalGlobalConfig.isEmpty()) {
             return null;
         }
         GlobalConfig globalConfig = optionalGlobalConfig.get();
@@ -263,6 +260,7 @@ public class DeliveryService {
         response.setRadiusKm(defaultMaxZone);
 
         return response;
+    }
 
     /**
      * Returns the delivery specified by {@code id} from deliveryRepository, or throws
