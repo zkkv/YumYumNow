@@ -12,14 +12,10 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -245,11 +241,13 @@ public class DeliveryService {
      * @param orderService the instance of the order service.
      * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
+     * @throws Exception the exception to be thrown.
+     *
      */
-    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) throws Exception{
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
         Delivery delivery = optionalDelivery.get();
 
@@ -260,21 +258,21 @@ public class DeliveryService {
         UUID orderId = delivery.getOrderId();
         Order order = orderService.findOrderById(orderId);
         if (order == null) {
-            return null;
+            throw new BadArgumentException("The order is non-existent.");
         }
         Customer customer = order.getCustomer();
         if (customer == null) {
-            return null;
+            throw new BadArgumentException("The customer is non-existing.");
         }
         Location customerLocation = userService.getCustomerAddress(customer.getId());
         if (customerLocation == null) {
-            return null;
+            throw new BadArgumentException("The customer's location is non-existing.");
         }
 
         // location of vendor
         @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
         if (vendorLocation == null) {
-            return null;
+            throw new BadArgumentException("The vendor's location is non-existing.");
         }
         Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
 
@@ -284,6 +282,5 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
         return delivery;
     }
-
 
 }

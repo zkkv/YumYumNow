@@ -7,10 +7,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdDeliveryTimePostRequest1;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -260,7 +257,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void totalDeliveryTimeSuccessfulTest(){
+    void totalDeliveryTimeSuccessfulTest() throws Exception {
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new Delivery();
         delivery.setId(deliveryId);
@@ -276,17 +273,34 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void totalDeliveryTimeUnsuccessfulTest(){
+    void totalDeliveryTimeUnsuccessfulTest() throws Exception{
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new Delivery();
         delivery.setId(deliveryId);
 
-        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(null);
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenThrow(NoDeliveryFoundException.class);
 
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1 = new DeliveryIdDeliveryTimePostRequest1();
 
         ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void updateTotalDeliveryTimeSuccessfulTest() throws Exception {
+        // The PUT request for updating the delivery time
+        UUID deliveryId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliveryId);
+
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
+
+        DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest();
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest);
 
         assertEquals(expected, actual);
     }
