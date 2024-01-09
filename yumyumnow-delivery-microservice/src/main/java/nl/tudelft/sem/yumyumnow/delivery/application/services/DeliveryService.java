@@ -61,7 +61,7 @@ public class DeliveryService {
         Delivery delivery = new Delivery();
 
         delivery.setOrderId(order);
-        delivery.setOrderId(order);
+        delivery.setVendorId(vendor);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
         return deliveryRepository.save(delivery);

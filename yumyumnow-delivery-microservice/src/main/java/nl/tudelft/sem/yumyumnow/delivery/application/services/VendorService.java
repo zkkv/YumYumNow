@@ -56,14 +56,14 @@ public class VendorService {
 
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
-        address.setLatitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("latitude"));
-        address.setLongitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("longitude"));
+        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
+        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
 
         vendor.setAddress(address);
         vendor.setPhone((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"));
 
         vendor.setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"));
-        vendor.setMaxDeliveryZoneKm((BigDecimal) response.get("maxDeliveryZone"));
+        vendor.setMaxDeliveryZoneKm(new BigDecimal(String.valueOf(response.get("maxDeliveryZone"))));
 
         return vendor;
     }

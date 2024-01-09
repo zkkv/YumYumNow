@@ -58,17 +58,17 @@ public class CourierService {
      * @param courier The updated vendor
      */
     public boolean putCourier(Courier courier) {
-        Map<String, Object> vendorMap = getCourierRaw(courier.getId().toString());
+        Map<String, Object> courierMap = getCourierRaw(courier.getId().toString());
 
-        vendorMap.put("userID", courier.getId().toString());
-        vendorMap.put("vendor", courier.getVendor().getId().toString());
+        courierMap.put("userID", courier.getId().toString());
+        courierMap.put("vendor", courier.getVendor().getId().toString());
 
         String url = courierServiceUrl + courier.getId().toString();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(vendorMap, headers);
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(courierMap, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
         return response.getStatusCode().is2xxSuccessful();
