@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class Courier {
     private UUID id;
     private Vendor vendor;

@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
@@ -107,8 +108,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -127,8 +129,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -147,8 +150,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -168,8 +172,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -193,8 +198,9 @@ public class DeliveryServiceTest {
                 .setId(userId1)
                 .createVendor();
 
-        Courier courier = new Courier();
-        courier.setId(userId2);
+        Courier courier = new CourierBuilder()
+                .setId(userId2)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -309,8 +315,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setVendorId(UUID.randomUUID());
@@ -333,8 +340,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setId(id);
