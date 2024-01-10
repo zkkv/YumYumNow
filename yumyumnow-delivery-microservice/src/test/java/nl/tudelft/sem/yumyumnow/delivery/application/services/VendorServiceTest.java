@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,16 +56,19 @@ public class VendorServiceTest {
                 "maxDeliveryZone", 0
         ));
 
-        Vendor expectedVendor = new Vendor();
-        expectedVendor.setId(userId);
-        expectedVendor.setAllowsOnlyOwnCouriers(false);
-        expectedVendor.setMaxDeliveryZoneKm(BigDecimal.valueOf(0));
-        expectedVendor.setPhone("123456789");
-
         Location address = new Location();
         address.setTimestamp(null);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
+
+        Vendor expectedVendor = new VendorBuilder()
+                .setId(userId)
+                .setAllowsOnlyOwnCouriers(false)
+                .setMaxDeliveryZoneKm(BigDecimal.ZERO)
+                .setPhoneNumber("123456789")
+                .setAddress(address)
+                .createVendor();
+
 
         expectedVendor.setAddress(address);
 
@@ -93,18 +97,19 @@ public class VendorServiceTest {
     public void testPutVendorSuccess() {
         UUID vendorId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
-        vendor.setAllowsOnlyOwnCouriers(false);
-        vendor.setMaxDeliveryZoneKm(BigDecimal.ZERO);
-        vendor.setPhone("123456789");
-
         Location address = new Location();
         address.setTimestamp(null);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
 
-        vendor.setAddress(address);
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .setAllowsOnlyOwnCouriers(false)
+                .setMaxDeliveryZoneKm(BigDecimal.ZERO)
+                .setPhoneNumber("123456789")
+                .setAddress(address)
+                .createVendor();
+
 
         Map<String, Object> originalMap = new HashMap<>(Map.of(
                 "userID", vendorId.toString(),
@@ -140,18 +145,19 @@ public class VendorServiceTest {
     public void testPutVendorFailure() {
         UUID vendorId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
-        vendor.setAllowsOnlyOwnCouriers(false);
-        vendor.setMaxDeliveryZoneKm(BigDecimal.ZERO);
-        vendor.setPhone("123456789");
-
         Location address = new Location();
         address.setTimestamp(null);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
 
-        vendor.setAddress(address);
+        Vendor vendor = new VendorBuilder()
+            .setId(vendorId)
+            .setAllowsOnlyOwnCouriers(false)
+            .setMaxDeliveryZoneKm(BigDecimal.ZERO)
+            .setPhoneNumber("123456789")
+            .setAddress(address)
+            .createVendor();
+
 
         Map<String, Object> originalMap = new HashMap<>(Map.of(
                 "userID", vendorId.toString(),

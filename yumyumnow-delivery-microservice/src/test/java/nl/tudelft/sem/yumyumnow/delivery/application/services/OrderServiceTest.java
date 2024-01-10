@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
@@ -47,8 +48,9 @@ public class OrderServiceTest {
         Customer customer = new Customer();
         customer.setId(customerId);
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
 
         Order expectedOrder = new Order();
         expectedOrder.setId(orderId);

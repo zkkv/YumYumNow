@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +42,9 @@ public class CourierServiceTest {
         UUID courierId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
 
         Courier expectedCourier = new Courier();
         expectedCourier.setId(courierId);
@@ -105,9 +107,9 @@ public class CourierServiceTest {
         UUID courierId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
-
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
 
         Courier courier = new Courier();
         courier.setId(courierId);
@@ -147,8 +149,9 @@ public class CourierServiceTest {
         UUID courierId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
 
         Courier courier = new Courier();
         courier.setId(courierId);

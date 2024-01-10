@@ -49,7 +49,7 @@ public class DeliveryServiceTest {
         UUID vendorId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
-        when(vendorService.getVendor(vendorId.toString())).thenReturn(new Vendor());
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().createVendor());
 
         Delivery actual = deliveryService.createDelivery(orderId, vendorId);
 
