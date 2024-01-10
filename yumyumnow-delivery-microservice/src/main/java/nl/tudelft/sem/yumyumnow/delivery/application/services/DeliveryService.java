@@ -1,6 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -10,14 +12,10 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -49,24 +47,30 @@ public class DeliveryService {
     /**
      * Create a delivery based on order data.
      *
-     * @param order  The order ID to which the delivery corresponds
-     *               (UUID).
-     * @param vendor The vendor ID to which the delivery corresponds
+     * @param orderId The order ID to which the delivery corresponds
+     *              (UUID).
+     * @param vendorId The vendor ID to which the delivery corresponds
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID order, UUID vendor) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
         Delivery delivery = new Delivery();
 
-        delivery.setOrderId(order);
-        delivery.setOrderId(order);
+        if (vendorService.getVendor(vendorId.toString()) == null) {
+            throw new BadArgumentException("Vendor does not exist");
+        }
+
+        delivery.setId(UUID.randomUUID());
+        delivery.setOrderId(orderId);
+        delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
-        return deliveryRepository.save(delivery);
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
     /**
-     * Update the estimatedPrepTime of a delivery
+     * Update the estimatedPrepTime of a delivery.
      *
      * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
@@ -149,8 +153,8 @@ public class DeliveryService {
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
-                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
-                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
+                            + "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -160,7 +164,7 @@ public class DeliveryService {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
@@ -249,11 +253,13 @@ public class DeliveryService {
      * @param orderService the instance of the order service.
      * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
+     * @throws Exception the exception to be thrown.
+     *
      */
-    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) throws Exception{
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
         Delivery delivery = optionalDelivery.get();
 
@@ -264,21 +270,21 @@ public class DeliveryService {
         UUID orderId = delivery.getOrderId();
         Order order = orderService.findOrderById(orderId);
         if (order == null) {
-            return null;
+            throw new BadArgumentException("The order is non-existent.");
         }
         Customer customer = order.getCustomer();
         if (customer == null) {
-            return null;
+            throw new BadArgumentException("The customer is non-existing.");
         }
         Location customerLocation = userService.getCustomerAddress(customer.getId());
         if (customerLocation == null) {
-            return null;
+            throw new BadArgumentException("The customer's location is non-existing.");
         }
 
         // location of vendor
         @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
         if (vendorLocation == null) {
-            return null;
+            throw new BadArgumentException("The vendor's location is non-existing.");
         }
         Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
 
@@ -288,6 +294,5 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
         return delivery;
     }
-
 
 }

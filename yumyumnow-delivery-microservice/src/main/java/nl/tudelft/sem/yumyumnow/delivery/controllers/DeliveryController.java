@@ -28,7 +28,18 @@ public class DeliveryController implements DeliveryApi {
     private final VendorService vendorService;
     private final OrderService orderService;
 
-    public DeliveryController(DeliveryService deliveryService, CustomerService userService, VendorService vendorService, OrderService orderService) {
+    /**
+     * Constructor for delivery controller.
+     *
+     * @param deliveryService delivery service
+     * @param userService user service
+     * @param vendorService vendor service
+     * @param orderService order service
+     */
+    public DeliveryController(DeliveryService deliveryService,
+                              CustomerService userService,
+                              VendorService vendorService,
+                              OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
@@ -48,8 +59,13 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "Order", description = "")
             @Valid @RequestBody DeliveryPostRequest order) {
 
-        Delivery delivery = deliveryService.createDelivery(order.getOrderId(), order.getVendorId());
-
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.createDelivery(order.getOrderId(),
+                    order.getVendorId());
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return ResponseEntity.ok(delivery);
     }
 
@@ -77,7 +93,8 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Add the estimated time to a delivery
+     * Add the estimated time to a delivery.
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest  (optional)
      * @return the updated delivery
@@ -122,7 +139,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Update the estimated time of a delivery
+     * Update the estimated time of a delivery.
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
@@ -144,7 +161,7 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param id UUID of the vendor
      * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
@@ -168,7 +185,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Update the total delivery time of an order.
+     * Update the total delivery time of an order for a POST request.
      *
      * @param id UUID of the delivery (required).
      * @param deliveryIdDeliveryTimePostRequest1  (optional)/
@@ -181,10 +198,36 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
             @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
     ) {
-        Delivery delivery = deliveryService.addDeliveryTime(id, orderService, userService);
-        if (delivery == null) {
+        Delivery delivery;
+        try {
+            delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Update the total delivery time of an order for PUT request.
+     *
+     * @param id UUID of the delivery (required).
+     * @param deliveryIdDeliveryTimePostRequest  (optional).
+     * @return a Delivery ResponseEntity representing the updated delivery.
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdDeliveryTimePut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest
+    ) {
+        Delivery delivery;
+        try {
+            delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         return ResponseEntity.ok(delivery);
     }
 
