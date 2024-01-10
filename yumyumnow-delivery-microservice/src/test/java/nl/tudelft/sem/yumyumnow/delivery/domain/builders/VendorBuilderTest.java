@@ -23,7 +23,7 @@ public class VendorBuilderTest {
         assertThat(vendor.getId()).isNull();
         assertThat(vendor.getAddress()).isNull();
         assertThat(vendor.getPhone()).isNull();
-        assertThat(vendor.getAllowsOnlyOwnCouriers()).isNull();
+        assertThat(vendor.getAllowsOnlyOwnCouriers()).isFalse();
         assertThat(vendor.getMaxDeliveryZoneKm()).isNull();
     }
 
