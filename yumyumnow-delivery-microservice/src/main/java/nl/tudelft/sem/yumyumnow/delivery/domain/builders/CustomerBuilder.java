@@ -5,6 +5,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 
 import java.util.UUID;
 
+/**
+ * Builder for Customer.
+ * Uses a fluent interface to make it easier to create objects.
+ */
 public class CustomerBuilder {
     private UUID id;
     private String name;

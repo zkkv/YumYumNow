@@ -54,10 +54,11 @@ public class OrderServiceTest {
                 .setId(vendorId)
                 .createVendor();
 
-        Order expectedOrder = new Order();
-        expectedOrder.setId(orderId);
-        expectedOrder.setCustomer(customer);
-        expectedOrder.setVendor(vendor);
+        Order expectedOrder = new Order(
+                orderId,
+                vendor,
+                customer
+        );
 
 
         when(restTemplate.getForObject(

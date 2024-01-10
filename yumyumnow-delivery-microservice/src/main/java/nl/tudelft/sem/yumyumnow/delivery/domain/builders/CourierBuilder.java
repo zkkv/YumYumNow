@@ -5,6 +5,10 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 
 import java.util.UUID;
 
+/**
+ * Builder for Courier.
+ * Uses a fluent interface to make it easier to create objects.
+ */
 public class CourierBuilder {
     UUID id;
     Vendor vendor;

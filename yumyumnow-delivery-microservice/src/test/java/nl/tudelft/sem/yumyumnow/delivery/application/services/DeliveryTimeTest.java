@@ -54,8 +54,12 @@ public class DeliveryTimeTest {
 
         // create an order
         UUID orderId = UUID.randomUUID();
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new Order(
+                orderId,
+                null,
+                null
+        );
+
         delivery.setOrderId(orderId);
 
         // mock a location for a customer

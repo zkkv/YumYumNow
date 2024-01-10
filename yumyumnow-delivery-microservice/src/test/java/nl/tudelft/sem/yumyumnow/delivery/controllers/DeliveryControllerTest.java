@@ -49,8 +49,7 @@ class DeliveryControllerTest {
         UUID vendorId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
 
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new Order(orderId, null, null);
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
@@ -80,8 +79,7 @@ class DeliveryControllerTest {
         UUID vendorId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
 
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new Order(orderId, null, null);
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)

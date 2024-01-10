@@ -50,12 +50,11 @@ public class OrderService {
             return null;
         }
 
-        Order order = new Order();
-        order.setId(UUID.fromString((String) response.get("orderID")));
-        order.setCustomer(customerService.getCustomer((String) response.get("customerID")));
-        order.setVendor(vendorService.getVendor((String) response.get("vendorID")));
-
-        return order;
+        return new Order(
+                UUID.fromString((String) response.get("orderID")),
+                vendorService.getVendor((String) response.get("vendorID")),
+                customerService.getCustomer((String) response.get("customerID"))
+        );
     }
 
     /**

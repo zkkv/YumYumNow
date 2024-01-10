@@ -9,9 +9,9 @@ import lombok.Setter;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 
 /**
- * Customer
+ * Customer DTO.
+ * Used for easy data representation and transfer with other microservices.
  */
-
 @Setter @Getter
 @AllArgsConstructor
 public class Customer {

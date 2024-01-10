@@ -7,6 +7,10 @@ import lombok.Setter;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Courier DTO.
+ * Used for easy data representation and transfer with other microservices.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

@@ -17,6 +17,14 @@ public class VendorBuilderTest {
     @Test
     void testConstructor() {
         VendorBuilder vendorBuilder = new VendorBuilder();
+        Vendor vendor = vendorBuilder.createVendor();
+
+        assertThat(vendor).isNotNull();
+        assertThat(vendor.getId()).isNull();
+        assertThat(vendor.getAddress()).isNull();
+        assertThat(vendor.getPhone()).isNull();
+        assertThat(vendor.getAllowsOnlyOwnCouriers()).isNull();
+        assertThat(vendor.getMaxDeliveryZoneKm()).isNull();
     }
 
     @Property
