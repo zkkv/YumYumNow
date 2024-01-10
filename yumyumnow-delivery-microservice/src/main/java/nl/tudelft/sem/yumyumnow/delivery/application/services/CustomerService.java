@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +43,17 @@ public class CustomerService {
             return null;
         }
 
-        Customer customer = new Customer();
-        customer.setId(UUID.fromString((String) response.get("userID")));
-        customer.setName((String) response.get("name"));
-        customer.setPhone((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"));
-
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
         address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
         address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
 
-        customer.setDeliveryAddress(address);
+        Customer customer = new CustomerBuilder()
+            .setId(UUID.fromString((String) response.get("userID")))
+            .setName((String) response.get("name"))
+            .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
+            .setAddress(address)
+            .createCustomer();
 
         return customer;
     }

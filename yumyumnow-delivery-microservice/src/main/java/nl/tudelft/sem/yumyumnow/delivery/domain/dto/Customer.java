@@ -3,6 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 import java.util.Objects;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
@@ -12,6 +13,7 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Location;
  */
 
 @Setter @Getter
+@AllArgsConstructor
 public class Customer {
 
     private UUID id;
