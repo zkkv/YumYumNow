@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
@@ -50,8 +51,11 @@ class DeliveryControllerTest {
 
         Order order = new Order();
         order.setId(orderId);
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
+
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
+
         order.setVendor(vendor);
 
         Delivery delivery = new Delivery();
@@ -78,8 +82,11 @@ class DeliveryControllerTest {
 
         Order order = new Order();
         order.setId(orderId);
-        Vendor vendor = new Vendor();
-        vendor.setId(vendorId);
+
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .createVendor();
+
         order.setVendor(vendor);
 
         Delivery delivery = new Delivery();
