@@ -1,5 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
@@ -47,24 +50,30 @@ public class DeliveryService {
     /**
      * Create a delivery based on order data.
      *
-     * @param order  The order ID to which the delivery corresponds
-     *               (UUID).
-     * @param vendor The vendor ID to which the delivery corresponds
+     * @param orderId The order ID to which the delivery corresponds
+     *              (UUID).
+     * @param vendorId The vendor ID to which the delivery corresponds
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID order, UUID vendor) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
         Delivery delivery = new Delivery();
 
-        delivery.setOrderId(order);
-        delivery.setOrderId(order);
+        if (vendorService.getVendor(vendorId.toString()) == null) {
+            throw new BadArgumentException("Vendor does not exist");
+        }
+
+        delivery.setId(UUID.randomUUID());
+        delivery.setOrderId(orderId);
+        delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
-        return deliveryRepository.save(delivery);
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
     /**
-     * Update the estimatedPrepTime of a delivery
+     * Update the estimatedPrepTime of a delivery.
      *
      * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
@@ -141,8 +150,8 @@ public class DeliveryService {
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
-                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
-                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
+                            + "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -152,7 +161,7 @@ public class DeliveryService {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)

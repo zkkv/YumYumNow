@@ -43,6 +43,30 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void createDeliverySuccess() throws BadArgumentException {
+        UUID orderId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(new Vendor());
+
+        Delivery actual = deliveryService.createDelivery(orderId, vendorId);
+
+        assertEquals(vendorId, actual.getVendorId());
+    }
+
+    @Test
+    public void createDeliveryFail() {
+        UUID orderId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(null);
+
+        assertThrows(BadArgumentException.class, () ->
+                deliveryService.createDelivery(orderId, vendorId));
+    }
+
     public void getExistingDelivery() throws NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
 
@@ -69,7 +93,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateStatusOfNonExistingDelivery(){
+    public void updateStatusOfNonExistingDelivery() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
