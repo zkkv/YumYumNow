@@ -34,10 +34,10 @@ public class DeliveryTimeTest {
         globalConfigRepository = mock(GlobalConfigRepository.class);
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
-
-        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService);
-
         orderService = mock(OrderService.class);
+
+        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService);
+
         userService = mock(CustomerService.class);
     }
 
@@ -132,4 +132,5 @@ public class DeliveryTimeTest {
         actual = deliveryService.getDeliveryTimeHelper(location1, location3);
         assertThat(actual.getSeconds()).isEqualTo(0);
     }
+
 }

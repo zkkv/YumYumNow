@@ -38,9 +38,12 @@ public class DeliveryController implements DeliveryApi {
      * @param userService customer service from User microservice
      * @param vendorService vendor service from User microservice
      * @param adminService admin service from User microservice
+     * @param orderService order service
      */
-    public DeliveryController(DeliveryService deliveryService, CustomerService userService,
-                              VendorService vendorService, AdminService adminService,
+    public DeliveryController(DeliveryService deliveryService,
+                              CustomerService userService,
+                              VendorService vendorService,
+                              AdminService adminService,
                               OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
@@ -62,8 +65,13 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "Order", description = "")
             @Valid @RequestBody DeliveryPostRequest order) {
 
-        Delivery delivery = deliveryService.createDelivery(order.getOrderId(), order.getVendorId());
-
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.createDelivery(order.getOrderId(),
+                    order.getVendorId());
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return ResponseEntity.ok(delivery);
     }
 
@@ -91,7 +99,11 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
+<<<<<<< HEAD
      * Add the estimated time to a delivery
+=======
+     * Add the estimated time to a delivery.
+>>>>>>> main
      *
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest  (optional)

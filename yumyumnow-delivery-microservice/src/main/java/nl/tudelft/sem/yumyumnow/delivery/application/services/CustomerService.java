@@ -49,8 +49,8 @@ public class CustomerService {
 
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
-        address.setLatitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("latitude"));
-        address.setLongitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("longitude"));
+        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
+        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
 
         customer.setDeliveryAddress(address);
 
@@ -65,7 +65,7 @@ public class CustomerService {
      * @return a Location object.f
      */
     public Location getCustomerAddress(UUID userId) {
-        String url = customerServiceUrl + "/customer/address/" + userId;
+        String url = customerServiceUrl + "address/" + userId;
         ResponseEntity<Location> response = restTemplate.getForEntity(url, Location.class);
         return response.getBody();
     }

@@ -8,13 +8,13 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.CourierValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermissionValidator;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
@@ -39,6 +39,8 @@ public class DeliveryService {
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
+    private final OrderService orderService;
+
     /**
      * Create a new DeliveryService.
      *
@@ -46,35 +48,44 @@ public class DeliveryService {
      * @param globalConfigRepository The repository for global configuration
      * @param vendorService service of the vendor
      * @param courierService service of the courier
+     * @param orderService service of the order
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
                            GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
-                           CourierService courierService) {
+                           CourierService courierService,
+                           OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
+        this.orderService = orderService;
     }
 
     /**
      * Create a delivery based on order data.
      *
-     * @param order  The order ID to which the delivery corresponds
-     *               (UUID).
-     * @param vendor The vendor ID to which the delivery corresponds
+     * @param orderId The order ID to which the delivery corresponds
+     *              (UUID).
+     * @param vendorId The vendor ID to which the delivery corresponds
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID order, UUID vendor) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
         Delivery delivery = new Delivery();
 
-        delivery.setOrderId(order);
-        delivery.setOrderId(order);
+        if (vendorService.getVendor(vendorId.toString()) == null) {
+            throw new BadArgumentException("Vendor does not exist");
+        }
+
+        delivery.setId(UUID.randomUUID());
+        delivery.setOrderId(orderId);
+        delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
-        return deliveryRepository.save(delivery);
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
     /**
@@ -131,6 +142,10 @@ public class DeliveryService {
 
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+
+        if(status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+            throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
         Delivery delivery = optionalDelivery.get();
@@ -326,6 +341,7 @@ public class DeliveryService {
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
+
         Delivery delivery = optionalDelivery.get();
 
         // get preparation time

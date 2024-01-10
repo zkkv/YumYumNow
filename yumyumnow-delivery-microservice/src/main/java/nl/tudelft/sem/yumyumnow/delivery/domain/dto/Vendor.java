@@ -5,13 +5,15 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import lombok.Getter;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 
 /**
  * Vendor DTO
  */
-@Setter @Getter
+@AllArgsConstructor @Setter
+@Getter
 public class Vendor {
 
     private UUID id;

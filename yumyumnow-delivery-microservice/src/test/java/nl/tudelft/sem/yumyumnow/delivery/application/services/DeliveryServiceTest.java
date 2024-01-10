@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableExc
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -26,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -38,6 +38,7 @@ public class DeliveryServiceTest {
     private VendorService vendorService;
     private AdminService adminService;
     private CourierService courierService;
+    private OrderService orderService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -48,10 +49,33 @@ public class DeliveryServiceTest {
         this.vendorService = mock(VendorService.class);
         this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
+        this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository,
-                globalConfigRepository,vendorService, courierService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
+    }
+
+    @Test
+    public void createDeliverySuccess() throws BadArgumentException {
+        UUID orderId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().createVendor());
+
+        Delivery actual = deliveryService.createDelivery(orderId, vendorId);
+
+        assertEquals(vendorId, actual.getVendorId());
+    }
+
+    @Test
+    public void createDeliveryFail() {
+        UUID orderId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(null);
+
+        assertThrows(BadArgumentException.class, () ->
+                deliveryService.createDelivery(orderId, vendorId));
     }
 
     @Test
@@ -81,7 +105,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateStatusOfNonExistingDelivery(){
+    public void updateStatusOfNonExistingDelivery() {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -176,8 +200,9 @@ public class DeliveryServiceTest {
         UUID userId1 = UUID.randomUUID();
         UUID userId2 = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId1);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId1)
+                .createVendor();
 
         Courier courier = new Courier();
         courier.setId(userId2);
@@ -204,8 +229,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId)
+                .createVendor();
 
         Delivery expected = new Delivery();
         expected.setVendorId(UUID.randomUUID());
@@ -226,8 +252,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId)
+                .createVendor();
 
 
         Delivery expected = new Delivery();
@@ -238,6 +265,7 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
         when(vendorService.getVendor(vendor.getId().toString())).thenReturn(vendor);
+        when(orderService.isPaid(id)).thenReturn(true);
 
         Delivery actual = deliveryService.updateStatus(
                 id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
@@ -250,8 +278,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId)
+                .createVendor();
 
         Delivery expected = new Delivery();
         expected.setVendorId(userId);
@@ -270,8 +299,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId)
+                .createVendor();
 
 
         Delivery expected = new Delivery();
@@ -395,8 +425,9 @@ public class DeliveryServiceTest {
     public void changePrepTimeUnauthorizedVendor() {
         UUID id = UUID.randomUUID();
 
-        Vendor vendor = new Vendor();
-        vendor.setId(UUID.randomUUID());
+        Vendor vendor = new VendorBuilder()
+                .setId(UUID.randomUUID())
+                .createVendor();
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
@@ -428,8 +459,9 @@ public class DeliveryServiceTest {
         delivery.setId(id);
         delivery.setVendorId(userId);
 
-        Vendor vendor = new Vendor();
-        vendor.setId(userId);
+        Vendor vendor = new VendorBuilder()
+                .setId(userId)
+                .createVendor();
 
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
@@ -455,9 +487,10 @@ public class DeliveryServiceTest {
         deliveryVendorIdMaxZonePutRequest.setVendorId(vendorId);
         deliveryVendorIdMaxZonePutRequest.setRadiusKm(BigDecimal.valueOf(5));
 
-        Vendor vendor = new Vendor();
-        vendor.setAllowsOnlyOwnCouriers(true);
-        vendor.setMaxDeliveryZoneKm(BigDecimal.valueOf(2));
+        Vendor vendor = new VendorBuilder()
+                .setAllowsOnlyOwnCouriers(true)
+                .setMaxDeliveryZoneKm(BigDecimal.valueOf(2))
+                .createVendor();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
         when(vendorService.putVendor(vendor)).thenReturn(true);
@@ -589,4 +622,24 @@ public class DeliveryServiceTest {
         });
     }
 
+    @Test
+    public void unpaidStatusChangeTest() {
+        //need to mock the isPaid method
+        //assert that it throws an exception
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        delivery.setVendorId(UUID.randomUUID());
+
+
+        delivery.setStatus(Delivery.StatusEnum.PENDING);
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+        when(orderService.isPaid(id)).thenReturn(false);
+        assertThrows(AccessForbiddenException.class,
+                ()->{
+                    deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
+                });
+    }
 }
