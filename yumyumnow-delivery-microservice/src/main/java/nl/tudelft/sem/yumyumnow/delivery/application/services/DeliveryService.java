@@ -31,6 +31,8 @@ public class DeliveryService {
     private final VendorService vendorService;
     private final CourierService courierService;
 
+    private final OrderService orderService;
+
     /**
      * Create a new DeliveryService.
      *
@@ -40,11 +42,13 @@ public class DeliveryService {
     public DeliveryService(
             DeliveryRepository deliveryRepository,
             VendorService vendorService,
-            CourierService courierService
+            CourierService courierService,
+            OrderService orderService
     ) {
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
+        this.orderService = orderService;
     }
 
     /**
@@ -126,6 +130,10 @@ public class DeliveryService {
 
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+
+        if(status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+            throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
         Delivery delivery = optionalDelivery.get();
@@ -258,6 +266,7 @@ public class DeliveryService {
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
+
         Delivery delivery = optionalDelivery.get();
 
         // get preparation time
