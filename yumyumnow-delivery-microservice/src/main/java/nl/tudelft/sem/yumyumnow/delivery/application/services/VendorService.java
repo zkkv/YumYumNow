@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ public class VendorService {
     private final String vendorServiceUrl;
 
     /**
-     * Creates a new VendorService object.
+     * Constructor for vendor service.
      *
-     * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
-     * @param userServiceUrl the url of the User Microservice.
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
      */
     @Autowired
     public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
@@ -51,21 +52,19 @@ public class VendorService {
             return null;
         }
 
-        Vendor vendor = new Vendor();
-        vendor.setId(UUID.fromString((String) response.get("userID")));
-
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
-        address.setLatitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("latitude"));
-        address.setLongitude((BigDecimal) ((Map<String, Object>) response.get("location")).get("longitude"));
+        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
+        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
 
-        vendor.setAddress(address);
-        vendor.setPhone((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"));
 
-        vendor.setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"));
-        vendor.setMaxDeliveryZoneKm((BigDecimal) response.get("maxDeliveryZone"));
-
-        return vendor;
+        return new VendorBuilder()
+                .setId(UUID.fromString((String) response.get("userID")))
+                .setAddress(address)
+                .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
+                .setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"))
+                .setMaxDeliveryZoneKm(new BigDecimal(String.valueOf(response.get("maxDeliveryZone"))))
+                .createVendor();
     }
 
     /**

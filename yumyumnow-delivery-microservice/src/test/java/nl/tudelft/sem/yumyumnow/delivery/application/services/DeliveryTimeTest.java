@@ -1,8 +1,11 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
@@ -15,11 +18,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeliveryTimeTest {
     private DeliveryRepository deliveryRepository;
+    private GlobalConfigRepository globalConfigRepository;
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
@@ -27,17 +32,18 @@ public class DeliveryTimeTest {
     @BeforeEach
     void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
+        globalConfigRepository = mock(GlobalConfigRepository.class);
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
-
-        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService);
-
         orderService = mock(OrderService.class);
+
+        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService);
+
         userService = mock(CustomerService.class);
     }
 
     @Test
-    void successfulTest() {
+    void successfulTest() throws Exception{
         // set up the delivery with the preparation time fixed
         UUID deliveryId = UUID.randomUUID();
         LocalDate localDate = LocalDate.of(2023, 12, 10);
@@ -51,8 +57,9 @@ public class DeliveryTimeTest {
 
         // create an order
         UUID orderId = UUID.randomUUID();
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .createOrder();
         delivery.setOrderId(orderId);
 
         // mock a location for a customer
@@ -85,7 +92,7 @@ public class DeliveryTimeTest {
     }
 
     @Test
-    void unsuccessfulTest() {
+    void unsuccessfulTest() throws Exception{
         // we will have some fields set to null, resulting in a bad request
 
         // set up the delivery with the preparation time fixed
@@ -102,9 +109,9 @@ public class DeliveryTimeTest {
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);
 
-        Delivery newDelivery = deliveryService.addDeliveryTime(deliveryId, orderService, userService);
-
-        assertThat(newDelivery).isNull();
+        assertThatThrownBy(() -> {
+            deliveryService.addDeliveryTime(deliveryId, orderService, userService);
+        }).isInstanceOf(BadArgumentException.class).hasMessageContaining("The order is non-existent.");
     }
 
     @Test
@@ -127,4 +134,5 @@ public class DeliveryTimeTest {
         actual = deliveryService.getDeliveryTimeHelper(location1, location3);
         assertThat(actual.getSeconds()).isEqualTo(0);
     }
+
 }

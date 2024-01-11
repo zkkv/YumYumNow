@@ -1,23 +1,27 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -27,46 +31,63 @@ import java.util.UUID;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
+    private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
+    @Value("${globalConfigId}$")
+    private UUID globalConfigId;
+
+    private final OrderService orderService;
 
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository The repository to use.
+     * @param deliveryRepository The repository to use for delivery
+     * @param globalConfigRepository The repository for global configuration
+     * @param vendorService service of the vendor
+     * @param courierService service of the courier
+     * @param orderService service of the order
      */
     @Autowired
-    public DeliveryService(
-            DeliveryRepository deliveryRepository,
-            VendorService vendorService,
-            CourierService courierService
-    ) {
+    public DeliveryService(DeliveryRepository deliveryRepository,
+                           GlobalConfigRepository globalConfigRepository,
+                           VendorService vendorService,
+                           CourierService courierService,
+                           OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
+        this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
+        this.orderService = orderService;
     }
 
     /**
      * Create a delivery based on order data.
      *
-     * @param order  The order ID to which the delivery corresponds
-     *               (UUID).
-     * @param vendor The vendor ID to which the delivery corresponds
+     * @param orderId The order ID to which the delivery corresponds
+     *              (UUID).
+     * @param vendorId The vendor ID to which the delivery corresponds
      *               (UUID).
      * @return The created delivery.
      */
-    public Delivery createDelivery(UUID order, UUID vendor) {
+    public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
         Delivery delivery = new Delivery();
 
-        delivery.setOrderId(order);
-        delivery.setOrderId(order);
+        if (vendorService.getVendor(vendorId.toString()) == null) {
+            throw new BadArgumentException("Vendor does not exist");
+        }
+
+        delivery.setId(UUID.randomUUID());
+        delivery.setOrderId(orderId);
+        delivery.setVendorId(vendorId);
         delivery.setStatus(Delivery.StatusEnum.PENDING);
 
-        return deliveryRepository.save(delivery);
+        deliveryRepository.save(delivery);
+        return delivery;
     }
 
     /**
-     * Update the estimatedPrepTime of a delivery
+     * Update the estimatedPrepTime of a delivery.
      *
      * @param deliveryId        the ID of the delivery to be updated
      * @param estimatedPrepTime the new estimated time
@@ -106,7 +127,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     * update it or if delivery is not found.
+     *         update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -122,9 +143,13 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+            throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
+        }
+
         Delivery delivery = optionalDelivery.get();
 
-         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+        StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                  Map.of(
                          Vendor.class, new VendorExistsValidator(
                                  new VendorBelongsToDeliveryValidator(null, userId, vendorService),
@@ -149,8 +174,8 @@ public class DeliveryService {
             case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
-                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, " +
-                            "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
+                    "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
+                            + "PREPARING, IN_TRANSIT, GIVEN_TO_COURIER");
         }
 
         deliveryRepository.save(delivery);
@@ -160,7 +185,7 @@ public class DeliveryService {
 
 
     /**
-     * Update the maximum delivery zone of a vendor
+     * Update the maximum delivery zone of a vendor.
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
@@ -191,6 +216,64 @@ public class DeliveryService {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+        return response;
+    }
+
+    /**
+     * Set a new default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param defaultMaxZone the new default maximum delivery zone
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and updated default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
+                                                              AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        globalConfig.setDefaultMaxZone(defaultMaxZone);
+        globalConfigRepository.save(globalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+
+        return response;
     }
 
     /**
@@ -249,12 +332,16 @@ public class DeliveryService {
      * @param orderService the instance of the order service.
      * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
+     * @throws Exception the exception to be thrown.
+     *
      */
-    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) {
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService)
+            throws Exception {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
+
         Delivery delivery = optionalDelivery.get();
 
         // get preparation time
@@ -264,21 +351,21 @@ public class DeliveryService {
         UUID orderId = delivery.getOrderId();
         Order order = orderService.findOrderById(orderId);
         if (order == null) {
-            return null;
+            throw new BadArgumentException("The order is non-existent.");
         }
         Customer customer = order.getCustomer();
         if (customer == null) {
-            return null;
+            throw new BadArgumentException("The customer is non-existing.");
         }
         Location customerLocation = userService.getCustomerAddress(customer.getId());
         if (customerLocation == null) {
-            return null;
+            throw new BadArgumentException("The customer's location is non-existing.");
         }
 
         // location of vendor
         @Valid DeliveryCurrentLocation vendorLocation = delivery.getCurrentLocation();
         if (vendorLocation == null) {
-            return null;
+            throw new BadArgumentException("The vendor's location is non-existing.");
         }
         Duration deliveryTime = getDeliveryTimeHelper(customerLocation, vendorLocation);
 
