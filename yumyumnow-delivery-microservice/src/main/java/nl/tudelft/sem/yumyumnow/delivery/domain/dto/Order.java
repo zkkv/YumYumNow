@@ -3,13 +3,14 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
 import java.util.*;
 
 /**
  * Order DTO
  */
 
-@Setter @Getter
+@AllArgsConstructor @Setter @Getter
 public class Order {
 
     private UUID id;

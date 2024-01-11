@@ -1,19 +1,25 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
@@ -25,23 +31,34 @@ import java.util.UUID;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
+    private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
+    @Value("${globalConfigId}$")
+    private UUID globalConfigId;
+
+    private final OrderService orderService;
 
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository The repository to use.
+     * @param deliveryRepository The repository to use for delivery
+     * @param globalConfigRepository The repository for global configuration
+     * @param vendorService service of the vendor
+     * @param courierService service of the courier
+     * @param orderService service of the order
      */
     @Autowired
-    public DeliveryService(
-            DeliveryRepository deliveryRepository,
-            VendorService vendorService,
-            CourierService courierService
-    ) {
+    public DeliveryService(DeliveryRepository deliveryRepository,
+                           GlobalConfigRepository globalConfigRepository,
+                           VendorService vendorService,
+                           CourierService courierService,
+                           OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
+        this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
+        this.orderService = orderService;
     }
 
     /**
@@ -110,7 +127,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     * update it or if delivery is not found.
+     *         update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -126,9 +143,13 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+            throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
+        }
+
         Delivery delivery = optionalDelivery.get();
 
-         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
+        StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                  Map.of(
                          Vendor.class, new VendorExistsValidator(
                                  new VendorBelongsToDeliveryValidator(null, userId, vendorService),
@@ -198,6 +219,64 @@ public class DeliveryService {
     }
 
     /**
+     * Get the default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+        return response;
+    }
+
+    /**
+     * Set a new default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param defaultMaxZone the new default maximum delivery zone
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and updated default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
+                                                              AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        globalConfig.setDefaultMaxZone(defaultMaxZone);
+        globalConfigRepository.save(globalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+
+        return response;
+    }
+
+    /**
      * Returns the delivery specified by {@code id} from deliveryRepository, or throws
      * {@link NoDeliveryFoundException} if it's not present.
      *
@@ -256,11 +335,13 @@ public class DeliveryService {
      * @throws Exception the exception to be thrown.
      *
      */
-    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) throws Exception{
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService)
+            throws Exception {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
         }
+
         Delivery delivery = optionalDelivery.get();
 
         // get preparation time
