@@ -521,9 +521,7 @@ public class DeliveryServiceTest {
         Vendor vendor = new Vendor(vendorId, new Location(), "", true, new BigDecimal(1000));
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
 
-        Courier courier = new Courier();
-        courier.setId(courierId);
-        courier.setVendor(vendor);
+        Courier courier = new Courier(courierId, vendor);
         when(courierService.getCourier(courierId.toString())).thenReturn(courier);
 
         Delivery actual = deliveryService.assignCourier(id, courierId);
@@ -557,7 +555,9 @@ public class DeliveryServiceTest {
         expected.setVendorId(vendorId);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(courierService.getCourier(newCourierId.toString())).thenReturn(new Courier());
+
+        Courier courier = new Courier(oldCourierId, null);
+        when(courierService.getCourier(newCourierId.toString())).thenReturn(courier);
 
         assertThrows(AccessForbiddenException.class,
                 () -> deliveryService.assignCourier(id, newCourierId));
@@ -573,7 +573,9 @@ public class DeliveryServiceTest {
         expected.setCourierId(courierId);
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
-        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier());
+
+        Courier courier = new Courier(courierId, null);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
 
         assertThrows(BadArgumentException.class,
                 () -> deliveryService.assignCourier(id, courierId));
@@ -595,9 +597,7 @@ public class DeliveryServiceTest {
         Vendor otherVendor = new Vendor(UUID.randomUUID(), new Location(), "", true, new BigDecimal(1000));
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
 
-        Courier courier = new Courier();
-        courier.setId(courierId);
-        courier.setVendor(otherVendor);
+        Courier courier = new Courier(courierId, otherVendor);
         when(courierService.getCourier(courierId.toString())).thenReturn(courier);
 
         assertThrows(AccessForbiddenException.class,
