@@ -23,10 +23,10 @@ public class VendorService {
     private final String vendorServiceUrl;
 
     /**
-     * Creates a new VendorService object.
+     * Constructor for vendor service.
      *
-     * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
-     * @param userServiceUrl the url of the User Microservice.
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
      */
     @Autowired
     public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
