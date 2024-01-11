@@ -268,6 +268,35 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
+     * Assigns courier with id provided as a query parameter to the delivery
+     * with the given {@code id}.
+     *
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdAssignPutRequest request containing the courier id query parameter
+     * @return a Delivery ResponseEntity representing the updated delivery
+     * @author Kirill Zhankov
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdAssignPut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdAssignPutRequest", description = "") @Valid
+            @RequestBody(required = false) DeliveryIdAssignPutRequest deliveryIdAssignPutRequest
+    ) {
+        UUID courierId = deliveryIdAssignPutRequest.getCourierId();
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.assignCourier(id, courierId);
+        } catch (NoDeliveryFoundException | BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
      * Update the total delivery time of an order for PUT request.
      *
      * @param id UUID of the delivery (required).

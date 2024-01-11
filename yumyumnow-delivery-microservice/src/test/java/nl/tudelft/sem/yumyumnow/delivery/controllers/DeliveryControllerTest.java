@@ -459,6 +459,74 @@ class DeliveryControllerTest {
     }
 
     @Test
+    void assignCourierSuccess()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId)).thenReturn(delivery);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void assignCourierBadRequest()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId))
+                .thenThrow(NoDeliveryFoundException.class);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void assignCourierForbidden()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery delivery = new Delivery();
+        delivery.setId(id);
+        assertNotEquals(delivery.getCourierId(), courierId);
+        delivery.setCourierId(courierId);
+
+        when(deliveryService.assignCourier(id, courierId))
+                .thenThrow(AccessForbiddenException.class);
+
+        DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
+        request.setCourierId(courierId);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void updateTotalDeliveryTimeSuccessfulTest() throws Exception {
         // The PUT request for updating the delivery time
         UUID deliveryId = UUID.randomUUID();
@@ -471,7 +539,6 @@ class DeliveryControllerTest {
 
         ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
         ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest);
-
         assertEquals(expected, actual);
     }
 }

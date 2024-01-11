@@ -11,10 +11,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Value;
@@ -509,6 +506,105 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void assignCourierSuccess()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Vendor vendor = new Vendor(vendorId, new Location(), "", true, new BigDecimal(1000));
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+
+        Courier courier = new Courier(courierId, vendor);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        Delivery actual = deliveryService.assignCourier(id, courierId);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void assignCourierNoSuchCourier() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void assignCourierAnotherAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID oldCourierId = UUID.randomUUID();
+        UUID newCourierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(oldCourierId);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Courier courier = new Courier(oldCourierId, null);
+        when(courierService.getCourier(newCourierId.toString())).thenReturn(courier);
+
+        assertThrows(AccessForbiddenException.class,
+                () -> deliveryService.assignCourier(id, newCourierId));
+    }
+
+    @Test
+    public void assignCourierSameAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(courierId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Courier courier = new Courier(courierId, null);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void assignCourierNotAssignedToVendor() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Vendor vendor = new Vendor(vendorId, new Location(), "", true, new BigDecimal(1000));
+        Vendor otherVendor = new Vendor(UUID.randomUUID(), new Location(), "", true, new BigDecimal(1000));
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+
+        Courier courier = new Courier(courierId, otherVendor);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        assertThrows(AccessForbiddenException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
     public void adminGetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
@@ -645,4 +741,5 @@ public class DeliveryServiceTest {
                     deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
                 });
     }
+
 }

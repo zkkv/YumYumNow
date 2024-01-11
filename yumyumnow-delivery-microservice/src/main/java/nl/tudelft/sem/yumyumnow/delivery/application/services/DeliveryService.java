@@ -376,4 +376,58 @@ public class DeliveryService {
         return delivery;
     }
 
+    /**
+     * Assigns courier with the provided {@code courierId} to the delivery
+     * with the given {@code id}.
+     *
+     * @param id id of the delivery
+     * @param courierId id of the courier
+     * @return delivery after assigning the courier to it
+     * @author Kirill Zhankov
+     */
+    public Delivery assignCourier(UUID id, UUID courierId)
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+        // Check if delivery is present.
+        if (optionalDelivery.isEmpty()) {
+            throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+
+        // Check if delivery has a vendor associated with it.
+        Delivery delivery = optionalDelivery.get();
+        UUID vendorId = delivery.getVendorId();
+
+        if (vendorId == null) {
+            throw new BadArgumentException("Delivery has no vendor assigned.");
+        }
+
+        // Chain of validators that checks that courier is associated with vendor.
+        var validator = new CourierExistsValidator(
+                        new VendorExistsValidator(
+                        new CourierBelongsToVendorValidator(null,
+                        courierId, courierService, vendorService),
+                        delivery.getVendorId(), vendorService),
+                courierId, courierService);
+
+        if (!validator.process(delivery)) {
+            throw new AccessForbiddenException("Courier does not belong to the vendor");
+        }
+
+        // Check if the delivery already has a courier with the same id.
+        UUID oldCourierId = delivery.getCourierId();
+        if (courierId.equals(oldCourierId)) {
+            throw new BadArgumentException("Courier with that id is assigned to the delivery.");
+        }
+
+        // Check if the delivery already has a courier with a different id.
+        if (oldCourierId != null && !courierId.equals(oldCourierId)) {
+            throw new AccessForbiddenException("Another courier is assigned to the delivery");
+        }
+
+        delivery.setCourierId(courierId);
+        deliveryRepository.save(delivery);
+
+        return delivery;
+    }
 }
