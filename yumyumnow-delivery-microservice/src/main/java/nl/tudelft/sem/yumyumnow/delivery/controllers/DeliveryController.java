@@ -2,19 +2,19 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,23 +32,27 @@ public class DeliveryController implements DeliveryApi {
     private final DeliveryService deliveryService;
     private final CustomerService userService;
     private final VendorService vendorService;
+    private final AdminService adminService;
     private final OrderService orderService;
 
     /**
      * Constructor for delivery controller.
      *
-     * @param deliveryService delivery service
-     * @param userService user service
-     * @param vendorService vendor service
+     * @param deliveryService delivery service for the logic
+     * @param userService customer service from User microservice
+     * @param vendorService vendor service from User microservice
+     * @param adminService admin service from User microservice
      * @param orderService order service
      */
     public DeliveryController(DeliveryService deliveryService,
                               CustomerService userService,
                               VendorService vendorService,
+                              AdminService adminService,
                               OrderService orderService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
+        this.adminService = adminService;
         this.orderService = orderService;
     }
 
@@ -125,6 +129,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Change the status of the delivery
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdStatusPutRequest  (optional)
      * @return the updated delivery
@@ -150,7 +155,6 @@ public class DeliveryController implements DeliveryApi {
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
      */
-
     @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
@@ -163,7 +167,6 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(delivery);
     }
-
 
 
     /**
@@ -191,6 +194,61 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
+     * Get default maximum delivery zone as an admin.
+     *
+     * @param adminId The admin ID (required)
+     * @return The response that contains admin id and default maximum zone.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZoneGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId
+    ){
+        try{
+            DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+            if (response == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return ResponseEntity.ok(response);
+        }
+        catch (ServiceUnavailableException e){
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        catch (AccessForbiddenException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /**
+     *  Set default maximum delivery zone as an admin.
+     *
+     * @param deliveryAdminMaxZoneGet200Response  (optional)
+     * @return The response that contains admin id and default maximum zone.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZonePut(
+            @Parameter(name = "DeliveryAdminMaxZoneGet200Response", description = "")
+            @Valid @RequestBody(required = false) DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response
+    ) {
+        try{
+            DeliveryAdminMaxZoneGet200Response response =
+                    deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
+                            deliveryAdminMaxZoneGet200Response.getRadiusKm(), adminService);
+
+            if (response == null) {
+                return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
+            }
+            return ResponseEntity.ok(response);
+        }
+        catch (ServiceUnavailableException e){
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        catch (AccessForbiddenException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /**
      * Update the total delivery time of an order for a POST request.
      *
      * @param id UUID of the delivery (required).
@@ -210,6 +268,35 @@ public class DeliveryController implements DeliveryApi {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Assigns courier with id provided as a query parameter to the delivery
+     * with the given {@code id}.
+     *
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdAssignPutRequest request containing the courier id query parameter
+     * @return a Delivery ResponseEntity representing the updated delivery
+     * @author Kirill Zhankov
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdAssignPut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true)
+            @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdAssignPutRequest", description = "") @Valid
+            @RequestBody(required = false) DeliveryIdAssignPutRequest deliveryIdAssignPutRequest
+    ) {
+        UUID courierId = deliveryIdAssignPutRequest.getCourierId();
+        Delivery delivery = null;
+        try {
+            delivery = deliveryService.assignCourier(id, courierId);
+        } catch (NoDeliveryFoundException | BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         return ResponseEntity.ok(delivery);
     }
 

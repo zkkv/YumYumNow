@@ -6,10 +6,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 
 import java.util.UUID;
 
-public class VendorValidator extends AuthProcessor<Vendor> {
+public class VendorExistsValidator extends AuthProcessor<Vendor> {
     private Vendor toValidate;
 
-    public VendorValidator(AuthProcessor next, UUID toValidate, VendorService vendorService) {
+    public VendorExistsValidator(AuthProcessor next, UUID toValidate, VendorService vendorService) {
         super(next, toValidate);
         this.toValidate = vendorService.getVendor(toValidate.toString());
     }
@@ -17,8 +17,6 @@ public class VendorValidator extends AuthProcessor<Vendor> {
     @Override
     public boolean process(Delivery delivery) {
         if (toValidate == null) return false;
-        if (!delivery.getVendorId().equals(toValidate.getId()))
-            return false;
 
         if (next == null) return true;
 

@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
@@ -46,8 +47,9 @@ public class OrderServiceTest {
         UUID customerId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Customer customer = new Customer();
-        customer.setId(customerId);
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .createCustomer();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)

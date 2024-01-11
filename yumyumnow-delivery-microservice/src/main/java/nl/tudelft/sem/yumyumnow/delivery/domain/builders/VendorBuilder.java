@@ -6,6 +6,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+/**
+ * Builder for Vendor.
+ * Uses a fluent interface to make it easier to create objects.
+ */
 public class VendorBuilder {
     private UUID id;
     private Location address;
