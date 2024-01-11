@@ -12,9 +12,9 @@ import java.util.UUID;
  * CourierValidator.
  * Validates that the courier is allowed to deliver the order.
  */
-public class CourierValidator extends AuthProcessor<Courier> {
-    VendorService vendorService;
+public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
     Courier toValidate;
+    VendorService vendorService;
 
     /**
      * Constructor for CourierValidator.
@@ -23,7 +23,7 @@ public class CourierValidator extends AuthProcessor<Courier> {
      * @param courierService Courier service to get the courier from
      * @param vendorService Vendor service to get the vendor from
      */
-    public CourierValidator(
+    public CourierBelongsToVendorValidator(
             AuthProcessor next,
             UUID toValidate, CourierService courierService,
             VendorService vendorService) {
@@ -46,12 +46,6 @@ public class CourierValidator extends AuthProcessor<Courier> {
      */
     @Override
     public boolean process(Delivery delivery) {
-        if (toValidate == null) return false;
-
-
-        if (!delivery.getCourierId().equals(toValidate.getId()))
-            return false;
-
         Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
         if (vendor == null) return true;
 

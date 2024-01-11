@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +51,11 @@ public class OrderService {
             return null;
         }
 
-        return new Order(
-                UUID.fromString((String) response.get("orderID")),
-                vendorService.getVendor((String) response.get("vendorID")),
-                customerService.getCustomer((String) response.get("customerID"))
-        );
+        return new OrderBuilder()
+                .setOrderId(orderId)
+                .setOrderCustomer(customerService.getCustomer((String) response.get("customerID")))
+                .setOrderVendor(vendorService.getVendor((String) response.get("vendorID")))
+                .createOrder();
     }
 
     /**

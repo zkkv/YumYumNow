@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Validates that the vendor of the delivery is the same as the one provided.
  */
-public class VendorValidator extends AuthProcessor<Vendor> {
+public class VendorBelongsToDeliveryValidator extends AuthProcessor<Vendor> {
     private Vendor toValidate;
 
     /**
@@ -18,7 +18,7 @@ public class VendorValidator extends AuthProcessor<Vendor> {
      * @param toValidate ID of the vendor to validate
      * @param vendorService Vendor service to get the vendor from
      */
-    public VendorValidator(AuthProcessor next, UUID toValidate, VendorService vendorService) {
+    public VendorBelongsToDeliveryValidator(AuthProcessor next, UUID toValidate, VendorService vendorService) {
         super(next, toValidate);
         this.toValidate = vendorService.getVendor(toValidate.toString());
     }
@@ -34,7 +34,6 @@ public class VendorValidator extends AuthProcessor<Vendor> {
      */
     @Override
     public boolean process(Delivery delivery) {
-        if (toValidate == null) return false;
         if (!delivery.getVendorId().equals(toValidate.getId()))
             return false;
 

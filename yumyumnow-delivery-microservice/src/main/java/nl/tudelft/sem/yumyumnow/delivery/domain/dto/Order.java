@@ -11,8 +11,7 @@ import java.util.*;
  * Order DTO.
  * Used for easy data representation and transfer with other microservices.
  */
-@Setter @Getter
-@AllArgsConstructor
+@AllArgsConstructor @Setter @Getter
 public class Order {
 
     private UUID id;
