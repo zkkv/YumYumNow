@@ -394,12 +394,21 @@ public class DeliveryService {
         }
 
         Delivery delivery = optionalDelivery.get();
+        UUID vendorId = delivery.getVendorId();
 
-        var validator = new CourierExistsValidator(null, courierId, courierService);
-        boolean exists = courierService.getCourier(courierId.toString()) != null;
+        if (vendorId == null) {
+            throw new BadArgumentException("Delivery has no vendor assigned.");
+        }
+
+        var validator = new CourierExistsValidator(
+                        new VendorExistsValidator(
+                        new CourierBelongsToVendorValidator(null,
+                        courierId, courierService, vendorService),
+                        delivery.getVendorId(), vendorService),
+                courierId, courierService);
 
         if (!validator.process(delivery)) {
-            throw new BadArgumentException("No courier found by id.");
+            throw new AccessForbiddenException("Courier does not belong to the vendor");
         }
 
         UUID oldCourierId = delivery.getCourierId();
