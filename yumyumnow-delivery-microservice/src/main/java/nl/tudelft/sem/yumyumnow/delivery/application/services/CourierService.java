@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,12 +45,10 @@ public class CourierService {
             return null;
         }
 
-        Courier courier = new Courier();
-
-        courier.setId(UUID.fromString((String) response.get("userID")));
-        courier.setVendor(vendorService.getVendor((String) response.get("vendor")));
-
-        return courier;
+        return new CourierBuilder()
+                .setId(UUID.fromString((String) response.get("userID")))
+                .setVendor(vendorService.getVendor((String) response.get("vendor")))
+                .createCourier();
     }
 
     /**

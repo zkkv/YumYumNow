@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
@@ -46,9 +47,10 @@ public class CourierServiceTest {
                 .setId(vendorId)
                 .createVendor();
 
-        Courier expectedCourier = new Courier();
-        expectedCourier.setId(courierId);
-        expectedCourier.setVendor(vendor);
+        Courier expectedCourier = new CourierBuilder()
+                .setId(courierId)
+                .setVendor(vendor)
+                .createCourier();
 
         when(restTemplate.getForObject(
                 testWebsite + "/courier/" + courierId.toString(),
@@ -82,9 +84,9 @@ public class CourierServiceTest {
         UUID courierId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Courier expectedCourier = new Courier();
-        expectedCourier.setId(courierId);
-        expectedCourier.setVendor(null);
+        Courier expectedCourier = new CourierBuilder()
+                .setId(courierId)
+                .createCourier();
 
         when(restTemplate.getForObject(
                 testWebsite + "/courier/" + courierId.toString(),
@@ -111,9 +113,10 @@ public class CourierServiceTest {
                 .setId(vendorId)
                 .createVendor();
 
-        Courier courier = new Courier();
-        courier.setId(courierId);
-        courier.setVendor(vendor);
+        Courier courier = new CourierBuilder()
+                .setId(courierId)
+                .setVendor(vendor)
+                .createCourier();
 
         Map<String, String> expectedMap = Map.of(
                 "userID", courierId.toString(),
@@ -153,9 +156,10 @@ public class CourierServiceTest {
                 .setId(vendorId)
                 .createVendor();
 
-        Courier courier = new Courier();
-        courier.setId(courierId);
-        courier.setVendor(vendor);
+        Courier courier = new CourierBuilder()
+                .setId(courierId)
+                .setVendor(vendor)
+                .createCourier();
 
         Map<String, String> originalMap = new HashMap<>(Map.of(
                 "userID", courierId.toString(),
