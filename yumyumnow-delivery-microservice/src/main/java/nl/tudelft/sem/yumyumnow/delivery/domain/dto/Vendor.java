@@ -10,7 +10,8 @@ import lombok.Setter;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 
 /**
- * Vendor DTO
+ * Courier DTO.
+ * Used for easy data representation and transfer with other microservices.
  */
 @AllArgsConstructor @Setter
 @Getter

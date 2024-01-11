@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -68,8 +69,11 @@ public class DeliveryTimeTest {
         customerLocation.setLatitude(BigDecimal.valueOf(0));
         customerLocation.setLongitude(BigDecimal.valueOf(0));
         // create a customer
-        Customer customer = new Customer();
-        customer.setId(customerId);
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .setAddress(customerLocation)
+                .createCustomer();
+
         order.setCustomer(customer);
 
         // set the location of the vendor

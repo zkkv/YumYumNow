@@ -1,15 +1,16 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import java.util.Objects;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.AllArgsConstructor;
 import java.util.*;
 
 /**
- * Order DTO
+ * Order DTO.
+ * Used for easy data representation and transfer with other microservices.
  */
-
 @AllArgsConstructor @Setter @Getter
 public class Order {
 

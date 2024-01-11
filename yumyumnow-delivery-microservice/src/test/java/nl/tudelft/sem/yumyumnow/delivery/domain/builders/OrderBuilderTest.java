@@ -26,7 +26,9 @@ public class OrderBuilderTest {
 
     @Test
     void setOrderCustomerTest() {
-        Customer customer = new Customer();
+        Customer customer = new CustomerBuilder()
+                .setId(UUID.randomUUID())
+                .createCustomer();
         Order order = new OrderBuilder()
                 .setOrderCustomer(customer)
                 .createOrder();
@@ -53,7 +55,9 @@ public class OrderBuilderTest {
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
                 .createVendor();
-        Customer customer = new Customer();
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .createCustomer();
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
                 .setOrderCustomer(customer)

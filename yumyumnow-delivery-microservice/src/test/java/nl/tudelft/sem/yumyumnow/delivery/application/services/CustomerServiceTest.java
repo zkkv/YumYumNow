@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,15 +36,17 @@ public class CustomerServiceTest {
     public void testGetCustomerSuccess() {
         UUID customerId = UUID.randomUUID();
 
-        Customer expectedCustomer = new Customer();
-        expectedCustomer.setId(customerId);
-        expectedCustomer.setName("test");
-        expectedCustomer.setPhone("123456789");
-
         Location address = new Location();
         address.setTimestamp(null);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
+
+        Customer expectedCustomer = new CustomerBuilder()
+                .setId(customerId)
+                .setName("test")
+                .setPhoneNumber("123456789")
+                .setAddress(address)
+                .createCustomer();
 
         expectedCustomer.setDeliveryAddress(address);
 
