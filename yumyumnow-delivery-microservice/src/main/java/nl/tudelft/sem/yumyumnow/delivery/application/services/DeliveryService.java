@@ -376,7 +376,15 @@ public class DeliveryService {
         return delivery;
     }
 
-
+    /**
+     * Assigns courier with the provided {@code courierId} to the delivery
+     * with the given {@code id}.
+     *
+     * @param id id of the delivery
+     * @param courierId id of the courier
+     * @return delivery after assigning the courier to it
+     * @author Kirill Zhankov
+     */
     public Delivery assignCourier(UUID id, UUID courierId)
             throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);

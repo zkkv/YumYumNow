@@ -267,6 +267,15 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+    /**
+     * Assigns courier with id provided as a query parameter to the delivery
+     * with the given {@code id}.
+     *
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdAssignPutRequest request containing the courier id query parameter
+     * @return a Delivery ResponseEntity representing the updated delivery
+     * @author Kirill Zhankov
+     */
     @Override
     public ResponseEntity<Delivery> deliveryIdAssignPut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true)
