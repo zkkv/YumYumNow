@@ -402,7 +402,7 @@ public class DeliveryService {
             throw new BadArgumentException("Delivery has no vendor assigned.");
         }
 
-        // Chain of validators that checks that courier is associated with vendor
+        // Chain of validators that checks that courier is associated with vendor.
         var validator = new CourierExistsValidator(
                         new VendorExistsValidator(
                         new CourierBelongsToVendorValidator(null,
