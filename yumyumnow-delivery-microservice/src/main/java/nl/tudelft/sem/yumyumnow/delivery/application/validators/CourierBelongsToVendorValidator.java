@@ -9,11 +9,11 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import java.util.UUID;
 
 
-public class CourierValidator extends AuthProcessor<Courier> {
-    VendorService vendorService;
+public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
     Courier toValidate;
+    VendorService vendorService;
 
-    public CourierValidator(
+    public CourierBelongsToVendorValidator(
             AuthProcessor next,
             UUID toValidate, CourierService courierService,
             VendorService vendorService) {
@@ -25,12 +25,6 @@ public class CourierValidator extends AuthProcessor<Courier> {
 
     @Override
     public boolean process(Delivery delivery) {
-        if (toValidate == null) return false;
-
-
-        if (!delivery.getCourierId().equals(toValidate.getId()))
-            return false;
-
         Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
         if (vendor == null) return true;
 
