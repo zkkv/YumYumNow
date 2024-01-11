@@ -8,8 +8,6 @@ import nl.tudelft.sem.yumyumnow.delivery.application.validators.StatusPermission
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.VendorValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
