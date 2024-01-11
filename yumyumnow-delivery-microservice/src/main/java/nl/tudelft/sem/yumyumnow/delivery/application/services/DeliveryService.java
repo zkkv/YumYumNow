@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -299,4 +300,28 @@ public class DeliveryService {
         return delivery;
     }
 
+    /**
+     * Count the total number of deliveries between two given dates.
+     *
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the total number of deliveries
+     * @throws BadArgumentException when the provided arguments are wrong
+     */
+    //TODO: check for admin id to be valid
+    public int getTotalDeliveriesAnalytic(OffsetDateTime startDate, OffsetDateTime endDate) throws BadArgumentException {
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        int total = 0;
+        for (Delivery delivery : deliveries) {
+            OffsetDateTime time = delivery.getEstimatedDeliveryTime();
+            if (time.isAfter(startDate) && time.isBefore(endDate)) {
+                total++;
+            }
+        }
+        return total;
+    }
 }

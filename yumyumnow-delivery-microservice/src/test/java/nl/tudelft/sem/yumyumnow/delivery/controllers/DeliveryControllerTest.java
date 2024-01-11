@@ -375,4 +375,25 @@ class DeliveryControllerTest {
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).thenReturn(1);
+        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setTotalDeliveries(BigDecimal.valueOf(1));
+
+        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsTotalDeliveriesGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
 }

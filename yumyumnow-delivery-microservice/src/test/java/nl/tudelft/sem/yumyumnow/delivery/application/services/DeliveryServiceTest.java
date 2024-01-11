@@ -18,9 +18,12 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -513,4 +516,38 @@ public class DeliveryServiceTest {
                     deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
                 });
     }
+
+    @Test
+    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        // setting up the deliveries
+        UUID id = UUID.randomUUID();
+        Delivery delivery1 = new Delivery();
+        delivery1.setId(id);
+        delivery1.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
+        id = UUID.randomUUID();
+        Delivery delivery2 = new Delivery();
+        delivery2.setId(id);
+        delivery2.setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC));
+
+        List<Delivery> deliveries = new ArrayList<>();
+        deliveries.add(delivery1);
+        deliveries.add(delivery2);
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+
+        assertThat(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).isEqualTo(1);
+    }
+
+    @Test
+    void getTotalDeliveriesExceptionTest() {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        assertThrows(BadArgumentException.class, () -> {
+            deliveryService.getTotalDeliveriesAnalytic(startDate, endDate);
+        });
+    }
+
 }
