@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
@@ -56,8 +57,9 @@ public class DeliveryTimeTest {
 
         // create an order
         UUID orderId = UUID.randomUUID();
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .createOrder();
         delivery.setOrderId(orderId);
 
         // mock a location for a customer

@@ -128,7 +128,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     *               update it or if delivery is not found.
+     *         update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -144,7 +144,7 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
-        if(status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
             throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
@@ -234,11 +234,6 @@ public class DeliveryService {
         }
         GlobalConfig globalConfig = optionalGlobalConfig.get();
         BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
-        if (defaultMaxZone == null) {
-            globalConfig.setDefaultMaxZone(BigDecimal.valueOf(0));
-            globalConfigRepository.save(globalConfig);
-            defaultMaxZone = BigDecimal.valueOf(0);
-        }
 
         DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
         response.setAdminId(adminId);
@@ -336,7 +331,8 @@ public class DeliveryService {
      * @throws Exception the exception to be thrown.
      *
      */
-    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService) throws Exception{
+    public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService)
+            throws Exception {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");

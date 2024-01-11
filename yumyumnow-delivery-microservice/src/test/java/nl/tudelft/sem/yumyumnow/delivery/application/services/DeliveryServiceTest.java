@@ -544,16 +544,11 @@ public class DeliveryServiceTest {
         when(adminService.validate(adminId)).thenReturn(true);
         when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
 
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(0);
-
         DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
 
-        assertEquals(BigDecimal.valueOf(0), globalConfig.getDefaultMaxZone());
-        verify(globalConfigRepository).save(globalConfig);
         assertEquals(deliveryAdminMaxZoneGet200Response, response);
     }
 
