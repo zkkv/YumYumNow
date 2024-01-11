@@ -550,4 +550,44 @@ public class DeliveryServiceTest {
         });
     }
 
+    @Test
+    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        // setting up the deliveries
+        UUID id = UUID.randomUUID();
+        Delivery delivery1 = new Delivery();
+        delivery1.setId(id);
+        delivery1.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
+        delivery1.setStatus(Delivery.StatusEnum.DELIVERED);
+        id = UUID.randomUUID();
+        Delivery delivery2 = new Delivery();
+        delivery2.setId(id);
+        delivery2.setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC));
+        delivery2.setStatus(Delivery.StatusEnum.PENDING);
+        id = UUID.randomUUID();
+        Delivery delivery3 = new Delivery();
+        delivery3.setId(id);
+        delivery3.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
+        delivery3.setStatus(Delivery.StatusEnum.PENDING);
+
+        List<Delivery> deliveries = new ArrayList<>();
+        deliveries.add(delivery1);
+        deliveries.add(delivery2);
+        deliveries.add(delivery3);
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+
+        assertThat(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).isEqualTo(1);
+    }
+
+    @Test
+    void getSuccessfulDeliveriesExceptionTest() {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        assertThrows(BadArgumentException.class, () -> {
+            deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate);
+        });
+    }
 }

@@ -324,4 +324,32 @@ public class DeliveryService {
         }
         return total;
     }
+
+    /**
+     * Count the total number of successful deliveries between two given dates.
+     *
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the total number of successful deliveries
+     * @throws BadArgumentException when the provided arguments are wrong
+     */
+    //TODO: check for admin id to be valid
+    public int getSuccessfulDeliveriesAnalytic(OffsetDateTime startDate, OffsetDateTime endDate) throws BadArgumentException {
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        int total = 0;
+        for (Delivery delivery : deliveries) {
+            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED){
+                continue;
+            }
+            OffsetDateTime time = delivery.getEstimatedDeliveryTime();
+            if (time.isAfter(startDate) && time.isBefore(endDate)) {
+                total++;
+            }
+        }
+        return total;
+    }
 }

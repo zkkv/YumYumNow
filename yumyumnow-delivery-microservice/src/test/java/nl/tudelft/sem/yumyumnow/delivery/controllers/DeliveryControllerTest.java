@@ -369,10 +369,8 @@ class DeliveryControllerTest {
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
 
         DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest();
-
         ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
         ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest);
-
         assertEquals(expected, actual);
     }
 
@@ -380,7 +378,6 @@ class DeliveryControllerTest {
     void getTotalDeliveriesSuccessfulTest() throws BadArgumentException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-
         UUID adminId = UUID.randomUUID();
 
         when(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).thenReturn(1);
@@ -391,6 +388,58 @@ class DeliveryControllerTest {
 
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = ResponseEntity.ok(response);
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsTotalDeliveriesGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getTotalDeliveriesExceptionTest() throws Exception {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).thenThrow(BadArgumentException.class);
+
+        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsTotalDeliveriesGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).thenReturn(1);
+        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setSuccessfulDeliveries(BigDecimal.valueOf(1));
+
+        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getSuccessfulDeliveriesExceptionTest() throws Exception {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).thenThrow(BadArgumentException.class);
+
+        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
                 adminId, startDate, endDate
         );
 

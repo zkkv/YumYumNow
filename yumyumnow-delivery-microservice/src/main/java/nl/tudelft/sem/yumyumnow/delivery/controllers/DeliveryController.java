@@ -269,4 +269,35 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Get analytics regarding the total number of successful deliveries.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        try {
+            int totalDeliveries = deliveryService.getSuccessfulDeliveriesAnalytic(startDate,endDate);
+            response.setSuccessfulDeliveries(BigDecimal.valueOf(totalDeliveries));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }
