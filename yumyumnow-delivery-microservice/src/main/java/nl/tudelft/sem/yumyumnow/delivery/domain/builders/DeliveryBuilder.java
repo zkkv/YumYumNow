@@ -59,14 +59,14 @@ public class DeliveryBuilder {
 
     public Delivery createDelivery() {
         Delivery delivery = new Delivery();
-        delivery.id(deliveryId);
-        delivery.orderId(orderId);
-        delivery.courierId(courierId);
-        delivery.vendorId(vendorId);
-        delivery.status(status);
-        delivery.estimatedDeliveryTime(estimatedDeliveryTime);
-        delivery.estimatedPreparationFinishTime(estimatedPreparationFinishTime);
-        delivery.currentLocation(currentLocation);
+        delivery.setId(deliveryId);
+        delivery.setOrderId(orderId);
+        delivery.setCourierId(courierId);
+        delivery.setVendorId(vendorId);
+        delivery.setStatus(status);
+        delivery.setEstimatedDeliveryTime(estimatedDeliveryTime);
+        delivery.setEstimatedPreparationFinishTime(estimatedPreparationFinishTime);
+        delivery.setCurrentLocation(currentLocation);
         return delivery;
     }
 }
