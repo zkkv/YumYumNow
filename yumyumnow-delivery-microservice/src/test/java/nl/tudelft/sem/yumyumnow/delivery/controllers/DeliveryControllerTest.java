@@ -2,12 +2,12 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -54,18 +54,18 @@ class DeliveryControllerTest {
         UUID vendorId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
 
-        Order order = new OrderBuilder()
-                .setOrderId(orderId)
-                .createOrder();
-
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
                 .createVendor();
 
-        order.setVendor(vendor);
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .setOrderVendor(vendor)
+                .createOrder();
 
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .createDelivery();
 
         when(deliveryService.createDelivery(orderId, vendorId)).thenReturn(delivery);
 
@@ -82,22 +82,17 @@ class DeliveryControllerTest {
 
     @Test
     void deliveryPostFail() throws BadArgumentException {
-        UUID id = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
-
-        Order order = new OrderBuilder()
-                .setOrderId(orderId)
-                .createOrder();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
                 .createVendor();
 
-        order.setVendor(vendor);
-
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .setOrderVendor(vendor)
+                .createOrder();
 
         when(deliveryService.createDelivery(orderId, vendorId))
                 .thenThrow(BadArgumentException.class);
@@ -118,8 +113,9 @@ class DeliveryControllerTest {
     void getDeliverySuccess() throws NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
 
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .createDelivery();
 
         when(deliveryService.getDelivery(id)).thenReturn(delivery);
 
@@ -233,11 +229,11 @@ class DeliveryControllerTest {
 
         deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
 
-
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
-        delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
-        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .setStatus(Delivery.StatusEnum.ACCEPTED)
+                .setEstimatedPreparationFinishTime(offsetDateTime)
+                .createDelivery();
 
         when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()))
                 .thenReturn(delivery);
@@ -266,11 +262,11 @@ class DeliveryControllerTest {
 
         deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
 
-
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
-        delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
-        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .setStatus(Delivery.StatusEnum.ACCEPTED)
+                .setEstimatedPreparationFinishTime(offsetDateTime)
+                .createDelivery();
 
         when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()))
                 .thenReturn(delivery);
@@ -291,9 +287,10 @@ class DeliveryControllerTest {
         deliveryIdStatusPutRequest.setUserId(userId);
         deliveryIdStatusPutRequest.setStatus(status);
 
-        Delivery delivery = new Delivery();
-        delivery.setStatus(Delivery.StatusEnum.PREPARING);
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .setStatus(Delivery.StatusEnum.PREPARING)
+                .createDelivery();
 
         when(deliveryService.updateStatus(
                 id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
@@ -431,8 +428,9 @@ class DeliveryControllerTest {
     @Test
     void totalDeliveryTimeSuccessfulTest() throws Exception {
         UUID deliveryId = UUID.randomUUID();
-        Delivery delivery = new Delivery();
-        delivery.setId(deliveryId);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .createDelivery();
 
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
 
@@ -464,8 +462,10 @@ class DeliveryControllerTest {
         UUID id = UUID.randomUUID();
         UUID courierId = UUID.randomUUID();
 
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .createDelivery();
+
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
 
@@ -486,8 +486,10 @@ class DeliveryControllerTest {
         UUID id = UUID.randomUUID();
         UUID courierId = UUID.randomUUID();
 
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .createDelivery();
+
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
 
@@ -509,8 +511,10 @@ class DeliveryControllerTest {
         UUID id = UUID.randomUUID();
         UUID courierId = UUID.randomUUID();
 
-        Delivery delivery = new Delivery();
-        delivery.setId(id);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .createDelivery();
+
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
 
@@ -530,8 +534,10 @@ class DeliveryControllerTest {
     void updateTotalDeliveryTimeSuccessfulTest() throws Exception {
         // The PUT request for updating the delivery time
         UUID deliveryId = UUID.randomUUID();
-        Delivery delivery = new Delivery();
-        delivery.setId(deliveryId);
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .createDelivery();
 
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
 
