@@ -347,10 +347,14 @@ public class DeliveryController implements DeliveryApi {
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
-            int totalDeliveries = deliveryService.getTotalDeliveriesAnalytic(startDate,endDate);
+            int totalDeliveries = deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
             response.setTotalDeliveries(BigDecimal.valueOf(totalDeliveries));
-        } catch (Exception e) {
+        } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
 
         return ResponseEntity.ok(response);
@@ -379,10 +383,14 @@ public class DeliveryController implements DeliveryApi {
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
-            int totalDeliveries = deliveryService.getSuccessfulDeliveriesAnalytic(startDate,endDate);
+            int totalDeliveries = deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
             response.setSuccessfulDeliveries(BigDecimal.valueOf(totalDeliveries));
-        } catch (Exception e) {
+        } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
 
         return ResponseEntity.ok(response);

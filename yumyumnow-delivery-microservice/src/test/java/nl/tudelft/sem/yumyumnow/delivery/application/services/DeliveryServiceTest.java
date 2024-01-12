@@ -54,7 +54,7 @@ public class DeliveryServiceTest {
         this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
     }
 
     @Test
@@ -751,7 +751,7 @@ public class DeliveryServiceTest {
 
 
     @Test
-    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException {
+    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
 
@@ -769,22 +769,39 @@ public class DeliveryServiceTest {
         deliveries.add(delivery1);
         deliveries.add(delivery2);
 
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).isEqualTo(1);
+        assertThat(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
-    void getTotalDeliveriesExceptionTest() {
+    void getTotalDeliveriesExceptionTest() throws ServiceUnavailableException {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(true);
+
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getTotalDeliveriesAnalytic(startDate, endDate);
+            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
     @Test
-    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException {
+    void getTotalDeliveriesUnauthorizedTest() throws ServiceUnavailableException {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(false);
+
+        assertThrows(AccessForbiddenException.class, () -> {
+            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+        });
+    }
+
+    @Test
+    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
 
@@ -810,17 +827,34 @@ public class DeliveryServiceTest {
         deliveries.add(delivery2);
         deliveries.add(delivery3);
 
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).isEqualTo(1);
+        assertThat(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
-    void getSuccessfulDeliveriesExceptionTest() {
+    void getSuccessfulDeliveriesExceptionTest() throws ServiceUnavailableException {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(true);
+
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate);
+            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+        });
+    }
+
+    @Test
+    void getSuccessfulDeliveriesUnauthorizedTest() throws ServiceUnavailableException {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+        when(adminService.validate(adminId)).thenReturn(false);
+
+        assertThrows(AccessForbiddenException.class, () -> {
+            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 }

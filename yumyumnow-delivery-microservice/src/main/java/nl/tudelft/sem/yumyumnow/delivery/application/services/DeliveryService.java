@@ -35,6 +35,7 @@ public class DeliveryService {
     private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
+    private final AdminService adminService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -43,23 +44,26 @@ public class DeliveryService {
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository The repository to use for delivery
+     * @param deliveryRepository     The repository to use for delivery
      * @param globalConfigRepository The repository for global configuration
-     * @param vendorService service of the vendor
-     * @param courierService service of the courier
-     * @param orderService service of the order
+     * @param vendorService          service of the vendor
+     * @param courierService         service of the courier
+     * @param adminService           service of the admin
+     * @param orderService           service of the order
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
                            GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
                            CourierService courierService,
+                           AdminService adminService,
                            OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
+        this.adminService = adminService;
     }
 
     /**
@@ -439,8 +443,11 @@ public class DeliveryService {
      * @return an Integer representing the total number of deliveries
      * @throws BadArgumentException when the provided arguments are wrong
      */
-    //TODO: check for admin id to be valid
-    public int getTotalDeliveriesAnalytic(OffsetDateTime startDate, OffsetDateTime endDate) throws BadArgumentException {
+    public int getTotalDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
         if (startDate.isAfter(endDate)) {
             throw new BadArgumentException("Start date cannot be greater than end date.");
         }
@@ -464,8 +471,11 @@ public class DeliveryService {
      * @return an Integer representing the total number of successful deliveries
      * @throws BadArgumentException when the provided arguments are wrong
      */
-    //TODO: check for admin id to be valid
-    public int getSuccessfulDeliveriesAnalytic(OffsetDateTime startDate, OffsetDateTime endDate) throws BadArgumentException {
+    public int getSuccessfulDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
         if (startDate.isAfter(endDate)) {
             throw new BadArgumentException("Start date cannot be greater than end date.");
         }
@@ -473,7 +483,7 @@ public class DeliveryService {
         List<Delivery> deliveries = deliveryRepository.findAll();
         int total = 0;
         for (Delivery delivery : deliveries) {
-            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED){
+            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED) {
                 continue;
             }
             OffsetDateTime time = delivery.getEstimatedDeliveryTime();
