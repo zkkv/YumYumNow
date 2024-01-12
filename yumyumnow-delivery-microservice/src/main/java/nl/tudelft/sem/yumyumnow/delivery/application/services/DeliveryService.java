@@ -444,6 +444,7 @@ public class DeliveryService {
      * @return an Integer representing the total number of deliveries
      * @throws BadArgumentException when the provided arguments are wrong
      */
+
     public int getTotalDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
         if (!adminService.validate(adminId)) {
@@ -522,13 +523,15 @@ public class DeliveryService {
         for (Delivery delivery : deliveries) {
             OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
             UUID orderId = delivery.getOrderId();
-            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED || deliveryTime.isBefore(startDate) || deliveryTime.isAfter(endDate)) {
+
+            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED
+                    || deliveryTime.isBefore(startDate) || deliveryTime.isAfter(endDate)) {
                 continue;
             }
-
             BigDecimal timePlacement = orderService.getTimeOfPlacement(orderId);
-            if (timePlacement == null)
+            if (timePlacement == null) {
                 continue;
+            }
             OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
             // Convert both times to Instant.
             Instant startInstant = Instant.ofEpochMilli(timePlacement.longValue());
