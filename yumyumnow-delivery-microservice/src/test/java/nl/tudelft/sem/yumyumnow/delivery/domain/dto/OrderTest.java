@@ -16,11 +16,11 @@ public class OrderTest {
                 .setOrderId(order.getId())
                 .setOrderCustomer(order.getCustomer())
                 .setOrderVendor(order.getVendor())
-                .createOrder();
+                .create();
 
         Order order3 = new OrderBuilder()
                 .setOrderId(order.getId())
-                .createOrder();
+                .create();
 
         assertThat(order).isEqualTo(order);
         assertThat(order).isEqualTo(order2);
@@ -33,7 +33,7 @@ public class OrderTest {
                 .setOrderId(UUID.randomUUID())
                 .setOrderCustomer(order.getCustomer())
                 .setOrderVendor(order.getVendor())
-                .createOrder();
+                .create();
 
         assertThat(order).isNotEqualTo(order2);
         assertThat(order).isNotEqualTo(null);
@@ -46,11 +46,11 @@ public class OrderTest {
                 .setOrderId(order.getId())
                 .setOrderCustomer(order.getCustomer())
                 .setOrderVendor(order.getVendor())
-                .createOrder();
+                .create();
 
         Order order3 = new OrderBuilder()
                 .setOrderId(order.getId())
-                .createOrder();
+                .create();
 
         assertThat(order.hashCode()).isEqualTo(order2.hashCode());
         assertThat(order.hashCode()).isEqualTo(order3.hashCode());
@@ -65,13 +65,13 @@ public class OrderTest {
         Arbitrary<Vendor> vendor = Arbitraries.randomValue(
                 (random) -> new VendorBuilder()
                         .setId(UUID.randomUUID())
-                        .createVendor()
+                        .create()
         );
 
         Arbitrary<Customer> customer = Arbitraries.randomValue(
                 (random) -> new CustomerBuilder()
                         .setId(UUID.randomUUID())
-                        .createCustomer()
+                        .create()
         );
 
 

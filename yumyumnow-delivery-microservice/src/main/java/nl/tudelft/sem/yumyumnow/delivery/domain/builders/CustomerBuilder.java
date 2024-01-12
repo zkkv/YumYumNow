@@ -9,7 +9,7 @@ import java.util.UUID;
  * Builder for Customer.
  * Uses a fluent interface to make it easier to create objects.
  */
-public class CustomerBuilder {
+public class CustomerBuilder implements Builder<Customer> {
     private UUID id;
     private String name;
     private String phoneNumber;
@@ -35,7 +35,16 @@ public class CustomerBuilder {
         return this;
     }
 
-    public Customer createCustomer() {
+    @Override
+    public Customer create() {
         return new Customer(id, name, address, phoneNumber);
+    }
+
+    @Override
+    public void reset() {
+        id = null;
+        name = null;
+        phoneNumber = null;
+        address = null;
     }
 }

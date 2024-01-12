@@ -56,12 +56,12 @@ class DeliveryControllerTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
                 .setOrderVendor(vendor)
-                .createOrder();
+                .create();
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
@@ -84,15 +84,14 @@ class DeliveryControllerTest {
     void deliveryPostFail() throws BadArgumentException {
         UUID vendorId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
-
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
                 .setOrderVendor(vendor)
-                .createOrder();
+                .create();
 
         when(deliveryService.createDelivery(orderId, vendorId))
                 .thenThrow(BadArgumentException.class);

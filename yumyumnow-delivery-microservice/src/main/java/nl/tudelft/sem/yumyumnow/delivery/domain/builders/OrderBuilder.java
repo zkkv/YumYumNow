@@ -4,7 +4,7 @@ import java.util.UUID;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
-public class OrderBuilder {
+public class OrderBuilder implements Builder<Order> {
     private UUID id;
     private Vendor vendor;
     private Customer customer;
@@ -43,7 +43,18 @@ public class OrderBuilder {
      * A method that creates a new Order object using the field of the OrderBuilder.
      * @return the Order with the same fields as the OrderBuilder
      */
-    public Order createOrder() {
+    @Override
+    public Order create() {
         return new Order(id, vendor, customer);
+    }
+
+    /**
+     * a method that resets the fields of the OrderBuilder
+     */
+    @Override
+    public void reset() {
+        id = null;
+        vendor = null;
+        customer = null;
     }
 }
