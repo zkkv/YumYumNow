@@ -17,7 +17,7 @@ public class VendorBuilderTest {
     @Test
     void testConstructor() {
         VendorBuilder vendorBuilder = new VendorBuilder();
-        Vendor vendor = vendorBuilder.createVendor();
+        Vendor vendor = vendorBuilder.create();
 
         assertThat(vendor).isNotNull();
         assertThat(vendor.getId()).isNull();
@@ -33,7 +33,7 @@ public class VendorBuilderTest {
     ) {
         Vendor vendor = new VendorBuilder()
                 .setId(id)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getId()).isEqualTo(id);
     }
@@ -50,7 +50,7 @@ public class VendorBuilderTest {
 
         Vendor vendor = new VendorBuilder()
                 .setAddress(address)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getAddress()).isEqualTo(address);
     }
@@ -61,7 +61,7 @@ public class VendorBuilderTest {
             ) {
         Vendor vendor = new VendorBuilder()
                 .setPhoneNumber(phoneNumber)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getPhone()).isEqualTo(phoneNumber);
     }
@@ -72,7 +72,7 @@ public class VendorBuilderTest {
             ) {
         Vendor vendor = new VendorBuilder()
                 .setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getAllowsOnlyOwnCouriers()).isEqualTo(allowsOnlyOwnCouriers);
     }
@@ -83,7 +83,7 @@ public class VendorBuilderTest {
             ) {
         Vendor vendor = new VendorBuilder()
                 .setMaxDeliveryZoneKm(maxDeliveryZoneKm)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getMaxDeliveryZoneKm()).isEqualTo(maxDeliveryZoneKm);
     }
@@ -108,13 +108,46 @@ public class VendorBuilderTest {
                 .setPhoneNumber(phoneNumber)
                 .setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers)
                 .setMaxDeliveryZoneKm(maxDeliveryZoneKm)
-                .createVendor();
+                .create();
 
         assertThat(vendor.getId()).isEqualTo(id);
         assertThat(vendor.getAddress()).isEqualTo(address);
         assertThat(vendor.getPhone()).isEqualTo(phoneNumber);
         assertThat(vendor.getAllowsOnlyOwnCouriers()).isEqualTo(allowsOnlyOwnCouriers);
         assertThat(vendor.getMaxDeliveryZoneKm()).isEqualTo(maxDeliveryZoneKm);
+    }
+
+    @Property
+    void reset(
+            @ForAll("uuids") UUID id,
+            @ForAll BigDecimal latitude,
+            @ForAll BigDecimal longitude,
+            @ForAll String phoneNumber,
+            @ForAll boolean allowsOnlyOwnCouriers,
+            @ForAll BigDecimal maxDeliveryZoneKm
+            ) {
+        Location address = new Location();
+        address.setLatitude(latitude);
+        address.setLongitude(longitude);
+        address.setTimestamp(OffsetDateTime.now());
+
+        VendorBuilder vendorBuilder = new VendorBuilder()
+                .setId(id)
+                .setAddress(address)
+                .setPhoneNumber(phoneNumber)
+                .setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers)
+                .setMaxDeliveryZoneKm(maxDeliveryZoneKm);
+
+        vendorBuilder.reset();
+
+        Vendor vendor  = vendorBuilder.create();
+
+
+        assertThat(vendor.getId()).isNull();
+        assertThat(vendor.getAddress()).isNull();
+        assertThat(vendor.getPhone()).isNull();
+        assertThat(vendor.getAllowsOnlyOwnCouriers()).isFalse();
+        assertThat(vendor.getMaxDeliveryZoneKm()).isNull();
     }
 
     @Provide

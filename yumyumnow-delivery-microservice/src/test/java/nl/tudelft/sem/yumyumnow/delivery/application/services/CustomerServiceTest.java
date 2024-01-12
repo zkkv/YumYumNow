@@ -46,7 +46,7 @@ public class CustomerServiceTest {
                 .setName("test")
                 .setPhoneNumber("123456789")
                 .setAddress(address)
-                .createCustomer();
+                .create();
 
         expectedCustomer.setDeliveryAddress(address);
 

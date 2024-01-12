@@ -60,7 +60,7 @@ public class DeliveryTimeTest {
         UUID orderId = UUID.randomUUID();
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
-                .createOrder();
+                .create();
         delivery.setOrderId(orderId);
 
         // mock a location for a customer
@@ -72,7 +72,7 @@ public class DeliveryTimeTest {
         Customer customer = new CustomerBuilder()
                 .setId(customerId)
                 .setAddress(customerLocation)
-                .createCustomer();
+                .create();
 
         order.setCustomer(customer);
 

@@ -7,7 +7,6 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -56,11 +55,11 @@ class DeliveryControllerTest {
 
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
-                .createOrder();
+                .create();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         order.setVendor(vendor);
 
@@ -88,11 +87,11 @@ class DeliveryControllerTest {
 
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
-                .createOrder();
+                .create();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         order.setVendor(vendor);
 

@@ -5,7 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
-public class LocationBuilder {
+public class LocationBuilder implements Builder<Location> {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private OffsetDateTime timestamp;
@@ -25,11 +25,19 @@ public class LocationBuilder {
         return this;
     }
 
-    public Location createLocation() {
+    @Override
+    public Location create() {
         Location location = new Location();
         location.setLatitude(latitude);
         location.setLongitude(longitude);
         location.setTimestamp(timestamp);
         return location;
+    }
+
+    @Override
+    public void reset() {
+        latitude = null;
+        longitude = null;
+        timestamp = null;
     }
 }
