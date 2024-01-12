@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryService {
@@ -455,14 +456,11 @@ public class DeliveryService {
         }
 
         List<Delivery> deliveries = deliveryRepository.findAll();
-        int total = 0;
-        for (Delivery delivery : deliveries) {
-            OffsetDateTime time = delivery.getEstimatedDeliveryTime();
-            if (time.isAfter(startDate) && time.isBefore(endDate)) {
-                total++;
-            }
-        }
-        return total;
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        return filteredDeliveries.size();
     }
 
     /**
@@ -484,17 +482,12 @@ public class DeliveryService {
         }
 
         List<Delivery> deliveries = deliveryRepository.findAll();
-        int total = 0;
-        for (Delivery delivery : deliveries) {
-            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED) {
-                continue;
-            }
-            OffsetDateTime time = delivery.getEstimatedDeliveryTime();
-            if (time.isAfter(startDate) && time.isBefore(endDate)) {
-                total++;
-            }
-        }
-        return total;
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
+                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        return filteredDeliveries.size();
     }
 
     /**
@@ -520,15 +513,15 @@ public class DeliveryService {
         List<Delivery> deliveries = deliveryRepository.findAll();
         long totalSum = 0;
         long numberOfDeliveries = 0;
-        for (Delivery delivery : deliveries) {
-            OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
-            UUID orderId = delivery.getOrderId();
 
-            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED
-                    || deliveryTime.isBefore(startDate) || deliveryTime.isAfter(endDate)) {
-                continue;
-            }
-            BigDecimal timePlacement = orderService.getTimeOfPlacement(orderId);
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
+                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+
+        for (Delivery delivery : filteredDeliveries) {
+            BigDecimal timePlacement = orderService.getTimeOfPlacement(delivery.getOrderId());
             if (timePlacement == null) {
                 continue;
             }
@@ -537,8 +530,7 @@ public class DeliveryService {
             Instant startInstant = Instant.ofEpochMilli(timePlacement.longValue());
             Instant endInstant = preparationFinishTime.toInstant();
 
-            long duration = Duration.between(startInstant, endInstant).toMinutes();
-            totalSum += duration;
+            totalSum += Duration.between(startInstant, endInstant).toMinutes();
             numberOfDeliveries++;
         }
 
