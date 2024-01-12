@@ -1,5 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
@@ -71,16 +73,16 @@ public class DeliveryService {
      * @return The created delivery.
      */
     public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
-        Delivery delivery = new Delivery();
 
         if (vendorService.getVendor(vendorId.toString()) == null) {
             throw new BadArgumentException("Vendor does not exist");
         }
-
-        delivery.setId(UUID.randomUUID());
-        delivery.setOrderId(orderId);
-        delivery.setVendorId(vendorId);
-        delivery.setStatus(Delivery.StatusEnum.PENDING);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setOrderId(orderId)
+                .setVendorId(vendorId)
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
 
         deliveryRepository.save(delivery);
         return delivery;
