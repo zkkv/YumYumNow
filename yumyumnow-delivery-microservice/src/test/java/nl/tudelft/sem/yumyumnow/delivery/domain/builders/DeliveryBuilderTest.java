@@ -115,6 +115,43 @@ public class DeliveryBuilderTest {
         assertThat(delivery.getCurrentLocation()).isEqualTo(location);
     }
 
+    @Property
+    void createDeliveryTest(
+            @ForAll("uuidProvider") UUID id,
+            @ForAll BigDecimal latitude,
+            @ForAll BigDecimal longitude,
+            @ForAll Delivery.StatusEnum status
+    ) {
+        DeliveryCurrentLocation location = new DeliveryCurrentLocation();
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+        OffsetDateTime date = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .setCourierId(id)
+                .setVendorId(id)
+                .setOrderId(id)
+                .setCurrentLocation(location)
+                .setEstimatedDeliveryTime(date)
+                .setEstimatedPreparationFinishTime(date)
+                .setStatus(status)
+                .createDelivery();
+
+        assertThat(delivery.getId()).isEqualTo(id);
+        assertThat(delivery.getCourierId()).isEqualTo(id);
+        assertThat(delivery.getVendorId()).isEqualTo(id);
+        assertThat(delivery.getOrderId()).isEqualTo(id);
+        assertThat(delivery.getCurrentLocation()).isEqualTo(location);
+        assertThat(delivery.getEstimatedDeliveryTime()).isEqualTo(date);
+        assertThat(delivery.getEstimatedPreparationFinishTime()).isEqualTo(date);
+        assertThat(delivery.getStatus()).isEqualTo(status);
+    }
+
     @Provide
     Arbitrary<UUID> uuidProvider() {
         return Arbitraries
