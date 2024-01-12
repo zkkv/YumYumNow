@@ -1,5 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -45,17 +47,19 @@ public class OrderServiceTest {
         UUID customerId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        Customer customer = new Customer();
-        customer.setId(customerId);
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .createCustomer();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
                 .createVendor();
 
-        Order expectedOrder = new Order();
-        expectedOrder.setId(orderId);
-        expectedOrder.setCustomer(customer);
-        expectedOrder.setVendor(vendor);
+        Order expectedOrder = new OrderBuilder()
+                .setOrderId(orderId)
+                .setOrderCustomer(customer)
+                .setOrderVendor(vendor)
+                .createOrder();
 
 
         when(restTemplate.getForObject(

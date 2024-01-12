@@ -1,17 +1,20 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
+import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,36 +25,38 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class DeliveryServiceTest {
     private DeliveryRepository deliveryRepository;
+    private GlobalConfigRepository globalConfigRepository;
 
     private DeliveryService deliveryService;
     private VendorService vendorService;
+    private AdminService adminService;
     private CourierService courierService;
-
     private OrderService orderService;
+    @Value("${globalConfigId}$")
+    private UUID globalConfigId;
 
     @BeforeEach
-    void setUp() {
-        deliveryRepository = mock(DeliveryRepository.class);
-        vendorService = mock(VendorService.class);
-        courierService = mock(CourierService.class);
-        orderService = mock(OrderService.class);
-
+    void setUp(){
+        this.deliveryRepository = mock(DeliveryRepository.class);
+        this.globalConfigRepository = mock(GlobalConfigRepository.class);
+        this.vendorService = mock(VendorService.class);
+        this.adminService = mock(AdminService.class);
+        this.courierService = mock(CourierService.class);
+        this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, vendorService, courierService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
     }
 
     @Test
     public void createDeliverySuccess() throws BadArgumentException {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().createVendor());
 
@@ -64,7 +69,6 @@ public class DeliveryServiceTest {
     public void createDeliveryFail() {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(null);
 
@@ -72,6 +76,7 @@ public class DeliveryServiceTest {
                 deliveryService.createDelivery(orderId, vendorId));
     }
 
+    @Test
     public void getExistingDelivery() throws NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
 
@@ -111,8 +116,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -131,8 +137,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -151,8 +158,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -172,8 +180,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -197,8 +206,9 @@ public class DeliveryServiceTest {
                 .setId(userId1)
                 .createVendor();
 
-        Courier courier = new Courier();
-        courier.setId(userId2);
+        Courier courier = new CourierBuilder()
+                .setId(userId2)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -314,8 +324,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setVendorId(UUID.randomUUID());
@@ -338,8 +349,9 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
-        Courier courier = new Courier();
-        courier.setId(userId);
+        Courier courier = new CourierBuilder()
+                .setId(userId)
+                .createCourier();
 
         Delivery expected = new Delivery();
         expected.setId(id);
@@ -494,6 +506,222 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void assignCourierSuccess()
+            throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Vendor vendor = new Vendor(vendorId, new Location(), "", true, new BigDecimal(1000));
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+
+        Courier courier = new Courier(courierId, vendor);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        Delivery actual = deliveryService.assignCourier(id, courierId);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void assignCourierNoSuchCourier() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void assignCourierAnotherAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID oldCourierId = UUID.randomUUID();
+        UUID newCourierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(oldCourierId);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Courier courier = new Courier(oldCourierId, null);
+        when(courierService.getCourier(newCourierId.toString())).thenReturn(courier);
+
+        assertThrows(AccessForbiddenException.class,
+                () -> deliveryService.assignCourier(id, newCourierId));
+    }
+
+    @Test
+    public void assignCourierSameAlreadyAssigned() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setCourierId(courierId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Courier courier = new Courier(courierId, null);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        assertThrows(BadArgumentException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void assignCourierNotAssignedToVendor() {
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+
+        Delivery expected = new Delivery();
+        expected.setId(id);
+        expected.setVendorId(vendorId);
+        Optional<Delivery> optionalDelivery = Optional.of(expected);
+        when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
+
+        Vendor vendor = new Vendor(vendorId, new Location(), "", true, new BigDecimal(1000));
+        Vendor otherVendor = new Vendor(UUID.randomUUID(), new Location(), "", true, new BigDecimal(1000));
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+
+        Courier courier = new Courier(courierId, otherVendor);
+        when(courierService.getCourier(courierId.toString())).thenReturn(courier);
+
+        assertThrows(AccessForbiddenException.class,
+                () -> deliveryService.assignCourier(id, courierId));
+    }
+
+    @Test
+    public void adminGetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setGlobalConfigId(globalConfigId);
+        globalConfig.setDefaultMaxZone(defaultMaxZone);
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
+        when(adminService.validate(adminId)).thenReturn(true);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+        assertEquals(deliveryAdminMaxZoneGet200Response, response);
+    }
+
+    @Test
+    public void adminGetMaxZoneNotFoundTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
+        when(adminService.validate(adminId)).thenReturn(true);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+        assertNull(response);
+    }
+
+    @Test
+    public void adminGetMaxZoneNullDefaultTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setGlobalConfigId(globalConfigId);
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
+        when(adminService.validate(adminId)).thenReturn(true);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+
+        assertEquals(deliveryAdminMaxZoneGet200Response, response);
+    }
+
+    @Test
+    public void adminGetMaxZoneExceptionTest() throws ServiceUnavailableException {
+        UUID adminId = UUID.randomUUID();
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
+        when(adminService.validate(adminId)).thenReturn(false);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        assertThrows(AccessForbiddenException.class, () -> {
+            deliveryService.adminGetMaxZone(adminId, adminService);
+        });
+    }
+
+    @Test
+    public void adminSetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+        BigDecimal newMaxZone = BigDecimal.valueOf(20);
+        BigDecimal originalMaxZone = BigDecimal.valueOf(10);
+
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setGlobalConfigId(globalConfigId);
+        globalConfig.setDefaultMaxZone(originalMaxZone);
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
+        when(adminService.validate(adminId)).thenReturn(true);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
+        deliveryAdminMaxZoneGet200Response.setRadiusKm(newMaxZone);
+
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, newMaxZone, adminService);
+
+        assertEquals(BigDecimal.valueOf(20), globalConfig.getDefaultMaxZone());
+        verify(globalConfigRepository).save(globalConfig);
+        assertEquals(deliveryAdminMaxZoneGet200Response, response);
+    }
+
+    @Test
+    public void adminSetMaxZoneNotFoundTest() throws ServiceUnavailableException, AccessForbiddenException {
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
+        when(adminService.validate(adminId)).thenReturn(true);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
+        assertNull(response);
+    }
+
+    @Test
+    public void adminSetMaxZoneExceptionTest() throws ServiceUnavailableException{
+        UUID adminId = UUID.randomUUID();
+        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
+
+        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
+        when(adminService.validate(adminId)).thenReturn(false);
+        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
+
+        assertThrows(AccessForbiddenException.class, () -> {
+            deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
+        });
+    }
+
+    @Test
     public void unpaidStatusChangeTest() {
         //need to mock the isPaid method
         //assert that it throws an exception
@@ -513,4 +741,5 @@ public class DeliveryServiceTest {
                     deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
                 });
     }
+
 }

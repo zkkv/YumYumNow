@@ -26,6 +26,9 @@ gradle-app.setting
 *.rar
 *.db
 
+#jqwik
+yumyumnow-delivery-microservice/.jqwik-database
+
 ### IntelliJ IDEA ###
 .idea
 

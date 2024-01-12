@@ -1,13 +1,19 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Courier DTO.
+ * Used for easy data representation and transfer with other microservices.
+ */
 @Getter
 @Setter
+@AllArgsConstructor
 public class Courier {
     private UUID id;
     private Vendor vendor;

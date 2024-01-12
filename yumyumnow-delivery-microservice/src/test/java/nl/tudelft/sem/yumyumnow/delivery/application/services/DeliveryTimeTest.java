@@ -1,9 +1,12 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
@@ -22,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 public class DeliveryTimeTest {
     private DeliveryRepository deliveryRepository;
+    private GlobalConfigRepository globalConfigRepository;
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
@@ -29,11 +33,12 @@ public class DeliveryTimeTest {
     @BeforeEach
     void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
+        globalConfigRepository = mock(GlobalConfigRepository.class);
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
 
-        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService, orderService);
+        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService);
 
         userService = mock(CustomerService.class);
     }
@@ -53,8 +58,9 @@ public class DeliveryTimeTest {
 
         // create an order
         UUID orderId = UUID.randomUUID();
-        Order order = new Order();
-        order.setId(orderId);
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .createOrder();
         delivery.setOrderId(orderId);
 
         // mock a location for a customer
@@ -63,8 +69,11 @@ public class DeliveryTimeTest {
         customerLocation.setLatitude(BigDecimal.valueOf(0));
         customerLocation.setLongitude(BigDecimal.valueOf(0));
         // create a customer
-        Customer customer = new Customer();
-        customer.setId(customerId);
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .setAddress(customerLocation)
+                .createCustomer();
+
         order.setCustomer(customer);
 
         // set the location of the vendor
