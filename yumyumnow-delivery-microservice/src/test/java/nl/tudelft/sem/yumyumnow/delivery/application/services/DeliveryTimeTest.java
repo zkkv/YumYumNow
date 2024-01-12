@@ -56,7 +56,7 @@ public class DeliveryTimeTest {
         Delivery delivery = new DeliveryBuilder()
                 .setId(deliveryId)
                 .setEstimatedPreparationFinishTime(offsetDateTime)
-                .createDelivery();
+                .create();
 
         // create an order
         UUID orderId = UUID.randomUUID();
@@ -111,7 +111,7 @@ public class DeliveryTimeTest {
         Delivery delivery = new DeliveryBuilder()
                 .setId(deliveryId)
                 .setEstimatedPreparationFinishTime(offsetDateTime)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);

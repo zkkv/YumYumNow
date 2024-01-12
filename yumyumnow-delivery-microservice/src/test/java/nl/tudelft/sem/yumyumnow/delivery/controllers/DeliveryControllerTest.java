@@ -65,7 +65,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         when(deliveryService.createDelivery(orderId, vendorId)).thenReturn(delivery);
 
@@ -114,7 +114,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         when(deliveryService.getDelivery(id)).thenReturn(delivery);
 
@@ -232,7 +232,7 @@ class DeliveryControllerTest {
                 .setId(id)
                 .setStatus(Delivery.StatusEnum.ACCEPTED)
                 .setEstimatedPreparationFinishTime(offsetDateTime)
-                .createDelivery();
+                .create();
 
         when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()))
                 .thenReturn(delivery);
@@ -265,7 +265,7 @@ class DeliveryControllerTest {
                 .setId(id)
                 .setStatus(Delivery.StatusEnum.ACCEPTED)
                 .setEstimatedPreparationFinishTime(offsetDateTime)
-                .createDelivery();
+                .create();
 
         when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()))
                 .thenReturn(delivery);
@@ -289,7 +289,7 @@ class DeliveryControllerTest {
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
                 .setStatus(Delivery.StatusEnum.PREPARING)
-                .createDelivery();
+                .create();
 
         when(deliveryService.updateStatus(
                 id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
@@ -429,7 +429,7 @@ class DeliveryControllerTest {
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new DeliveryBuilder()
                 .setId(deliveryId)
-                .createDelivery();
+                .create();
 
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
 
@@ -463,7 +463,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
@@ -487,7 +487,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
@@ -512,7 +512,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         assertNotEquals(delivery.getCourierId(), courierId);
         delivery.setCourierId(courierId);
@@ -536,7 +536,7 @@ class DeliveryControllerTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(deliveryId)
-                .createDelivery();
+                .create();
 
         when(deliveryService.addDeliveryTime(deliveryId, orderService, userService)).thenReturn(delivery);
 

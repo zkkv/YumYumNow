@@ -83,7 +83,7 @@ public class DeliveryServiceTest {
 
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
@@ -98,7 +98,7 @@ public class DeliveryServiceTest {
 
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
@@ -127,7 +127,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(courier.getId())
                 .setVendorId(UUID.randomUUID())
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -149,7 +149,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(courier.getId())
                 .setVendorId(UUID.randomUUID())
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -172,7 +172,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(courier.getId())
                 .setVendorId(UUID.randomUUID())
-                .createDelivery();
+                .create();
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
         when(courierService.getCourier(userId.toString())).thenReturn(courier);
@@ -194,7 +194,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(courier.getId())
                 .setVendorId(UUID.randomUUID())
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -222,7 +222,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(courier.getId())
                 .setVendorId(vendor.getId())
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
 
@@ -250,7 +250,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(UUID.randomUUID())
                 .setVendorId(UUID.randomUUID())
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -274,7 +274,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setVendorId(vendor.getId())
                 .setStatus(Delivery.StatusEnum.PENDING)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -299,7 +299,7 @@ public class DeliveryServiceTest {
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(userId)
-                .createDelivery();
+                .create();
 ;
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -321,7 +321,7 @@ public class DeliveryServiceTest {
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(userId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -348,7 +348,7 @@ public class DeliveryServiceTest {
                 .setVendorId(UUID.randomUUID())
                 .setCourierId(courier.getId())
                 .setCourierId(userId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -374,7 +374,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setVendorId(UUID.randomUUID())
                 .setCourierId(userId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -401,7 +401,7 @@ public class DeliveryServiceTest {
 
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -433,7 +433,7 @@ public class DeliveryServiceTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
 
@@ -460,7 +460,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setVendorId(UUID.randomUUID())
                 .setStatus(Delivery.StatusEnum.ACCEPTED)
-                .createDelivery();
+                .create();
 
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
         when(vendorService.getVendor(vendor.getId().toString())).thenReturn(vendor);
@@ -486,7 +486,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setVendorId(userId)
                 .setStatus(Delivery.StatusEnum.ACCEPTED)
-                .createDelivery();
+                .create();
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
@@ -538,7 +538,7 @@ public class DeliveryServiceTest {
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(vendorId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -560,7 +560,7 @@ public class DeliveryServiceTest {
 
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -580,7 +580,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setCourierId(oldCourierId)
                 .setVendorId(vendorId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -600,7 +600,7 @@ public class DeliveryServiceTest {
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setCourierId(courierId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
@@ -621,7 +621,7 @@ public class DeliveryServiceTest {
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(vendorId)
-                .createDelivery();
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);

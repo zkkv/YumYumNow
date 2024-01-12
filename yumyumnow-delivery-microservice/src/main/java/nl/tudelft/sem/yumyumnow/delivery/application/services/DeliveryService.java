@@ -82,7 +82,7 @@ public class DeliveryService {
                 .setOrderId(orderId)
                 .setVendorId(vendorId)
                 .setStatus(Delivery.StatusEnum.PENDING)
-                .createDelivery();
+                .create();
 
         deliveryRepository.save(delivery);
         return delivery;

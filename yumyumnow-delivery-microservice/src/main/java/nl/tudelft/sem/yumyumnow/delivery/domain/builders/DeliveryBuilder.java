@@ -6,7 +6,7 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public class DeliveryBuilder {
+public class DeliveryBuilder implements Builder<Delivery>{
     private UUID deliveryId;
     private UUID orderId;
     private UUID courierId;
@@ -100,7 +100,7 @@ public class DeliveryBuilder {
      * A method that creates a Delivery using all the fields of the DeliveryBuilder instance.
      * @return a new Delivery with all the fields set to the DeliveryBuilder fields
      */
-    public Delivery createDelivery() {
+    public Delivery create() {
         Delivery delivery = new Delivery();
         delivery.setId(deliveryId);
         delivery.setOrderId(orderId);
@@ -111,5 +111,17 @@ public class DeliveryBuilder {
         delivery.setEstimatedPreparationFinishTime(estimatedPreparationFinishTime);
         delivery.setCurrentLocation(currentLocation);
         return delivery;
+    }
+
+    @Override
+    public void reset() {
+        deliveryId = null;
+        orderId = null;
+        courierId = null;
+        vendorId = null;
+        status = null;
+        estimatedDeliveryTime = null;
+        estimatedPreparationFinishTime = null;
+        currentLocation = null;
     }
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.*;
-import java.util.Date;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
@@ -15,7 +14,7 @@ public class DeliveryBuilderTest {
     @Test
     void testDeliveryBuilderConstructor() {
         DeliveryBuilder deliveryBuilder = new DeliveryBuilder();
-        Delivery delivery = deliveryBuilder.createDelivery();
+        Delivery delivery = deliveryBuilder.create();
 
         assertThat(delivery).isNotNull();
         assertThat(delivery.getId()).isNull();
@@ -33,7 +32,7 @@ public class DeliveryBuilderTest {
     ) {
         Delivery delivery = new DeliveryBuilder()
                 .setId(id)
-                .createDelivery();
+                .create();
         assertThat(delivery.getId()).isEqualTo(id);
     }
     @Property
@@ -42,7 +41,7 @@ public class DeliveryBuilderTest {
     ) {
         Delivery delivery = new DeliveryBuilder()
                 .setCourierId(id)
-                .createDelivery();
+                .create();
         assertThat(delivery.getCourierId()).isEqualTo(id);
     }
     @Property
@@ -51,7 +50,7 @@ public class DeliveryBuilderTest {
     ) {
         Delivery delivery = new DeliveryBuilder()
                 .setVendorId(id)
-                .createDelivery();
+                .create();
         assertThat(delivery.getVendorId()).isEqualTo(id);
     }
     @Property
@@ -60,7 +59,7 @@ public class DeliveryBuilderTest {
     ) {
         Delivery delivery = new DeliveryBuilder()
                 .setOrderId(id)
-                .createDelivery();
+                .create();
         assertThat(delivery.getOrderId()).isEqualTo(id);
     }
 
@@ -70,7 +69,7 @@ public class DeliveryBuilderTest {
             ) {
         Delivery delivery = new DeliveryBuilder()
                 .setStatus(status)
-                .createDelivery();
+                .create();
         assertThat(delivery.getStatus()).isEqualTo(status);
     }
 
@@ -83,7 +82,7 @@ public class DeliveryBuilderTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setEstimatedDeliveryTime(date)
-                .createDelivery();
+                .create();
         assertThat(delivery.getEstimatedDeliveryTime()).isEqualTo(date);
     }
     @Test
@@ -95,7 +94,7 @@ public class DeliveryBuilderTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setEstimatedPreparationFinishTime(date)
-                .createDelivery();
+                .create();
         assertThat(delivery.getEstimatedPreparationFinishTime()).isEqualTo(date);
     }
 
@@ -110,7 +109,7 @@ public class DeliveryBuilderTest {
 
         Delivery delivery = new DeliveryBuilder()
                 .setCurrentLocation(location)
-                .createDelivery();
+                .create();
 
         assertThat(delivery.getCurrentLocation()).isEqualTo(location);
     }
@@ -140,7 +139,7 @@ public class DeliveryBuilderTest {
                 .setEstimatedDeliveryTime(date)
                 .setEstimatedPreparationFinishTime(date)
                 .setStatus(status)
-                .createDelivery();
+                .create();
 
         assertThat(delivery.getId()).isEqualTo(id);
         assertThat(delivery.getCourierId()).isEqualTo(id);
