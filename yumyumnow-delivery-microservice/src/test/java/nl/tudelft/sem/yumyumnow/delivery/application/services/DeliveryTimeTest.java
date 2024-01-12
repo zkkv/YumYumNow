@@ -29,6 +29,7 @@ public class DeliveryTimeTest {
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
+    private AdminService adminService;
 
     @BeforeEach
     void setUp() {
@@ -37,9 +38,8 @@ public class DeliveryTimeTest {
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
-
+        adminService = mock(AdminService.class);
         deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, adminService, orderService);
-
         userService = mock(CustomerService.class);
     }
 

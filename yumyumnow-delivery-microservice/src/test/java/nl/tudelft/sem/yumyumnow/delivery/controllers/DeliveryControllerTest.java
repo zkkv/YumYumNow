@@ -545,12 +545,12 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException {
+    void getTotalDeliveriesSuccessfulTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).thenReturn(1);
+        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
         DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
@@ -570,7 +570,7 @@ class DeliveryControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(startDate, endDate)).thenThrow(BadArgumentException.class);
+        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsTotalDeliveriesGet(
@@ -581,12 +581,12 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException {
+    void getSuccessfulDeliveriesSuccessfulTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).thenReturn(1);
+        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
         DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
@@ -606,7 +606,7 @@ class DeliveryControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(startDate, endDate)).thenThrow(BadArgumentException.class);
+        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = deliveryController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
