@@ -395,4 +395,39 @@ public class DeliveryController implements DeliveryApi {
 
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Get analytics regarding the average preparation time of an order.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a DeliveryAdminAnalyticsPreparationTimeGet200Response response representing the average time
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> deliveryAdminAnalyticsPreparationTimeGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsPreparationTimeGet200Response response = new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+
+        try {
+            long averagePreparationTime = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            response.setPreparationTime(BigDecimal.valueOf(averagePreparationTime));
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -466,6 +467,7 @@ public class DeliveryService {
     /**
      * Count the total number of successful deliveries between two given dates.
      *
+     * @param adminId the id of the admin
      * @param startDate the start date of the period
      * @param endDate the end date of the period
      * @return an Integer representing the total number of successful deliveries
@@ -493,4 +495,51 @@ public class DeliveryService {
         }
         return total;
     }
+
+    /**
+     * Get the average time of order preparation between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the number of minutes spent on average on preparing an order
+     * @throws AccessForbiddenException when the user has no right to access the analytics
+     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws ServiceUnavailableException when the service does not respond
+     */
+    public long getPreparationTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        long totalSum = 0;
+        long numberOfDeliveries = 0;
+        for (Delivery delivery : deliveries) {
+            OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
+            UUID orderId = delivery.getOrderId();
+            if (delivery.getStatus() != Delivery.StatusEnum.DELIVERED || deliveryTime.isBefore(startDate) || deliveryTime.isAfter(endDate)) {
+                continue;
+            }
+
+            BigDecimal timePlacement = orderService.getTimeOfPlacement(orderId);
+            if (timePlacement == null)
+                continue;
+            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            // Convert both times to Instant.
+            Instant startInstant = Instant.ofEpochMilli(timePlacement.longValue());
+            Instant endInstant = preparationFinishTime.toInstant();
+
+            long duration = Duration.between(startInstant, endInstant).toMinutes();
+            totalSum += duration;
+            numberOfDeliveries++;
+        }
+
+        return totalSum / numberOfDeliveries;
+    }
 }
+
