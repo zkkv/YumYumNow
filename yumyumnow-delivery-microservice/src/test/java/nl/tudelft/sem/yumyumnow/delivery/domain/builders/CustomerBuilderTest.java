@@ -14,7 +14,7 @@ public class CustomerBuilderTest {
     @Test
     public void testConstructor() {
         CustomerBuilder customerBuilder = new CustomerBuilder();
-        Customer customer = customerBuilder.createCustomer();
+        Customer customer = customerBuilder.create();
 
         assertThat(customer).isNotNull();
         assertThat(customer.getId()).isNull();
@@ -29,7 +29,7 @@ public class CustomerBuilderTest {
     ) {
         Customer customer = new CustomerBuilder()
                 .setId(id)
-                .createCustomer();
+                .create();
 
         assertThat(customer.getId()).isEqualTo(id);
     }
@@ -40,7 +40,7 @@ public class CustomerBuilderTest {
     ) {
         Customer customer = new CustomerBuilder()
                 .setName(name)
-                .createCustomer();
+                .create();
 
         assertThat(customer.getName()).isEqualTo(name);
     }
@@ -51,7 +51,7 @@ public class CustomerBuilderTest {
     ) {
         Customer customer = new CustomerBuilder()
                 .setPhoneNumber(phoneNumber)
-                .createCustomer();
+                .create();
 
         assertThat(customer.getPhone()).isEqualTo(phoneNumber);
     }
@@ -68,7 +68,7 @@ public class CustomerBuilderTest {
 
         Customer customer = new CustomerBuilder()
                 .setAddress(address)
-                .createCustomer();
+                .create();
 
         assertThat(customer.getDeliveryAddress()).isEqualTo(address);
     }
@@ -91,12 +91,42 @@ public class CustomerBuilderTest {
                 .setName(name)
                 .setPhoneNumber(phoneNumber)
                 .setAddress(address)
-                .createCustomer();
+                .create();
 
         assertThat(customer.getId()).isEqualTo(id);
         assertThat(customer.getName()).isEqualTo(name);
         assertThat(customer.getPhone()).isEqualTo(phoneNumber);
         assertThat(customer.getDeliveryAddress()).isEqualTo(address);
+    }
+
+    @Property
+    public void reset(
+            @ForAll("uuids") UUID id,
+            @ForAll String name,
+            @ForAll String phoneNumber,
+            @ForAll BigDecimal latitude,
+            @ForAll BigDecimal longitude
+    ) {
+        Location address = new Location();
+
+        address.setLatitude(latitude);
+        address.setLongitude(longitude);
+
+        CustomerBuilder customerBuilder = new CustomerBuilder()
+                .setId(id)
+                .setName(name)
+                .setPhoneNumber(phoneNumber)
+                .setAddress(address);
+
+        customerBuilder.reset();
+
+        Customer customer  = customerBuilder.create();
+
+
+        assertThat(customer.getId()).isNull();
+        assertThat(customer.getName()).isNull();
+        assertThat(customer.getPhone()).isNull();
+        assertThat(customer.getDeliveryAddress()).isNull();
     }
 
     @Provide

@@ -49,17 +49,17 @@ public class OrderServiceTest {
 
         Customer customer = new CustomerBuilder()
                 .setId(customerId)
-                .createCustomer();
+                .create();
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Order expectedOrder = new OrderBuilder()
                 .setOrderId(orderId)
                 .setOrderCustomer(customer)
                 .setOrderVendor(vendor)
-                .createOrder();
+                .create();
 
 
         when(restTemplate.getForObject(

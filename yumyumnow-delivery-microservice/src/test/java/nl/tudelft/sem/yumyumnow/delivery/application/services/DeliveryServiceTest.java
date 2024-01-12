@@ -58,7 +58,7 @@ public class DeliveryServiceTest {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
 
-        when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().createVendor());
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().create());
 
         Delivery actual = deliveryService.createDelivery(orderId, vendorId);
 
@@ -118,7 +118,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -139,7 +139,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -160,7 +160,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -182,7 +182,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -204,11 +204,11 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId1)
-                .createVendor();
+                .create();
 
         Courier courier = new CourierBuilder()
                 .setId(userId2)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setCourierId(courier.getId());
@@ -234,7 +234,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
-                .createVendor();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setVendorId(UUID.randomUUID());
@@ -257,7 +257,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
-                .createVendor();
+                .create();
 
 
         Delivery expected = new Delivery();
@@ -283,7 +283,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
-                .createVendor();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setVendorId(userId);
@@ -304,7 +304,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
-                .createVendor();
+                .create();
 
 
         Delivery expected = new Delivery();
@@ -326,7 +326,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setVendorId(UUID.randomUUID());
@@ -351,7 +351,7 @@ public class DeliveryServiceTest {
 
         Courier courier = new CourierBuilder()
                 .setId(userId)
-                .createCourier();
+                .create();
 
         Delivery expected = new Delivery();
         expected.setId(id);
@@ -432,7 +432,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(UUID.randomUUID())
-                .createVendor();
+                .create();
 
         Delivery delivery = new Delivery();
         delivery.setId(id);
@@ -466,7 +466,7 @@ public class DeliveryServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(userId)
-                .createVendor();
+                .create();
 
         delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
         when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
@@ -495,7 +495,7 @@ public class DeliveryServiceTest {
         Vendor vendor = new VendorBuilder()
                 .setAllowsOnlyOwnCouriers(true)
                 .setMaxDeliveryZoneKm(BigDecimal.valueOf(2))
-                .createVendor();
+                .create();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
         when(vendorService.putVendor(vendor)).thenReturn(true);

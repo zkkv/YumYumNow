@@ -64,7 +64,7 @@ public class VendorService {
                 .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
                 .setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"))
                 .setMaxDeliveryZoneKm(new BigDecimal(String.valueOf(response.get("maxDeliveryZone"))))
-                .createVendor();
+                .create();
     }
 
     /**

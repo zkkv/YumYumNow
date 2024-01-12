@@ -45,12 +45,12 @@ public class CourierServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Courier expectedCourier = new CourierBuilder()
                 .setId(courierId)
                 .setVendor(vendor)
-                .createCourier();
+                .create();
 
         when(restTemplate.getForObject(
                 testWebsite + "/courier/" + courierId.toString(),
@@ -86,7 +86,7 @@ public class CourierServiceTest {
 
         Courier expectedCourier = new CourierBuilder()
                 .setId(courierId)
-                .createCourier();
+                .create();
 
         when(restTemplate.getForObject(
                 testWebsite + "/courier/" + courierId.toString(),
@@ -111,12 +111,12 @@ public class CourierServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Courier courier = new CourierBuilder()
                 .setId(courierId)
                 .setVendor(vendor)
-                .createCourier();
+                .create();
 
         Map<String, String> expectedMap = Map.of(
                 "userID", courierId.toString(),
@@ -154,12 +154,12 @@ public class CourierServiceTest {
 
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
 
         Courier courier = new CourierBuilder()
                 .setId(courierId)
                 .setVendor(vendor)
-                .createCourier();
+                .create();
 
         Map<String, String> originalMap = new HashMap<>(Map.of(
                 "userID", courierId.toString(),

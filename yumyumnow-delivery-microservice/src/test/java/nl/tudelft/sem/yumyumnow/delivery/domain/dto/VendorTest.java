@@ -22,11 +22,11 @@ public class VendorTest {
                 .setPhoneNumber(vendor.getPhone())
                 .setMaxDeliveryZoneKm(vendor.getMaxDeliveryZoneKm())
                 .setAllowsOnlyOwnCouriers(vendor.getAllowsOnlyOwnCouriers())
-                .createVendor();
+                .create();
 
         Vendor vendor3 = new VendorBuilder()
                 .setId(vendor.getId())
-                .createVendor();
+                .create();
 
         assertThat(vendor).isEqualTo(vendor);
         assertThat(vendor).isEqualTo(vendor2);
@@ -42,7 +42,7 @@ public class VendorTest {
                 .setPhoneNumber(vendor.getPhone())
                 .setMaxDeliveryZoneKm(vendor.getMaxDeliveryZoneKm())
                 .setAllowsOnlyOwnCouriers(vendor.getAllowsOnlyOwnCouriers())
-                .createVendor();
+                .create();
 
         assertThat(vendor).isNotEqualTo(vendor2);
         assertThat(vendor).isNotEqualTo(null);
@@ -57,11 +57,11 @@ public class VendorTest {
                 .setPhoneNumber(vendor.getPhone())
                 .setMaxDeliveryZoneKm(vendor.getMaxDeliveryZoneKm())
                 .setAllowsOnlyOwnCouriers(vendor.getAllowsOnlyOwnCouriers())
-                .createVendor();
+                .create();
 
         Vendor vendor3 = new VendorBuilder()
                 .setId(vendor.getId())
-                .createVendor();
+                .create();
 
         assertThat(vendor.hashCode()).isEqualTo(vendor2.hashCode());
         assertThat(vendor.hashCode()).isEqualTo(vendor3.hashCode());
@@ -81,7 +81,7 @@ public class VendorTest {
                         .setLatitude(BigDecimal.valueOf(tuple.get1()))
                         .setLongitude(BigDecimal.valueOf(tuple.get2()))
                         .setTimestamp(OffsetDateTime.now())
-                        .createLocation());
+                        .create());
 
         Arbitrary<String> phoneNumber = Arbitraries.strings();
 

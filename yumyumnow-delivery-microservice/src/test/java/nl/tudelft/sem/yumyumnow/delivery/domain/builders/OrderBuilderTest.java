@@ -5,7 +5,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.*;
+
 import java.util.UUID;
 
 public class OrderBuilderTest {
@@ -20,7 +22,7 @@ public class OrderBuilderTest {
         UUID id = UUID.randomUUID();
         Order order = new OrderBuilder()
                 .setOrderId(id)
-                .createOrder();
+                .create();
         assertThat(order.getId()).isEqualTo(id);
     }
 
@@ -28,10 +30,10 @@ public class OrderBuilderTest {
     void setOrderCustomerTest() {
         Customer customer = new CustomerBuilder()
                 .setId(UUID.randomUUID())
-                .createCustomer();
+                .create();
         Order order = new OrderBuilder()
                 .setOrderCustomer(customer)
-                .createOrder();
+                .create();
         assertThat(order.getCustomer()).isEqualTo(customer);
     }
 
@@ -40,10 +42,10 @@ public class OrderBuilderTest {
         UUID id = UUID.randomUUID();
         Vendor vendor = new VendorBuilder()
                 .setId(id)
-                .createVendor();
+                .create();
         Order order = new OrderBuilder()
                 .setOrderVendor(vendor)
-                .createOrder();
+                .create();
         assertThat(order.getVendor()).isEqualTo(vendor);
     }
 
@@ -54,17 +56,39 @@ public class OrderBuilderTest {
         UUID customerId = UUID.randomUUID();
         Vendor vendor = new VendorBuilder()
                 .setId(vendorId)
-                .createVendor();
+                .create();
         Customer customer = new CustomerBuilder()
                 .setId(customerId)
-                .createCustomer();
+                .create();
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
                 .setOrderCustomer(customer)
                 .setOrderVendor(vendor)
-                .createOrder();
+                .create();
         assertThat(order.getId()).isEqualTo(orderId);
         assertThat(order.getCustomer()).isEqualTo(customer);
         assertThat(order.getVendor()).isEqualTo(vendor);
+    }
+
+    @Test
+    void resetTest() {
+        UUID vendorId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .create();
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .create();
+        OrderBuilder orderBuilder = new OrderBuilder()
+                .setOrderId(orderId)
+                .setOrderCustomer(customer)
+                .setOrderVendor(vendor);
+        orderBuilder.reset();
+        Order order = orderBuilder.create();
+        assertThat(order.getId()).isNull();
+        assertThat(order.getCustomer()).isNull();
+        assertThat(order.getVendor()).isNull();
     }
 }

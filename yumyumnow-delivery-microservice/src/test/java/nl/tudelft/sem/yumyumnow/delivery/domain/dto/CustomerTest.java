@@ -17,11 +17,11 @@ public class CustomerTest {
                 .setId(customer.getId())
                 .setName(customer.getName())
                 .setPhoneNumber(customer.getPhone())
-                .createCustomer();
+                .create();
 
         Customer customer3 = new CustomerBuilder()
                 .setId(customer.getId())
-                .createCustomer();
+                .create();
 
         assertThat(customer).isEqualTo(customer);
         assertThat(customer).isEqualTo(customer2);
@@ -34,7 +34,7 @@ public class CustomerTest {
                 .setId(UUID.randomUUID())
                 .setName(customer.getName())
                 .setPhoneNumber(customer.getPhone())
-                .createCustomer();
+                .create();
 
         assertThat(customer).isNotEqualTo(customer2);
         assertThat(customer).isNotEqualTo(null);
@@ -47,11 +47,11 @@ public class CustomerTest {
                 .setId(customer.getId())
                 .setName(customer.getName())
                 .setPhoneNumber(customer.getPhone())
-                .createCustomer();
+                .create();
 
         Customer customer3 = new CustomerBuilder()
                 .setId(customer.getId())
-                .createCustomer();
+                .create();
 
         assertThat(customer.hashCode()).isEqualTo(customer2.hashCode());
         assertThat(customer.hashCode()).isEqualTo(customer3.hashCode());
@@ -72,7 +72,7 @@ public class CustomerTest {
                 (random) -> new LocationBuilder()
                         .setLatitude(BigDecimal.valueOf(random.nextDouble()))
                         .setLongitude(BigDecimal.valueOf(random.nextDouble()))
-                        .createLocation()
+                        .create()
         );
 
         return Combinators.combine(id, name, address, phoneNumber)

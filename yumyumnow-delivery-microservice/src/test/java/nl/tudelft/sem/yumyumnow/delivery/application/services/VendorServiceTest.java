@@ -9,7 +9,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -67,7 +66,7 @@ public class VendorServiceTest {
                 .setMaxDeliveryZoneKm(BigDecimal.ZERO)
                 .setPhoneNumber("123456789")
                 .setAddress(address)
-                .createVendor();
+                .create();
 
 
         expectedVendor.setAddress(address);
@@ -108,7 +107,7 @@ public class VendorServiceTest {
                 .setMaxDeliveryZoneKm(BigDecimal.ZERO)
                 .setPhoneNumber("123456789")
                 .setAddress(address)
-                .createVendor();
+                .create();
 
 
         Map<String, Object> originalMap = new HashMap<>(Map.of(
@@ -156,7 +155,7 @@ public class VendorServiceTest {
             .setMaxDeliveryZoneKm(BigDecimal.ZERO)
             .setPhoneNumber("123456789")
             .setAddress(address)
-            .createVendor();
+            .create();
 
 
         Map<String, Object> originalMap = new HashMap<>(Map.of(
