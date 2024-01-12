@@ -14,7 +14,7 @@ public class CourierBuilderTest {
     @Test
     public void testConstructor() {
         CourierBuilder courierBuilder = new CourierBuilder();
-        Courier courier = courierBuilder.createCourier();
+        Courier courier = courierBuilder.create();
 
         assertThat(courier).isNotNull();
         assertThat(courier.getId()).isNull();
@@ -27,7 +27,7 @@ public class CourierBuilderTest {
     ) {
         Courier courier = new CourierBuilder()
                 .setId(id)
-                .createCourier();
+                .create();
 
         assertThat(courier.getId()).isEqualTo(id);
     }
@@ -38,7 +38,7 @@ public class CourierBuilderTest {
             ) {
         Courier courier = new CourierBuilder()
                 .setVendor(vendor)
-                .createCourier();
+                .create();
 
         assertThat(courier.getVendor()).isEqualTo(vendor);
     }
@@ -51,10 +51,28 @@ public class CourierBuilderTest {
         Courier courier = new CourierBuilder()
                 .setId(id)
                 .setVendor(vendor)
-                .createCourier();
+                .create();
 
         assertThat(courier.getId()).isEqualTo(id);
         assertThat(courier.getVendor()).isEqualTo(vendor);
+    }
+
+    @Property
+    void reset(
+            @ForAll("uuids") UUID id,
+            @ForAll("vendors") Vendor vendor
+            ) {
+        CourierBuilder courierBuilder = new CourierBuilder()
+                .setId(id)
+                .setVendor(vendor);
+
+        courierBuilder.reset();
+
+        Courier courier  = courierBuilder.create();
+
+
+        assertThat(courier.getId()).isNull();
+        assertThat(courier.getVendor()).isNull();
     }
 
     @Provide
@@ -69,7 +87,7 @@ public class CourierBuilderTest {
         return Arbitraries.randomValue(
                 (random) -> new VendorBuilder()
                         .setId(UUID.randomUUID())
-                        .createVendor()
+                        .create()
         );
     }
 

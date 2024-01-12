@@ -9,7 +9,7 @@ import java.util.UUID;
  * Builder for Courier.
  * Uses a fluent interface to make it easier to create objects.
  */
-public class CourierBuilder {
+public class CourierBuilder implements Builder<Courier> {
     UUID id;
     Vendor vendor;
 
@@ -23,7 +23,14 @@ public class CourierBuilder {
         return this;
     }
 
-    public Courier createCourier() {
+    @Override
+    public Courier create() {
         return new Courier(id, vendor);
+    }
+
+    @Override
+    public void reset() {
+        id = null;
+        vendor = null;
     }
 }

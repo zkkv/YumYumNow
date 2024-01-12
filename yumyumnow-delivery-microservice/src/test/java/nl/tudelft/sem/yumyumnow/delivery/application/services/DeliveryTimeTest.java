@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -52,15 +53,16 @@ public class DeliveryTimeTest {
         ZoneOffset zoneOffset = ZoneOffset.UTC;
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
-        Delivery delivery = new Delivery();
-        delivery.setId(deliveryId);
-        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .setEstimatedPreparationFinishTime(offsetDateTime)
+                .create();
 
         // create an order
         UUID orderId = UUID.randomUUID();
         Order order = new OrderBuilder()
                 .setOrderId(orderId)
-                .createOrder();
+                .create();
         delivery.setOrderId(orderId);
 
         // mock a location for a customer
@@ -72,7 +74,7 @@ public class DeliveryTimeTest {
         Customer customer = new CustomerBuilder()
                 .setId(customerId)
                 .setAddress(customerLocation)
-                .createCustomer();
+                .create();
 
         order.setCustomer(customer);
 
@@ -106,9 +108,10 @@ public class DeliveryTimeTest {
         ZoneOffset zoneOffset = ZoneOffset.UTC;
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
-        Delivery delivery = new Delivery();
-        delivery.setId(deliveryId);
-        delivery.setEstimatedPreparationFinishTime(offsetDateTime);
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .setEstimatedPreparationFinishTime(offsetDateTime)
+                .create();
 
         Optional<Delivery> optionalDelivery = Optional.of(delivery);
         when(deliveryRepository.findById(deliveryId)).thenReturn(optionalDelivery);

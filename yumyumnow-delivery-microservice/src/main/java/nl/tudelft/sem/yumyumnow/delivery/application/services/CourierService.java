@@ -48,7 +48,7 @@ public class CourierService {
         return new CourierBuilder()
                 .setId(UUID.fromString((String) response.get("userID")))
                 .setVendor(vendorService.getVendor((String) response.get("vendor")))
-                .createCourier();
+                .create();
     }
 
     /**

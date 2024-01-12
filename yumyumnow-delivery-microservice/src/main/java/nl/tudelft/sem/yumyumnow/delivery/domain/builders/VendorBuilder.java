@@ -10,7 +10,7 @@ import java.util.UUID;
  * Builder for Vendor.
  * Uses a fluent interface to make it easier to create objects.
  */
-public class VendorBuilder {
+public class VendorBuilder implements Builder<Vendor> {
     private UUID id;
     private Location address;
     private String phoneNumber;
@@ -42,7 +42,17 @@ public class VendorBuilder {
         return this;
     }
 
-    public Vendor createVendor() {
+    @Override
+    public Vendor create() {
         return new Vendor(id, address, phoneNumber, allowsOnlyOwnCouriers, maxDeliveryZoneKm);
+    }
+
+    @Override
+    public void reset() {
+        id = null;
+        address = null;
+        phoneNumber = null;
+        allowsOnlyOwnCouriers = false;
+        maxDeliveryZoneKm = null;
     }
 }

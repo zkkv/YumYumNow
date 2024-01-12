@@ -15,11 +15,11 @@ public class CourierTest {
         Courier courier2 = new CourierBuilder()
                 .setId(courier.getId())
                 .setVendor(courier.getVendor())
-                .createCourier();
+                .create();
 
         Courier courier3 = new CourierBuilder()
                 .setId(courier.getId())
-                .createCourier();
+                .create();
 
         assertThat(courier).isEqualTo(courier);
         assertThat(courier).isEqualTo(courier2);
@@ -31,7 +31,7 @@ public class CourierTest {
         Courier courier2 = new CourierBuilder()
                 .setId(UUID.randomUUID())
                 .setVendor(courier.getVendor())
-                .createCourier();
+                .create();
 
         assertThat(courier).isNotEqualTo(courier2);
         assertThat(courier).isNotEqualTo(null);
@@ -43,11 +43,11 @@ public class CourierTest {
         Courier courier2 = new CourierBuilder()
                 .setId(courier.getId())
                 .setVendor(courier.getVendor())
-                .createCourier();
+                .create();
 
         Courier courier3 = new CourierBuilder()
                 .setId(courier.getId())
-                .createCourier();
+                .create();
 
         assertThat(courier.hashCode()).isEqualTo(courier2.hashCode());
         assertThat(courier.hashCode()).isEqualTo(courier3.hashCode());
@@ -65,7 +65,7 @@ public class CourierTest {
                 .tuple2()
                 .map(longs -> new VendorBuilder()
                         .setId(new UUID(longs.get1(), longs.get2()))
-                        .createVendor());
+                        .create());
 
         return Combinators.combine(id, vendor)
                 .as(Courier::new);

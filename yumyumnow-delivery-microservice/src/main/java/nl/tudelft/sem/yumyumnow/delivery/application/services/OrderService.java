@@ -56,7 +56,7 @@ public class OrderService {
                 .setOrderId(orderId)
                 .setOrderCustomer(customerService.getCustomer((String) response.get("customerID")))
                 .setOrderVendor(vendorService.getVendor((String) response.get("vendorID")))
-                .createOrder();
+                .create();
     }
 
     /**

@@ -14,7 +14,7 @@ public class LocationBuilderTest {
     @Test
     public void constructorTest() {
         LocationBuilder locationBuilder = new LocationBuilder();
-        Location location = locationBuilder.createLocation();
+        Location location = locationBuilder.create();
 
         assertThat(location).isNotNull();
         assertThat(location.getLatitude()).isNull();
@@ -28,7 +28,7 @@ public class LocationBuilderTest {
             ) {
         Location location = new LocationBuilder()
                 .setLatitude(latitude)
-                .createLocation();
+                .create();
 
         assertThat(location.getLatitude()).isEqualTo(latitude);
     }
@@ -39,9 +39,26 @@ public class LocationBuilderTest {
             ) {
         Location location = new LocationBuilder()
                 .setLongitude(longitude)
-                .createLocation();
+                .create();
 
         assertThat(location.getLongitude()).isEqualTo(longitude);
+    }
+
+    @Property
+    public void reset() {
+        LocationBuilder locationBuilder = new LocationBuilder()
+                .setLatitude(BigDecimal.ONE)
+                .setLongitude(BigDecimal.ONE)
+                .setTimestamp(OffsetDateTime.now());
+
+        locationBuilder.reset();
+
+        Location location = locationBuilder.create();
+
+        assertThat(location).isNotNull();
+        assertThat(location.getLatitude()).isNull();
+        assertThat(location.getLongitude()).isNull();
+        assertThat(location.getTimestamp()).isNull();
     }
 
     @Test
@@ -50,7 +67,7 @@ public class LocationBuilderTest {
         
         Location location = new LocationBuilder()
                 .setTimestamp(timestamp)
-                .createLocation();
+                .create();
 
         assertThat(location.getTimestamp()).isEqualTo(timestamp);
     }
