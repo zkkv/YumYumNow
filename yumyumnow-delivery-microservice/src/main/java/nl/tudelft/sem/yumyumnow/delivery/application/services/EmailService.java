@@ -11,23 +11,14 @@ import java.util.UUID;
 
 public class EmailService {
 
-    private final OrderService orderService;
 
-    private final CustomerService customerService;
-
-    private final DeliveryRepository deliveryRepository;
 
     /**
      * Create a new email service
      *
-     * @param orderService       order service
-     * @param customerService    customer service
-     * @param deliveryRepository delivery repository
      */
-    public EmailService(OrderService orderService, CustomerService customerService, DeliveryRepository deliveryRepository) {
-        this.orderService = orderService;
-        this.customerService = customerService;
-        this.deliveryRepository = deliveryRepository;
+    public EmailService() {
+
     }
 
     /**
