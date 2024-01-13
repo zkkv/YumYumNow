@@ -441,6 +441,43 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
+     * Get analytics regarding the average delivery time of an order.
+     *
+     * @param adminId The admin ID.
+     * @param startDate Start date of the analytic.
+     * @param endDate End date of the analytic.
+     * @return a DeliveryAdminAnalyticsDeliveryTimeGet200Response response representing the average duration of a delivery
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsDeliveryTimeGet200Response> deliveryAdminAnalyticsDeliveryTimeGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsDeliveryTimeGet200Response response = new DeliveryAdminAnalyticsDeliveryTimeGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+
+        try {
+            long averageDeliveryTime = deliveryService.getDeliveryTimeAnalytic(adminId, startDate, endDate);
+            response.setDeliveryTime(BigDecimal.valueOf(averageDeliveryTime));
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Get all deliveries available for a courier to accept.
      *
      * @param radius The maximum distance in kilometers (required)

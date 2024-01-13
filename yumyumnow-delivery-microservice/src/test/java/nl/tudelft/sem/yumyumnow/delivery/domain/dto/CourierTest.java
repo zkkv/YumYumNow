@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.*;
 import net.jqwik.api.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.UUID;
 
@@ -24,6 +26,28 @@ public class CourierTest {
         assertThat(courier).isEqualTo(courier);
         assertThat(courier).isEqualTo(courier2);
         assertThat(courier).isEqualTo(courier3);
+    }
+
+    @Test
+    public void testNotEqualsWithNull() {
+        Courier courier = new CourierBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = null;
+
+        assertNotEquals(courier, o);
+    }
+
+    @Test
+    public void testNotEqualsWithOtherClass() {
+        Courier courier = new CourierBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = new Object();
+
+        assertNotEquals(courier, o);
     }
 
     @Property
@@ -69,5 +93,23 @@ public class CourierTest {
 
         return Combinators.combine(id, vendor)
                 .as(Courier::new);
+    }
+
+    @Test
+    void courierToStringTest() {
+        UUID id = UUID.randomUUID();
+        Courier courier = new CourierBuilder()
+                .setId(id)
+                .create();
+
+        String idString = id.toString();
+
+        String unformatted = """
+                class Courier {
+                    id: %s
+                    vendor: null
+                }""";
+        String expected = String.format(unformatted, idString);
+        assertEquals(expected, courier.toString());
     }
 }
