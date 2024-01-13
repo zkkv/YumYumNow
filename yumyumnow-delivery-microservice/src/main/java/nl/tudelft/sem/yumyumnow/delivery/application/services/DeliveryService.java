@@ -308,6 +308,11 @@ public class DeliveryService {
         return optionalDelivery.get();
     }
 
+    /** Calculates the distance between two locations
+     * @param location1 first location, generic Location type
+     * @param location2 second location, DeliveryCurrentLocation type
+     * @return the distance as a double
+     */
     public Double distanceBetween(Location location1, DeliveryCurrentLocation location2){
         // Convert the latitudes and longitudes from degrees to radians.
         double lat1 = location1.getLatitude().doubleValue();
@@ -550,7 +555,7 @@ public class DeliveryService {
         return totalSum / numberOfDeliveries;
     }
 
-    public String sendEmail(DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
+    public String sendEmail (DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
         Delivery delivery = deliveryRepository.findById(id).get();
 
         Order order = orderService.findOrderById(delivery.getOrderId());
