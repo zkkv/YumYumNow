@@ -4,9 +4,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 
 /**
  * Abstract class for the chain of responsibility pattern.
+ * To implement a new validator, extend this class and implement the process method.
+ *
  * @param <T> The type of the object to validate
  *           (e.g. Courier, Customer, Vendor, Order)
- * To implement a new validator, extend this class and implement the process method.
  */
 public abstract class AuthProcessor<T> {
     protected AuthProcessor<T> next;
@@ -14,6 +15,7 @@ public abstract class AuthProcessor<T> {
 
     /**
      * Constructor for the AuthProcessor.
+     *
      * @param next The next validator in the chain
      * @param toValidate The object to validate
      */
@@ -24,6 +26,7 @@ public abstract class AuthProcessor<T> {
 
     /**
      * Process the validation.
+     *
      * @param delivery The delivery to validate against
      * @return True if the validation was successful, false otherwise
      */

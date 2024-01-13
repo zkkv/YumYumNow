@@ -5,13 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class AdminService{
+public class AdminService {
 
     private final RestTemplate restTemplate;
     private final String userServiceUrl;
@@ -36,15 +35,15 @@ public class AdminService{
      * @throws ServiceUnavailableException Exception if the service of other microservice is unavailable.
      */
     public boolean validate(UUID adminId) throws ServiceUnavailableException {
-        try{
+        try {
             Map<String, Object> responseUser = restTemplate.getForObject(userServiceUrl, Map.class);
             String type = (String) responseUser.get("userType");
-            if(Objects.equals(type, "Admin")){
+            if (Objects.equals(type, "Admin")) {
                 return true;
+            } else {
+                return false;
             }
-            else return false;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new ServiceUnavailableException(e.getMessage());
         }
     }

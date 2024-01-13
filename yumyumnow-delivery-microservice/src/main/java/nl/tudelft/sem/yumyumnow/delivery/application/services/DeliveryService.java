@@ -459,8 +459,8 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -485,9 +485,9 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -517,9 +517,9 @@ public class DeliveryService {
         long numberOfDeliveries = 0;
 
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
 
         for (Delivery delivery : filteredDeliveries) {

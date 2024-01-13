@@ -6,7 +6,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest.StatusEnum;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +19,7 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
     /**
      * Constructor for StatusPermissionValidator.
      * Gets the user from the vendor or courier service and sets the next validator to the correct one.
+     *
      * @param next Map of the next validators in the chain by user type
      * @param toValidate The status to validate
      * @param user The user ID to validate
@@ -39,12 +39,13 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
 
         Object gotUser;
 
-        if (vendor != null)
+        if (vendor != null) {
             gotUser = vendor;
-        else if (courier != null)
+        } else if (courier != null) {
             gotUser = courier;
-        else return;
-
+        } else {
+            return;
+        }
 
         this.next = next.get(gotUser.getClass());
 
@@ -57,30 +58,35 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
      * Steps:
      * 1. Check if the user exists
      * 2. Check if the user has the permission to change the status based on its type
-     * 3. If the next validator exists, call it
+     * 3. If the next validator exists, call it.
+     *
      * @param delivery The delivery to validate against
-     * @return
+     * @return whether the status allow permission
      */
     @Override
     public boolean process(Delivery delivery) {
-        if (user == null) return false;
+        if (user == null) {
+            return false;
+        }
         if (user.getClass() == Vendor.class) {
-            if (toValidate == StatusEnum.IN_TRANSIT ||
-                    toValidate == StatusEnum.DELIVERED ||
-                    toValidate == StatusEnum.PENDING) {
+            if (toValidate == StatusEnum.IN_TRANSIT
+                    || toValidate == StatusEnum.DELIVERED
+                    || toValidate == StatusEnum.PENDING) {
                 return false;
             }
         } else if (user.getClass() == Courier.class) {
-            if (toValidate == StatusEnum.ACCEPTED ||
-                    toValidate == StatusEnum.REJECTED ||
-                    toValidate == StatusEnum.PREPARING ||
-                    toValidate == StatusEnum.GIVEN_TO_COURIER ||
-                    toValidate == StatusEnum.PENDING) {
+            if (toValidate == StatusEnum.ACCEPTED
+                    || toValidate == StatusEnum.REJECTED
+                    || toValidate == StatusEnum.PREPARING
+                    || toValidate == StatusEnum.GIVEN_TO_COURIER
+                    || toValidate == StatusEnum.PENDING) {
                 return false;
             }
         }
 
-        if (next == null) return true;
+        if (next == null) {
+            return true;
+        }
         return next.process(delivery);
     }
 }

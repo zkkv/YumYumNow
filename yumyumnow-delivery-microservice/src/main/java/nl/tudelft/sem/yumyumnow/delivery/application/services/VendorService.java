@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -54,8 +53,10 @@ public class VendorService {
 
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
-        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
-        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
+        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
+                .get("latitude"))));
+        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
+                .get("longitude"))));
 
 
         return new VendorBuilder()

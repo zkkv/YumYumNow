@@ -3,7 +3,6 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 import java.util.Objects;
 import java.math.BigDecimal;
 import java.util.UUID;
-
 import lombok.Getter;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,8 @@ import nl.tudelft.sem.yumyumnow.delivery.model.Location;
  * Courier DTO.
  * Used for easy data representation and transfer with other microservices.
  */
-@AllArgsConstructor @Setter
+@AllArgsConstructor
+@Setter
 @Getter
 public class Vendor {
 
