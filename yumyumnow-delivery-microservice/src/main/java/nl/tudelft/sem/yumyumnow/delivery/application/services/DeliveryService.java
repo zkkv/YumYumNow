@@ -538,5 +538,47 @@ public class DeliveryService {
 
         return totalSum / numberOfDeliveries;
     }
+
+    /**
+     * Get the average duration of a delivery between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the number of minutes spent on average delivering an order
+     * @throws AccessForbiddenException when the user has no right to access the analytics
+     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws ServiceUnavailableException when the service does not respond
+     */
+    public long getDeliveryTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        //make sure that the user has a right to the analytics
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        //make sure the dates are correct
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+        //get all deliveries from the repo that were delivered in that time span
+        List<Delivery> relevantDeliveries = deliveryRepository.findAll()
+                .stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
+                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        //count total delivery times in minutes and number of deliveries
+        long totalTime = 0;
+        long numberOfDeliveries = 0;
+        for (Delivery delivery : relevantDeliveries) {
+            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
+            Duration difference = Duration.between(preparationFinishTime, deliveryTime);
+
+            totalTime += difference.toMinutes();
+            numberOfDeliveries++;
+        }
+        return totalTime/numberOfDeliveries;
+    }
 }
 
