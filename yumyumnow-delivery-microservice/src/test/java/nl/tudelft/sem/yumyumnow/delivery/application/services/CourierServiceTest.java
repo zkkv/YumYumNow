@@ -145,6 +145,11 @@ public class CourierServiceTest {
         when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
 
         assertTrue(courierService.putCourier(courier));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(originalMap, headers);
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.PUT), eq(requestEntity), eq(String.class));
     }
 
     @Test

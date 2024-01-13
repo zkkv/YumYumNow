@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -162,5 +164,34 @@ public class OrderServiceTest {
                 eq(testWebsite + "/order/" + orderId + "/status"),
                 any(HttpEntity.class)
         );
+    }
+
+    @Test
+    public void testGetTimeOfPlacementSuccess() {
+        UUID orderId = UUID.randomUUID();
+
+        Map<String, Object> response = new HashMap<>();
+        BigDecimal date = new BigDecimal(10);
+
+        response.put("date", date);
+
+        when(restTemplate.getForObject(
+                testWebsite + "/order/" + orderId.toString(),
+                Map.class
+        )).thenReturn(response);
+
+        assertEquals(date, orderService.getTimeOfPlacement(orderId));
+    }
+
+    @Test
+    public void testGetTimeOfPlacementNullResponse() {
+        UUID orderId = UUID.randomUUID();
+
+        when(restTemplate.getForObject(
+                testWebsite + "/order/" + orderId.toString(),
+                Map.class
+        )).thenReturn(null);
+
+        assertNull(orderService.getTimeOfPlacement(orderId));
     }
 }

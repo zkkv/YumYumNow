@@ -36,7 +36,8 @@ public class AdminService {
      */
     public boolean validate(UUID adminId) throws ServiceUnavailableException {
         try {
-            Map<String, Object> responseUser = restTemplate.getForObject(userServiceUrl, Map.class);
+            Map<String, Object> responseUser = restTemplate.getForObject(userServiceUrl
+                    + "/" + adminId.toString(), Map.class);
             String type = (String) responseUser.get("userType");
             if (Objects.equals(type, "Admin")) {
                 return true;
