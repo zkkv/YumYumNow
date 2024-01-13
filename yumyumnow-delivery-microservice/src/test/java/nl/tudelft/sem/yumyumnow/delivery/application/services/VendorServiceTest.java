@@ -9,6 +9,8 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,8 +18,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class VendorServiceTest {
 
@@ -56,7 +57,8 @@ public class VendorServiceTest {
         ));
 
         Location address = new Location();
-        address.setTimestamp(null);
+        OffsetDateTime timestamp = OffsetDateTime.now();
+        address.setTimestamp(timestamp);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
 
@@ -76,6 +78,7 @@ public class VendorServiceTest {
         assertEquals(expectedVendor, gotVendor);
         assertEquals(gotVendor.getAddress().getLatitude(), address.getLatitude());
         assertEquals(gotVendor.getAddress().getLongitude(), address.getLongitude());
+        assertTrue(ChronoUnit.SECONDS.between(timestamp, gotVendor.getAddress().getTimestamp()) < 10);
         assertEquals(gotVendor.getPhone(), "123456789");
         assertEquals(gotVendor.getAllowsOnlyOwnCouriers(), false);
         assertEquals(gotVendor.getMaxDeliveryZoneKm(), BigDecimal.ZERO);
@@ -138,6 +141,11 @@ public class VendorServiceTest {
         )).thenReturn(responseEntity);
 
         assertTrue(vendorService.putVendor(vendor));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(originalMap, headers);
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.PUT), eq(requestEntity), eq(String.class));
     }
 
     @Test
