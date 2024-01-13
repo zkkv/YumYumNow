@@ -25,10 +25,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryService {
@@ -36,6 +39,7 @@ public class DeliveryService {
     private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
+    private final AdminService adminService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -44,23 +48,26 @@ public class DeliveryService {
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository The repository to use for delivery
+     * @param deliveryRepository     The repository to use for delivery
      * @param globalConfigRepository The repository for global configuration
-     * @param vendorService service of the vendor
-     * @param courierService service of the courier
-     * @param orderService service of the order
+     * @param vendorService          service of the vendor
+     * @param courierService         service of the courier
+     * @param adminService           service of the admin
+     * @param orderService           service of the order
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
                            GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
                            CourierService courierService,
+                           AdminService adminService,
                            OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
+        this.adminService = adminService;
     }
 
     /**
@@ -432,4 +439,104 @@ public class DeliveryService {
 
         return delivery;
     }
+    /**
+     * Count the total number of deliveries between two given dates.
+     *
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the total number of deliveries
+     * @throws BadArgumentException when the provided arguments are wrong
+     */
+
+    public int getTotalDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        return filteredDeliveries.size();
+    }
+
+    /**
+     * Count the total number of successful deliveries between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the total number of successful deliveries
+     * @throws BadArgumentException when the provided arguments are wrong
+     */
+    public int getSuccessfulDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
+                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        return filteredDeliveries.size();
+    }
+
+    /**
+     * Get the average time of order preparation between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the number of minutes spent on average on preparing an order
+     * @throws AccessForbiddenException when the user has no right to access the analytics
+     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws ServiceUnavailableException when the service does not respond
+     */
+    public long getPreparationTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        long totalSum = 0;
+        long numberOfDeliveries = 0;
+
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
+                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
+                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+
+        for (Delivery delivery : filteredDeliveries) {
+            BigDecimal timePlacement = orderService.getTimeOfPlacement(delivery.getOrderId());
+            if (timePlacement == null) {
+                continue;
+            }
+            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            // Convert both times to Instant.
+            Instant startInstant = Instant.ofEpochMilli(timePlacement.longValue());
+            Instant endInstant = preparationFinishTime.toInstant();
+
+            totalSum += Duration.between(startInstant, endInstant).toMinutes();
+            numberOfDeliveries++;
+        }
+
+        return totalSum / numberOfDeliveries;
+    }
 }
+

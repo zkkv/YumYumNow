@@ -13,12 +13,16 @@ import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -320,4 +324,110 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
+    /**
+     * Get analytics regarding the total number of deliveries.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a DeliveryAdminAnalyticsTotalDeliveriesGet200Response representing the total number of deliveries.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> deliveryAdminAnalyticsTotalDeliveriesGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        try {
+            int totalDeliveries = deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            response.setTotalDeliveries(BigDecimal.valueOf(totalDeliveries));
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get analytics regarding the total number of successful deliveries.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        try {
+            int totalDeliveries = deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            response.setSuccessfulDeliveries(BigDecimal.valueOf(totalDeliveries));
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get analytics regarding the average preparation time of an order.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a DeliveryAdminAnalyticsPreparationTimeGet200Response response representing the average time
+     */
+    @Override
+    public ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> deliveryAdminAnalyticsPreparationTimeGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        DeliveryAdminAnalyticsPreparationTimeGet200Response response = new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+
+        try {
+            long averagePreparationTime = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            response.setPreparationTime(BigDecimal.valueOf(averagePreparationTime));
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -109,5 +110,19 @@ public class OrderService {
         restTemplate.put(url, requestEntity);
     }
 
+    /**
+     * Get the time when an order was placed.
+     *
+     * @param orderId the id of the order.
+     * @return a BigDecimal representing the time of the placement.
+     */
+    public BigDecimal getTimeOfPlacement(UUID orderId) {
+        String url = orderServiceUrl + "/order/" + orderId.toString();
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
+        if (response == null) {
+            return null;
+        }
+        return (BigDecimal) response.get("date");
+    }
 }

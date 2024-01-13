@@ -22,10 +22,14 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -51,13 +55,14 @@ public class DeliveryServiceTest {
         this.orderService = mock(OrderService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
     }
 
     @Test
     public void createDeliverySuccess() throws BadArgumentException {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().create());
 
@@ -70,6 +75,7 @@ public class DeliveryServiceTest {
     public void createDeliveryFail() {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(null);
 
@@ -772,5 +778,4 @@ public class DeliveryServiceTest {
                     deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
                 });
     }
-
 }
