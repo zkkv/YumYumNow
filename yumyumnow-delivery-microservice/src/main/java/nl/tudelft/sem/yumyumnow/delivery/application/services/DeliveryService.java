@@ -632,9 +632,9 @@ public class DeliveryService {
         //get all deliveries from the repo that were delivered in that time span
         List<Delivery> relevantDeliveries = deliveryRepository.findAll()
                 .stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         //count total delivery times in minutes and number of deliveries
         long totalTime = 0;
@@ -647,7 +647,7 @@ public class DeliveryService {
             totalTime += difference.toMinutes();
             numberOfDeliveries++;
         }
-        return totalTime/numberOfDeliveries;
+        return totalTime / numberOfDeliveries;
     }
 }
 
