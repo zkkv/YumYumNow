@@ -10,11 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +38,8 @@ public class CustomerServiceTest {
         UUID customerId = UUID.randomUUID();
 
         Location address = new Location();
-        address.setTimestamp(null);
+        OffsetDateTime timestamp = OffsetDateTime.now();
+        address.setTimestamp(timestamp);
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
 
@@ -72,6 +74,7 @@ public class CustomerServiceTest {
         assertEquals(gotCustomer.getPhone(), expectedCustomer.getPhone());
         assertEquals(gotCustomer.getDeliveryAddress().getLatitude(),expectedCustomer.getDeliveryAddress().getLatitude());
         assertEquals(gotCustomer.getDeliveryAddress().getLongitude(), expectedCustomer.getDeliveryAddress().getLongitude());
+        assertTrue(ChronoUnit.SECONDS.between(timestamp, gotCustomer.getDeliveryAddress().getTimestamp()) < 10);
     }
 
     @Test
