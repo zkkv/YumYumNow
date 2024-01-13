@@ -55,13 +55,16 @@ public class AnalyticsTest {
 
         // setting up the deliveries
         UUID id = UUID.randomUUID();
-        Delivery delivery1 = new Delivery();
-        delivery1.setId(id);
-        delivery1.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
+        Delivery delivery1 = new DeliveryBuilder()
+                .setId(id)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC))
+                .create();
+
         id = UUID.randomUUID();
-        Delivery delivery2 = new Delivery();
-        delivery2.setId(id);
-        delivery2.setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC));
+        Delivery delivery2 = new DeliveryBuilder()
+                .setId(id)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC))
+                .create();
 
         List<Delivery> deliveries = new ArrayList<>();
         deliveries.add(delivery1);
@@ -105,20 +108,25 @@ public class AnalyticsTest {
 
         // setting up the deliveries
         UUID id = UUID.randomUUID();
-        Delivery delivery1 = new Delivery();
-        delivery1.setId(id);
-        delivery1.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
-        delivery1.setStatus(Delivery.StatusEnum.DELIVERED);
+        Delivery delivery1 = new DeliveryBuilder()
+                .setId(id)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC))
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .create();
+
         id = UUID.randomUUID();
-        Delivery delivery2 = new Delivery();
-        delivery2.setId(id);
-        delivery2.setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC));
-        delivery2.setStatus(Delivery.StatusEnum.PENDING);
+        Delivery delivery2 = new DeliveryBuilder()
+                .setId(id)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC))
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
+
         id = UUID.randomUUID();
-        Delivery delivery3 = new Delivery();
-        delivery3.setId(id);
-        delivery3.setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC));
-        delivery3.setStatus(Delivery.StatusEnum.PENDING);
+        Delivery delivery3 = new DeliveryBuilder()
+                .setId(id)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2022,1,1,12,0,0,0,ZoneOffset.UTC))
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
 
         List<Delivery> deliveries = new ArrayList<>();
         deliveries.add(delivery1);
@@ -278,18 +286,21 @@ public class AnalyticsTest {
                 .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 59, 07, 0, ZoneOffset.UTC))
                 .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 17, 59, 07, 0, ZoneOffset.UTC))
                 .create();
+        
         Delivery delivery2 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setStatus(Delivery.StatusEnum.DELIVERED)
                 .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 3, 15, 30, 07, 0, ZoneOffset.UTC))
                 .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 3, 16, 15, 07, 0, ZoneOffset.UTC))
                 .create();
+
         Delivery delivery3 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setStatus(Delivery.StatusEnum.DELIVERED)
                 .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 4, 16, 59, 07, 0, ZoneOffset.UTC))
                 .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 4, 17, 29, 07, 0, ZoneOffset.UTC))
                 .create();
+
         Delivery delivery4 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setStatus(Delivery.StatusEnum.DELIVERED)
