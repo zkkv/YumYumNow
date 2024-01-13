@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
@@ -235,7 +236,70 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
         });
+    }
+
+    @Test
+    void getDeliveryTimeWrongTimesExceptionTest() throws ServiceUnavailableException {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID id = UUID.randomUUID();
+        when(adminService.validate(id)).thenReturn(true);
+        assertThrows(BadArgumentException.class, () -> {
+            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+        });
+    }
+    @Test
+    void getDeliveryTimeAccessForbiddenExceptionTest() throws ServiceUnavailableException {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID id = UUID.randomUUID();
+        when(adminService.validate(id)).thenReturn(false);
+        assertThrows(AccessForbiddenException.class, () -> {
+            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+        });
+    }
+
+    @Test
+    void getDeliveryTimeSuccessfulAnalyticsTest() throws ServiceUnavailableException, BadArgumentException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID id = UUID.randomUUID();
+        when(adminService.validate(id)).thenReturn(true);
+
+        Delivery delivery1 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 17, 59, 07, 0, ZoneOffset.UTC))
+                .create();
+        Delivery delivery2 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 3, 15, 30, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 3, 16, 15, 07, 0, ZoneOffset.UTC))
+                .create();
+        Delivery delivery3 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 4, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 4, 17, 29, 07, 0, ZoneOffset.UTC))
+                .create();
+        Delivery delivery4 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 00, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 16, 45, 07, 0, ZoneOffset.UTC))
+                .create();
+
+        List<Delivery> deliveries = new ArrayList<>();
+        deliveries.add(delivery1);
+        deliveries.add(delivery2);
+        deliveries.add(delivery3);
+        deliveries.add(delivery4);
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+        assertThat(deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
     }
 }

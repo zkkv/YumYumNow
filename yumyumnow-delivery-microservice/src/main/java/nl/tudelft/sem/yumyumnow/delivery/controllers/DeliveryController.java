@@ -452,7 +452,7 @@ public class DeliveryController implements DeliveryApi {
         response.setEndDate(endDate);
 
         try {
-            long averageDeliveryTime = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            long averageDeliveryTime = deliveryService.getDeliveryTimeAnalytic(adminId, startDate, endDate);
             response.setDeliveryTime(BigDecimal.valueOf(averageDeliveryTime));
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
