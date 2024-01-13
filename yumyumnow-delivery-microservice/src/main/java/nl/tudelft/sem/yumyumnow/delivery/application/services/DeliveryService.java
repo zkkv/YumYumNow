@@ -583,7 +583,7 @@ public class DeliveryService {
                         return false;
                     }
                     return true;
-                }) //Check if the courier is elligle to see this order
+                }) //Check if the courier is eligible to see this order
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 
