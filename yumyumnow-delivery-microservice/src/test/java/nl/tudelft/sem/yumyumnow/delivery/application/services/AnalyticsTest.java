@@ -286,7 +286,7 @@ public class AnalyticsTest {
                 .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 59, 07, 0, ZoneOffset.UTC))
                 .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 17, 59, 07, 0, ZoneOffset.UTC))
                 .create();
-        
+
         Delivery delivery2 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setStatus(Delivery.StatusEnum.DELIVERED)
