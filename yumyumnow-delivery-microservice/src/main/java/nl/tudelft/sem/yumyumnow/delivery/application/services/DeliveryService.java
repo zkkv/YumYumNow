@@ -543,6 +543,7 @@ public class DeliveryService {
         }
 
         return totalSum / numberOfDeliveries;
+        
     }
 
     /**
