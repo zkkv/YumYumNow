@@ -1,11 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
-import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -19,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import javax.validation.constraints.Email;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -38,6 +36,8 @@ class DeliveryControllerTest {
     private AdminService adminService;
     private OrderService orderService;
 
+    private EmailService emailService;
+
     @BeforeEach
     void setUp(){
         this.deliveryService = mock(DeliveryService.class);
@@ -45,7 +45,8 @@ class DeliveryControllerTest {
         this.vendorService = mock(VendorService.class);
         this.adminService = mock(AdminService.class);
         this.orderService = mock(OrderService.class);
-        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, adminService, orderService);
+        this.emailService = mock(EmailService.class);
+        this.deliveryController = new DeliveryController(deliveryService, userService, vendorService, adminService, orderService, emailService);
     }
 
     @Test

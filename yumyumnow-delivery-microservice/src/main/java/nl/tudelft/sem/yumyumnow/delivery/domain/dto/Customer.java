@@ -22,6 +22,7 @@ public class Customer {
 
     private Location deliveryAddress;
 
+    private String email;
     private String phone;
 
 
