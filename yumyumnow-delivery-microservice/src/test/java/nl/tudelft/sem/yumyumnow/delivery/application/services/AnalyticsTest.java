@@ -166,38 +166,42 @@ public class AnalyticsTest {
         // setting up the deliveries
         UUID id1 = UUID.randomUUID();
         UUID orderId1 = UUID.randomUUID();
-        Delivery delivery1 = new Delivery();
-        delivery1.setId(id1);
-        delivery1.setStatus(Delivery.StatusEnum.DELIVERED);
-        delivery1.setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 12, 24, 16, 59, 07, 0, ZoneOffset.UTC));
-        delivery1.setEstimatedDeliveryTime(OffsetDateTime.of(2023, 12, 24, 16, 59, 07, 0, ZoneOffset.UTC));
-        delivery1.setOrderId(orderId1);
+        Delivery delivery1 = new DeliveryBuilder()
+                .setId(id1)
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 12, 24, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 12, 24, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setOrderId(orderId1)
+                .create();
 
         UUID id2 = UUID.randomUUID();
         UUID orderId2 = UUID.randomUUID();
-        Delivery delivery2 = new Delivery();
-        delivery2.setId(id2);
-        delivery2.setOrderId(orderId2);
-        delivery2.setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC));
-        delivery2.setStatus(Delivery.StatusEnum.DELIVERED);
+        Delivery delivery2 = new DeliveryBuilder()
+                .setId(id2)
+                .setOrderId(orderId2)
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2020,1,1,12,0,0,0,ZoneOffset.UTC))
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .create();
 
         UUID id3 = UUID.randomUUID();
         UUID orderId3 = UUID.randomUUID();
-        Delivery delivery3 = new Delivery();
-        delivery3.setId(id3);
-        delivery3.setOrderId(orderId3);
-        delivery3.setStatus(Delivery.StatusEnum.DELIVERED);
-        delivery3.setEstimatedPreparationFinishTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC));
-        delivery3.setEstimatedDeliveryTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC));
+        Delivery delivery3 = new DeliveryBuilder()
+                .setId(id3)
+                .setOrderId(orderId3)
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC))
+                .create();
 
         UUID id4 = UUID.randomUUID();
         UUID orderId4 = UUID.randomUUID();
-        Delivery delivery4 = new Delivery();
-        delivery4.setId(id4);
-        delivery4.setOrderId(orderId4);
-        delivery4.setStatus(Delivery.StatusEnum.DELIVERED);
-        delivery4.setEstimatedPreparationFinishTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC));
-        delivery4.setEstimatedDeliveryTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC));
+        Delivery delivery4 = new DeliveryBuilder()
+                .setId(id4)
+                .setOrderId(orderId4)
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2024, 01, 10, 21, 59, 07, 0, ZoneOffset.UTC))
+                .create();
 
         List<Delivery> deliveries = new ArrayList<>();
         deliveries.add(delivery1);
