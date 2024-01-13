@@ -69,7 +69,7 @@ public class OrderService {
     public boolean isPaid(UUID orderId) throws HttpClientErrorException {
         String url = orderServiceUrl + "/order/" + orderId.toString() + "/isPaid";
         ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
-        return response.getBody() != null && response.getBody();
+        return Boolean.TRUE.equals(response.getBody());
     }
 
     /**
