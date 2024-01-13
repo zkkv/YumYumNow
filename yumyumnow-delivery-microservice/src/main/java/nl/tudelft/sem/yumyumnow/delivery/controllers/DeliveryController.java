@@ -441,7 +441,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Get all deliveries available for a courier to accept
+     * Get all deliveries available for a courier to accept.
      *
      * @param radius The maximum distance in kilometers (required)
      * @param location The location for which the distances are calculated (required)
@@ -450,9 +450,12 @@ public class DeliveryController implements DeliveryApi {
      */
     @Override
     public ResponseEntity<List<Delivery>> deliveryAvailableGet(
-            @NotNull @Parameter(name = "radius", description = "The maximum distance in kilometers", required = true) @Valid @RequestParam(value = "radius", required = true) BigDecimal radius,
-            @NotNull @Parameter(name = "location", description = "The location for which the distances are calculated", required = true) @Valid Location location,
-            @NotNull @Parameter(name = "courierId", description = "The courier ID", required = true) @Valid @RequestParam(value = "courierId", required = true) UUID courierId
+            @NotNull @Parameter(name = "radius", description = "The maximum distance in kilometers", required = true)
+            @Valid @RequestParam(value = "radius", required = true) BigDecimal radius,
+            @NotNull @Parameter(name = "location", description = "The location for which the distances are calculated",
+                    required = true) @Valid Location location,
+            @NotNull @Parameter(name = "courierId", description = "The courier ID", required = true)
+            @Valid @RequestParam(value = "courierId", required = true) UUID courierId
     ) {
         List<Delivery> deliveries;
         try {
