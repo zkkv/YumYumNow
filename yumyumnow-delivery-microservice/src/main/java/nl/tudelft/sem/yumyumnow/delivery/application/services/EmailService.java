@@ -30,33 +30,12 @@ public class EmailService {
         this.deliveryRepository = deliveryRepository;
     }
 
-    /** Send an email to the customer that the status of its order has been changed
-     * @param status the new status
-     * @param id the id of the order
+    /**
+     * Send an email
+     * @param email the email to be sent
+     * @param address the address of the email
+     * @return confirmation that the email was sent
      */
-    public String sendEmail(DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
-        Delivery delivery = deliveryRepository.findById(id).get();
-
-        Order order = orderService.findOrderById(delivery.getOrderId());
-
-        if(order == null){
-            throw new BadArgumentException("Delivery isn't linked to an order");
-        }
-
-        Customer customer = order.getCustomer();
-
-        if(customer == null){
-            throw new BadArgumentException("Order doesn't have a customer");
-        }
-
-        if(customer.getEmail() == null){
-            throw new BadArgumentException("Customer doesn't have an email");
-        }
-
-        String email = "The order of your status has been changed to " + status.getValue();
-
-        return send(email, customer.getEmail());
-    }
 
     public String send(String email, String address){
         //Send mock email

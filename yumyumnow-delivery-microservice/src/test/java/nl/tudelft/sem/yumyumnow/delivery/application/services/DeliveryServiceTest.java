@@ -1,6 +1,8 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
@@ -22,12 +24,9 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +41,8 @@ public class DeliveryServiceTest {
     private AdminService adminService;
     private CourierService courierService;
     private OrderService orderService;
+
+    private EmailService emailService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -53,9 +54,10 @@ public class DeliveryServiceTest {
         this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
+        this.emailService = mock(EmailService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService,emailService);
     }
 
     @Test
@@ -777,5 +779,89 @@ public class DeliveryServiceTest {
                 ()->{
                     deliveryService.updateStatus(id, userId, DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
                 });
+    }
+
+    @Test
+    void sendEmailNoOrder() {
+        UUID deliverId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliverId);
+        when(deliveryRepository.findById(deliverId)).thenReturn(Optional.of(delivery));
+        DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
+        assertThrows(BadArgumentException.class, () -> deliveryService.sendEmail(status,deliverId));
+
+    }
+
+    @Test
+    void sendEmailNoCustomer() {
+        UUID orderId = UUID.randomUUID();
+        Order order = new Order(orderId, null, null);
+
+        UUID deliverId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliverId);
+        delivery.setOrderId(orderId);
+
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+
+        when(deliveryRepository.findById(deliverId)).thenReturn(Optional.of(delivery));
+
+        DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
+
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.sendEmail(status,deliverId));
+
+    }
+
+    @Test
+    void sendEmailNoEmail() {
+        UUID customerId = UUID.randomUUID();
+        Customer customer = new Customer(customerId, "Alex", new Location(), null, "");
+
+        UUID orderId = UUID.randomUUID();
+        Order order = new Order(orderId, null, customer);
+
+        UUID deliverId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliverId);
+        delivery.setOrderId(orderId);
+
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+
+        when(deliveryRepository.findById(deliverId)).thenReturn(Optional.of(delivery));
+
+        DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
+
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.sendEmail(status,deliverId));
+
+    }
+
+    @Test
+    void sendEmailSuccess() throws BadArgumentException {
+        UUID customerId = UUID.randomUUID();
+        Customer customer = new Customer(customerId, "Alex", new Location(), "max.verstappen1@gmail.com", "");
+
+        UUID orderId = UUID.randomUUID();
+        Order order = new Order(orderId, null, customer);
+
+        UUID deliverId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliverId);
+        delivery.setOrderId(orderId);
+
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+
+        when(deliveryRepository.findById(deliverId)).thenReturn(Optional.of(delivery));
+
+        DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
+
+        when(emailService.send("The status of your order has been changed to ACCEPTED","max.verstappen1@gmail.com")).thenCallRealMethod();
+
+
+        assertEquals("Email has been successfully sent", deliveryService.sendEmail(status,deliverId));
+
+        verify(emailService).send("The status of your order has been changed to ACCEPTED","max.verstappen1@gmail.com");
+
     }
 }

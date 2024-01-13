@@ -68,6 +68,8 @@ public class CustomerTest {
 
         Arbitrary<String> phoneNumber = Arbitraries.strings();
 
+        Arbitrary<String> email = Arbitraries.strings();
+
         Arbitrary<Location> address = Arbitraries.randomValue(
                 (random) -> new LocationBuilder()
                         .setLatitude(BigDecimal.valueOf(random.nextDouble()))
@@ -75,7 +77,7 @@ public class CustomerTest {
                         .create()
         );
 
-        return Combinators.combine(id, name, address, phoneNumber)
+        return Combinators.combine(id, name, address,email, phoneNumber)
                 .as(Customer::new);
     }
 }

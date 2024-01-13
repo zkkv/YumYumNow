@@ -40,6 +40,8 @@ public class DeliveryService {
     private final VendorService vendorService;
     private final CourierService courierService;
     private final AdminService adminService;
+
+    private final EmailService emailService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -54,6 +56,7 @@ public class DeliveryService {
      * @param courierService         service of the courier
      * @param adminService           service of the admin
      * @param orderService           service of the order
+     * @param emailService           service of emails
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
@@ -61,13 +64,15 @@ public class DeliveryService {
                            VendorService vendorService,
                            CourierService courierService,
                            AdminService adminService,
-                           OrderService orderService) {
+                           OrderService orderService,
+                           EmailService emailService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
         this.adminService = adminService;
+        this.emailService = emailService;
     }
 
     /**
@@ -537,6 +542,32 @@ public class DeliveryService {
         }
 
         return totalSum / numberOfDeliveries;
+    }
+
+    public String sendEmail(DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
+        Delivery delivery = deliveryRepository.findById(id).get();
+
+        Order order = orderService.findOrderById(delivery.getOrderId());
+
+        if(order == null){
+            throw new BadArgumentException("Delivery isn't linked to an order");
+        }
+
+        Customer customer = order.getCustomer();
+
+        if(customer == null){
+            throw new BadArgumentException("Order doesn't have a customer");
+        }
+
+        String email = customer.getEmail();
+
+        if(email == null){
+            throw new BadArgumentException("Customer doesn't have an email");
+        }
+
+        String emailText = "The status of your order has been changed to " + status.getValue();
+
+        return emailService.send(emailText, email);
     }
 
 }

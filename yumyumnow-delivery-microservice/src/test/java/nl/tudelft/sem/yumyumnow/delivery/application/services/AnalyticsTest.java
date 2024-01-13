@@ -30,6 +30,8 @@ public class AnalyticsTest {
     private VendorService vendorService;
     private AdminService adminService;
     private CourierService courierService;
+
+    private EmailService emailService;
     private OrderService orderService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
@@ -42,9 +44,10 @@ public class AnalyticsTest {
         this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
+        this.emailService = mock(EmailService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService,emailService);
     }
 
     @Test

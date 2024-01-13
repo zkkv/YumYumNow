@@ -296,6 +296,7 @@ class DeliveryControllerTest {
                 id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
                 .thenReturn(delivery);
 
+
         ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
 
         ResponseEntity<Delivery> actual = deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest);
@@ -621,4 +622,32 @@ class DeliveryControllerTest {
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    void updateStatusFailEmail() throws BadArgumentException, NoDeliveryFoundException, AccessForbiddenException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.PREPARING;
+        DeliveryIdStatusPutRequest deliveryIdStatusPutRequest = new DeliveryIdStatusPutRequest();
+        deliveryIdStatusPutRequest.setUserId(userId);
+        deliveryIdStatusPutRequest.setStatus(status);
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .setStatus(Delivery.StatusEnum.PREPARING)
+                .create();
+
+        when(deliveryService.updateStatus(
+                id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
+                .thenReturn(delivery);
+
+        when(deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id)).thenThrow(BadArgumentException.class);
+
+        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest);
+
+        assertEquals(expected, actual);
+    }
+
 }
