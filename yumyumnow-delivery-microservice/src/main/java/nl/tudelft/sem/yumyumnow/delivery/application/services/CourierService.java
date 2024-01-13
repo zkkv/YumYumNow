@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,8 +19,15 @@ public class CourierService {
     private final String courierServiceUrl;
     private final VendorService vendorService;
 
+    /**
+     * Constructor for courier service.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     */
     @Autowired
-    public CourierService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl, VendorService vendorService) {
+    public CourierService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
+                          VendorService vendorService) {
         this.restTemplate = restTemplate;
         this.courierServiceUrl = userServiceUrl + "/courier/";
         this.vendorService = vendorService;

@@ -2,7 +2,6 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.builders;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
-
 import java.util.UUID;
 
 /**
