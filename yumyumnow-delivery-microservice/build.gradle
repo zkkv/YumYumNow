@@ -114,6 +114,7 @@ task customCheckstyle(type: Checkstyle) {
     // Set the Checkstyle configuration file
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml") // Modify the path as needed
 
+    classpath = files()
     // Apply Checkstyle to the main source set while excluding generated code
     source = sourceSets.main.allJava.filter { file ->
         // Exclude directories or files associated with generated code
