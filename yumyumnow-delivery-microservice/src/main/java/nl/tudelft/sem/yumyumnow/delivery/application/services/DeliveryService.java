@@ -308,6 +308,25 @@ public class DeliveryService {
         return optionalDelivery.get();
     }
 
+    public Double distanceBetween(Location location1, DeliveryCurrentLocation location2){
+        // Convert the latitudes and longitudes from degrees to radians.
+        double lat1 = location1.getLatitude().doubleValue();
+        double lat2 = location2.getLatitude().doubleValue();
+        double long1 = location1.getLongitude().doubleValue();
+        double long2 = location2.getLongitude().doubleValue();
+        double latDistance = Math.toRadians(lat1 - lat2);
+        double lonDistance = Math.toRadians(long1 - long2);
+
+        // Apply the Haversine formula
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = EARTH_RADIUS_KM * c;
+
+        return dist;
+    }
+
     private static final int EARTH_RADIUS_KM = 6378; // constant for the earth radius needed to calculate the distance
     private static final int AVERAGE_SPEED_KMH = 50; // constant for the average speed
 
@@ -319,20 +338,7 @@ public class DeliveryService {
      * @return the time expressed in seconds.
      */
     public Duration getDeliveryTimeHelper(Location customerLocation, @Valid DeliveryCurrentLocation vendorLocation) {
-        // Convert the latitudes and longitudes from degrees to radians.
-        double lat1 = customerLocation.getLatitude().doubleValue();
-        double lat2 = vendorLocation.getLatitude().doubleValue();
-        double long1 = customerLocation.getLongitude().doubleValue();
-        double long2 = vendorLocation.getLongitude().doubleValue();
-        double latDistance = Math.toRadians(lat1 - lat2);
-        double lonDistance = Math.toRadians(long1 - long2);
-
-        // Apply the Haversine formula
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double dist = EARTH_RADIUS_KM * c;
+        double dist = distanceBetween(customerLocation, vendorLocation);
 
         double timeInHours = dist / AVERAGE_SPEED_KMH; // the average speed is set to 50 km/h
         long timeInSeconds = (long) (timeInHours * 3600); // Convert time to seconds
@@ -570,5 +576,59 @@ public class DeliveryService {
         return emailService.send(emailText, email);
     }
 
+    /**
+     * Returns a list of all deliveries available for a courier ordered by distance
+     *
+     * @param radius maximum distance from the courier
+     * @param location the current location of the courier
+     * @param courierId the id of the courier
+     * @return the list aforementioned
+     * @throws AccessForbiddenException if the user trying to access is not a courier
+     * @throws BadArgumentException if the radius is invalid
+     * @throws ServiceUnavailableException if there is a failure at other services
+     */
+    public List<Delivery> getAvailableDeliveries(BigDecimal radius, Location location, UUID courierId)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        Courier courier = courierService.getCourier(courierId.toString());
+        if(courier == null){
+            throw new AccessForbiddenException("User is not a courier.");
+        }
+
+        if(radius.compareTo(BigDecimal.ZERO) <= 0){
+            throw new BadArgumentException("Invalid radius value");
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAll();
+
+        List<Delivery> checkedDeliveries = deliveries
+                .stream()
+                .filter(d -> d.getCourierId() == null) //Only unassigned orders
+                .filter(d -> {
+                    UUID vendorId = d.getVendorId();
+                    Vendor vendor = vendorService.getVendor(vendorId.toString());
+                    if(courier.getVendor()!= null && !courier.getVendor().equals(vendor)){
+                        return false;
+                    }
+                    if(vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
+                            || !courier.getVendor().equals(vendor))){
+                        return false;
+                    }
+                    return true;
+                }) //Check if the courier is eligible to see this order
+                .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
+                .collect(Collectors.toList());
+
+        checkedDeliveries.sort((x,y) -> {
+            Double distX = distanceBetween(location, x.getCurrentLocation());
+            Double distY = distanceBetween(location, y.getCurrentLocation());
+
+            return distX.compareTo(distY);
+        });
+
+        return checkedDeliveries;
+
+
+
+    }
 }
 

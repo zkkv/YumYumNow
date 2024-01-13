@@ -33,9 +33,9 @@ public class CourierService {
     }
 
     /**
-     * Get a vendor by its user id.
+     * Get a courier by its courier id.
      *
-     * @param courierId The id of the vendor.
+     * @param courierId The id of the courier.
      * @return the vendor as a map of response JSON
      */
     public Courier getCourier(String courierId) {

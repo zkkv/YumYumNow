@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -11,6 +12,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableExc
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -437,5 +440,36 @@ public class DeliveryController implements DeliveryApi {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get all deliveries available for a courier to accept
+     *
+     * @param radius The maximum distance in kilometers (required)
+     * @param location The location for which the distances are calculated (required)
+     * @param courierId The courier ID (required)
+     * @return the list of said deliveries ordered by distance from the courier (shortest first)
+     */
+    @Override
+    public ResponseEntity<List<Delivery>> deliveryAvailableGet(
+            @NotNull @Parameter(name = "radius", description = "The maximum distance in kilometers", required = true) @Valid @RequestParam(value = "radius", required = true) BigDecimal radius,
+            @NotNull @Parameter(name = "location", description = "The location for which the distances are calculated", required = true) @Valid Location location,
+            @NotNull @Parameter(name = "courierId", description = "The courier ID", required = true) @Valid @RequestParam(value = "courierId", required = true) UUID courierId
+    ) {
+        List<Delivery> deliveries;
+        try {
+            deliveries = deliveryService.getAvailableDeliveries(radius, location, courierId);
+        } catch (BadArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (ServiceUnavailableException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        return ResponseEntity.ok(deliveries);
+
+
+
     }
 }

@@ -24,6 +24,9 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -856,12 +859,167 @@ public class DeliveryServiceTest {
 
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
 
-        when(emailService.send("The status of your order has been changed to ACCEPTED","max.verstappen1@gmail.com")).thenCallRealMethod();
+        when(emailService.send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com")).thenCallRealMethod();
 
 
-        assertEquals("Email has been successfully sent", deliveryService.sendEmail(status,deliverId));
+        assertEquals("Email has been successfully sent", deliveryService.sendEmail(status, deliverId));
 
-        verify(emailService).send("The status of your order has been changed to ACCEPTED","max.verstappen1@gmail.com");
+        verify(emailService).send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com");
+    }
+    public void voidGetAvailableDeliveriesAsNonCourier(){
+        UUID courierId = UUID.randomUUID();
 
+        when(courierService.getCourier(courierId.toString())).thenReturn(null);
+
+        assertThrows(AccessForbiddenException.class, () -> deliveryService.getAvailableDeliveries(BigDecimal.ONE, new Location(), courierId));
+    }
+
+    @Test
+    public void voidGetAvailableDeliveriesInvalidRadius(){
+        UUID courierId = UUID.randomUUID();
+
+        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier(courierId,null));
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.getAvailableDeliveries(BigDecimal.valueOf(-1), new Location(), courierId));
+    }
+
+    @Test
+    public void voidGetAvailableDeliveriesUnassignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        UUID courierId = UUID.randomUUID();
+
+        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier(courierId,null));
+
+        List<Delivery> allDeliveries = new ArrayList<>();
+
+
+
+        UUID delivery2vendorId = UUID.randomUUID();
+        UUID delivery3vendorId = UUID.randomUUID();
+
+        DeliveryCurrentLocation delivery2location = new  DeliveryCurrentLocation();
+        delivery2location.setLatitude(BigDecimal.ONE);
+        delivery2location.setLongitude(BigDecimal.ONE);
+
+        DeliveryCurrentLocation delivery4location = new  DeliveryCurrentLocation();
+        delivery4location.setLatitude(BigDecimal.ZERO);
+        delivery4location.setLongitude(BigDecimal.ZERO);
+
+        DeliveryCurrentLocation delivery5location = new  DeliveryCurrentLocation();
+        delivery5location.setLatitude(BigDecimal.valueOf(100));
+        delivery5location.setLongitude(BigDecimal.valueOf(100));
+
+        Vendor delivery2vendor = new Vendor(delivery2vendorId, new Location(), new String(), false, BigDecimal.TEN);
+
+        Vendor delivery3vendor = new Vendor(delivery3vendorId, new Location(), new String(), true, BigDecimal.TEN);
+
+
+        Delivery delivery1 = new Delivery();
+        delivery1.setCourierId(UUID.randomUUID());
+
+        Delivery delivery2 = new Delivery();
+        delivery2.setVendorId(delivery2vendorId);
+        when(vendorService.getVendor(delivery2vendorId.toString())).thenReturn(delivery2vendor);
+        delivery2.setCurrentLocation(delivery2location);
+
+        Delivery delivery3 = new Delivery();
+        delivery3.setVendorId(delivery3vendorId);
+        when(vendorService.getVendor(delivery3vendorId.toString())).thenReturn(delivery3vendor);
+        delivery3.setCurrentLocation(delivery2location);
+
+        Delivery delivery4 = new Delivery();
+        delivery4.setVendorId(delivery2vendorId);
+        delivery4.setCurrentLocation(delivery4location);
+
+        Delivery delivery5 = new Delivery();
+        delivery5.setVendorId(delivery2vendorId);
+        delivery5.setCurrentLocation(delivery5location);
+
+
+        allDeliveries.add(delivery1);
+        allDeliveries.add(delivery2);
+        allDeliveries.add(delivery3);
+        allDeliveries.add(delivery4);
+        allDeliveries.add(delivery5);
+
+        List<Delivery> expected = List.of(delivery4, delivery2);
+
+        when(deliveryRepository.findAll()).thenReturn(allDeliveries);
+
+        Location courierLocation = new Location();
+        courierLocation.setLongitude(delivery4location.getLongitude());
+        courierLocation.setLatitude(delivery4location.getLatitude());
+
+
+        assertEquals(expected, deliveryService.getAvailableDeliveries(BigDecimal.valueOf(200), courierLocation, courierId));
+    }
+
+    @Test
+    public void voidGetAvailableDeliveriesAssignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        UUID courierId = UUID.randomUUID();
+
+
+        List<Delivery> allDeliveries = new ArrayList<>();
+
+
+
+        UUID delivery2vendorId = UUID.randomUUID();
+        UUID delivery3vendorId = UUID.randomUUID();
+
+        DeliveryCurrentLocation delivery2location = new  DeliveryCurrentLocation();
+        delivery2location.setLatitude(BigDecimal.ONE);
+        delivery2location.setLongitude(BigDecimal.ONE);
+
+        DeliveryCurrentLocation delivery4location = new  DeliveryCurrentLocation();
+        delivery4location.setLatitude(BigDecimal.ZERO);
+        delivery4location.setLongitude(BigDecimal.ZERO);
+
+        DeliveryCurrentLocation delivery5location = new  DeliveryCurrentLocation();
+        delivery5location.setLatitude(BigDecimal.valueOf(100));
+        delivery5location.setLongitude(BigDecimal.valueOf(100));
+
+        Vendor delivery2vendor = new Vendor(delivery2vendorId, new Location(), new String(), false, BigDecimal.TEN);
+
+        Vendor delivery3vendor = new Vendor(delivery3vendorId, new Location(), new String(), true, BigDecimal.TEN);
+        when(courierService.getCourier(courierId.toString())).thenReturn(new Courier(courierId,delivery3vendor));
+
+
+        Delivery delivery1 = new Delivery();
+        delivery1.setCourierId(UUID.randomUUID());
+
+        Delivery delivery2 = new Delivery();
+        delivery2.setVendorId(delivery2vendorId);
+        when(vendorService.getVendor(delivery2vendorId.toString())).thenReturn(delivery2vendor);
+        delivery2.setCurrentLocation(delivery2location);
+
+        Delivery delivery3 = new Delivery();
+        delivery3.setVendorId(delivery3vendorId);
+        when(vendorService.getVendor(delivery3vendorId.toString())).thenReturn(delivery3vendor);
+        delivery3.setCurrentLocation(delivery2location);
+
+        Delivery delivery4 = new Delivery();
+        delivery4.setVendorId(delivery2vendorId);
+        delivery4.setCurrentLocation(delivery4location);
+
+        Delivery delivery5 = new Delivery();
+        delivery5.setVendorId(delivery2vendorId);
+        delivery5.setCurrentLocation(delivery5location);
+
+
+        allDeliveries.add(delivery1);
+        allDeliveries.add(delivery2);
+        allDeliveries.add(delivery3);
+        allDeliveries.add(delivery4);
+        allDeliveries.add(delivery5);
+
+        List<Delivery> expected = List.of(delivery3);
+
+        when(deliveryRepository.findAll()).thenReturn(allDeliveries);
+
+        Location courierLocation = new Location();
+        courierLocation.setLongitude(delivery4location.getLongitude());
+        courierLocation.setLatitude(delivery4location.getLatitude());
+
+
+        assertEquals(expected, deliveryService.getAvailableDeliveries(BigDecimal.valueOf(200), courierLocation, courierId));
     }
 }

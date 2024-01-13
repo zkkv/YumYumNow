@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -650,4 +651,46 @@ class DeliveryControllerTest {
         assertEquals(expected, actual);
     }
 
+    void getDeliveriesInRadiusUnauthorized() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        BigDecimal radius = BigDecimal.ONE;
+        Location location = new Location();
+        UUID courierId = UUID.randomUUID();
+
+        when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(AccessForbiddenException.class);
+
+        ResponseEntity<List<Delivery>> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
+    }
+
+    @Test
+    void getDeliveriesInRadiusBadArgument() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        BigDecimal radius = BigDecimal.valueOf(-1);
+        Location location = new Location();
+        UUID courierId = UUID.randomUUID();
+
+        when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(BadArgumentException.class);
+
+        ResponseEntity<List<Delivery>> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
+    }
+
+    @Test
+    void getDeliveriesInRadiusSuccess() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        BigDecimal radius = BigDecimal.valueOf(10);
+        Location location = new Location();
+        UUID courierId = UUID.randomUUID();
+
+
+        Delivery delivery1 = new Delivery();
+        Delivery delivery2 = new Delivery();
+        delivery1.setId(UUID.randomUUID());
+        delivery2.setId(UUID.randomUUID());
+        when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenReturn(List.of(delivery1,delivery2));
+
+        ResponseEntity<List<Delivery>> expected = ResponseEntity.ok(List.of(delivery1,delivery2));
+
+        assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
+    }
 }
