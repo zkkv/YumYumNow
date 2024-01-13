@@ -1,13 +1,17 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import net.jqwik.api.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.LocationBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class CustomerTest {
 
@@ -26,6 +30,28 @@ public class CustomerTest {
         assertThat(customer).isEqualTo(customer);
         assertThat(customer).isEqualTo(customer2);
         assertThat(customer).isEqualTo(customer3);
+    }
+
+    @Test
+    public void testNotEqualsWithNull() {
+        Customer customer = new CustomerBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = null;
+
+        assertNotEquals(customer, o);
+    }
+
+    @Test
+    public void testNotEqualsWithOtherClass() {
+        Customer customer = new CustomerBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = new Object();
+
+        assertNotEquals(customer, o);
     }
 
     @Property
@@ -77,5 +103,25 @@ public class CustomerTest {
 
         return Combinators.combine(id, name, address, phoneNumber)
                 .as(Customer::new);
+    }
+
+    @Test
+    void customerToStringTest() {
+        UUID id = UUID.randomUUID();
+        Customer customer = new CustomerBuilder()
+                .setId(id)
+                .create();
+
+        String idString = id.toString();
+
+        String unformatted = """
+                class Customer {
+                    id: %s
+                    name: null
+                    deliveryAddress: null
+                    phone: null
+                }""";
+        String expected = String.format(unformatted, idString);
+        assertEquals(expected, customer.toString());
     }
 }

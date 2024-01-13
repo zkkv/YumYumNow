@@ -2,11 +2,10 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.builders;
 
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public class DeliveryBuilder implements Builder<Delivery>{
+public class DeliveryBuilder implements Builder<Delivery> {
     private UUID deliveryId;
     private UUID orderId;
     private UUID courierId;
@@ -18,6 +17,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the id field of a DeliveryBuilder.
+     *
      * @param deliveryId the id to be set as the Delivery id
      * @return the DeliveryBuilder with the id field changed
      */
@@ -28,6 +28,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the orderId field of a DeliveryBuilder.
+     *
      * @param orderId the id to be set as the orderId
      * @return the DeliveryBuilder with the orderId field changed
      */
@@ -38,6 +39,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the courierId field of a DeliveryBuilder.
+     *
      * @param courierId the id to be set as the courierId
      * @return the DeliveryBuilder with the courierId field changed
      */
@@ -48,6 +50,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the vendorId field of a DeliveryBuilder.
+     *
      * @param vendorId the id to be set as the vendorId
      * @return the DeliveryBuilder with the vendorId field changed
      */
@@ -58,6 +61,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the status field of a DeliveryBuilder.
+     *
      * @param status the StatusEnum to be set as the delivery status
      * @return the DeliveryBuilder with the status field changed
      */
@@ -68,6 +72,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the estimatedDeliveryTime field of a DeliveryBuilder.
+     *
      * @param estimatedDeliveryTime the time to be set as the estimated delivery time
      * @return the DeliveryBuilder with the estimatedDeliveryTime field changed
      */
@@ -78,6 +83,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the estimatedPreparationFinishTime field of a DeliveryBuilder.
+     *
      * @param estimatedPreparationFinishTime the time to be set as the estimated preparation finish time
      * @return the DeliveryBuilder with the estimatedPreparationFinishTime field changed
      */
@@ -88,6 +94,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A setter method for the currentLocation field of a DeliveryBuilder.
+     *
      * @param location the location to be set as the currentLocation
      * @return the DeliveryBuilder with the currentLocation field changed
      */
@@ -98,6 +105,7 @@ public class DeliveryBuilder implements Builder<Delivery>{
 
     /**
      * A method that creates a Delivery using all the fields of the DeliveryBuilder instance.
+     *
      * @return a new Delivery with all the fields set to the DeliveryBuilder fields
      */
     public Delivery create() {

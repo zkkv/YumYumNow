@@ -303,7 +303,14 @@ public class DeliveryService {
         return optionalDelivery.get();
     }
 
-    public Double distanceBetween(Location location1, DeliveryCurrentLocation location2){
+    /**
+     * Helper method to calculate the distance between two locations.
+     *
+     * @param location1 first given location
+     * @param location2 second given location
+     * @return the distance as double
+     */
+    public Double distanceBetween(Location location1, DeliveryCurrentLocation location2) {
         // Convert the latitudes and longitudes from degrees to radians.
         double lat1 = location1.getLatitude().doubleValue();
         double lat2 = location2.getLatitude().doubleValue();
@@ -465,8 +472,8 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -491,9 +498,9 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -523,9 +530,9 @@ public class DeliveryService {
         long numberOfDeliveries = 0;
 
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
 
         for (Delivery delivery : filteredDeliveries) {
@@ -547,7 +554,7 @@ public class DeliveryService {
     }
 
     /**
-     * Returns a list of all deliveries available for a courier ordered by distance
+     * Returns a list of all deliveries available for a courier ordered by distance.
      *
      * @param radius maximum distance from the courier
      * @param location the current location of the courier
@@ -560,11 +567,11 @@ public class DeliveryService {
     public List<Delivery> getAvailableDeliveries(BigDecimal radius, Location location, UUID courierId)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
         Courier courier = courierService.getCourier(courierId.toString());
-        if(courier == null){
+        if (courier == null) {
             throw new AccessForbiddenException("User is not a courier.");
         }
 
-        if(radius.compareTo(BigDecimal.ZERO) <= 0){
+        if (radius.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadArgumentException("Invalid radius value");
         }
 
@@ -576,11 +583,11 @@ public class DeliveryService {
                 .filter(d -> {
                     UUID vendorId = d.getVendorId();
                     Vendor vendor = vendorService.getVendor(vendorId.toString());
-                    if(courier.getVendor()!= null && !courier.getVendor().equals(vendor)){
+                    if (courier.getVendor() != null && !courier.getVendor().equals(vendor)) {
                         return false;
                     }
-                    if(vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
-                            || !courier.getVendor().equals(vendor))){
+                    if (vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
+                            || !courier.getVendor().equals(vendor))) {
                         return false;
                     }
                     return true;
@@ -588,7 +595,7 @@ public class DeliveryService {
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 
-        checkedDeliveries.sort((x,y) -> {
+        checkedDeliveries.sort((x, y) -> {
             Double distX = distanceBetween(location, x.getCurrentLocation());
             Double distY = distanceBetween(location, y.getCurrentLocation());
 
@@ -625,9 +632,9 @@ public class DeliveryService {
         //get all deliveries from the repo that were delivered in that time span
         List<Delivery> relevantDeliveries = deliveryRepository.findAll()
                 .stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         //count total delivery times in minutes and number of deliveries
         long totalTime = 0;
@@ -640,7 +647,7 @@ public class DeliveryService {
             totalTime += difference.toMinutes();
             numberOfDeliveries++;
         }
-        return totalTime/numberOfDeliveries;
+        return totalTime / numberOfDeliveries;
     }
 }
 

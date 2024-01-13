@@ -1,13 +1,17 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import net.jqwik.api.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CustomerBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class OrderTest {
     @Property
@@ -25,6 +29,28 @@ public class OrderTest {
         assertThat(order).isEqualTo(order);
         assertThat(order).isEqualTo(order2);
         assertThat(order).isEqualTo(order3);
+    }
+
+    @Test
+    public void testNotEqualsWithNull() {
+        Order order = new OrderBuilder()
+                .setOrderId(UUID.randomUUID())
+                .create();
+
+        Object o = null;
+
+        assertNotEquals(order, o);
+    }
+
+    @Test
+    public void testNotEqualsWithOtherClass() {
+        Order order = new OrderBuilder()
+                .setOrderId(UUID.randomUUID())
+                .create();
+
+        Object o = new Object();
+
+        assertNotEquals(order, o);
     }
 
     @Property
@@ -77,6 +103,24 @@ public class OrderTest {
 
 
         return Combinators.combine(id, vendor, customer).as(Order::new);
+    }
+
+    @Test
+    void orderToStringTest() {
+        UUID id = UUID.randomUUID();
+        Order order = new OrderBuilder()
+                .setOrderId(id)
+                .create();
+
+        String idString = id.toString();
+
+        String unformatted = """
+                class Order {
+                    id: %s
+                    vendor: null
+                }""";
+        String expected = String.format(unformatted, idString);
+        assertEquals(expected, order.toString());
     }
 
 }

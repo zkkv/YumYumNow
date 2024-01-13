@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -115,14 +114,15 @@ public class DeliveryController implements DeliveryApi {
     @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePost(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
-    ){
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
+    ) {
         Delivery delivery = deliveryService.changePrepTime(
                 id, deliveryIdDeliveryTimePostRequest.getUserId(),
                 deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()
         );
 
-        if (delivery == null){
+        if (delivery == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -131,7 +131,7 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Change the status of the delivery
+     * Change the status of the delivery.
      *
      * @param id UUID of the delivery (required)
      * @param deliveryIdStatusPutRequest  (optional)
@@ -139,7 +139,8 @@ public class DeliveryController implements DeliveryApi {
      */
     public ResponseEntity<Delivery> deliveryIdStatusPut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdStatusPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
+            @Parameter(name = "DeliveryIdStatusPutRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdStatusPutRequest deliveryIdStatusPutRequest
     ) {
         Delivery delivery = null;
         try {
@@ -154,6 +155,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Update the estimated time of a delivery.
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdDeliveryTimePostRequest1  (optional)
      * @return the updated delivery
@@ -161,10 +163,12 @@ public class DeliveryController implements DeliveryApi {
     @Override
     public ResponseEntity<Delivery> deliveryIdPrepTimePut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "") @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
-    ){
-        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(), deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
-        if (delivery == null){
+            @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
+    ) {
+        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(),
+                deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
+        if (delivery == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -206,18 +210,16 @@ public class DeliveryController implements DeliveryApi {
     public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZoneGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId
-    ){
-        try{
+    ) {
+        try {
             DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
             if (response == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             return ResponseEntity.ok(response);
-        }
-        catch (ServiceUnavailableException e){
+        } catch (ServiceUnavailableException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        }
-        catch (AccessForbiddenException e){
+        } catch (AccessForbiddenException e) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
@@ -233,7 +235,7 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryAdminMaxZoneGet200Response", description = "")
             @Valid @RequestBody(required = false) DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response
     ) {
-        try{
+        try {
             DeliveryAdminMaxZoneGet200Response response =
                     deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
                             deliveryAdminMaxZoneGet200Response.getRadiusKm(), adminService);
@@ -242,11 +244,9 @@ public class DeliveryController implements DeliveryApi {
                 return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
             }
             return ResponseEntity.ok(response);
-        }
-        catch (ServiceUnavailableException e){
+        } catch (ServiceUnavailableException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        }
-        catch (AccessForbiddenException e){
+        } catch (AccessForbiddenException e) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
@@ -346,7 +346,8 @@ public class DeliveryController implements DeliveryApi {
             @Valid @RequestParam(value = "endDate", required = true)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
+        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response =
+                new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
@@ -372,7 +373,8 @@ public class DeliveryController implements DeliveryApi {
      * @return a DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
      */
     @Override
-    public ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+    public ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response>
+            deliveryAdminAnalyticsSuccessfulDeliveriesGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
@@ -382,7 +384,8 @@ public class DeliveryController implements DeliveryApi {
             @Valid @RequestParam(value = "endDate", required = true)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response =
+                new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
@@ -412,11 +415,14 @@ public class DeliveryController implements DeliveryApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsPreparationTimeGet200Response response = new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        DeliveryAdminAnalyticsPreparationTimeGet200Response response =
+                new DeliveryAdminAnalyticsPreparationTimeGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
 
@@ -436,6 +442,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Get analytics regarding the average delivery time of an order.
+     *
      * @param adminId The admin ID.
      * @param startDate Start date of the analytic.
      * @param endDate End date of the analytic.
@@ -446,9 +453,11 @@ public class DeliveryController implements DeliveryApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         DeliveryAdminAnalyticsDeliveryTimeGet200Response response = new DeliveryAdminAnalyticsDeliveryTimeGet200Response();
         response.setStartDate(startDate);
@@ -469,7 +478,7 @@ public class DeliveryController implements DeliveryApi {
     }
 
     /**
-     * Get all deliveries available for a courier to accept
+     * Get all deliveries available for a courier to accept.
      *
      * @param radius The maximum distance in kilometers (required)
      * @param location The location for which the distances are calculated (required)
@@ -478,9 +487,12 @@ public class DeliveryController implements DeliveryApi {
      */
     @Override
     public ResponseEntity<List<Delivery>> deliveryAvailableGet(
-            @NotNull @Parameter(name = "radius", description = "The maximum distance in kilometers", required = true) @Valid @RequestParam(value = "radius", required = true) BigDecimal radius,
-            @NotNull @Parameter(name = "location", description = "The location for which the distances are calculated", required = true) @Valid Location location,
-            @NotNull @Parameter(name = "courierId", description = "The courier ID", required = true) @Valid @RequestParam(value = "courierId", required = true) UUID courierId
+            @NotNull @Parameter(name = "radius", description = "The maximum distance in kilometers", required = true)
+            @Valid @RequestParam(value = "radius", required = true) BigDecimal radius,
+            @NotNull @Parameter(name = "location", description = "The location for which the distances are calculated",
+                    required = true) @Valid Location location,
+            @NotNull @Parameter(name = "courierId", description = "The courier ID", required = true)
+            @Valid @RequestParam(value = "courierId", required = true) UUID courierId
     ) {
         List<Delivery> deliveries;
         try {
