@@ -559,24 +559,31 @@ public class DeliveryService {
         
     }
 
-    public String sendEmail (DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
+    /** Creates the email for notifying a customer that the status for their order has been updated.
+     *
+     * @param status the updated status
+     * @param id id of the delivery
+     * @return a confirmation string that the email has been sent
+     * @throws BadArgumentException if the order, customer or email cannot be found
+     */
+    public String sendEmail(DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
         Delivery delivery = deliveryRepository.findById(id).get();
 
         Order order = orderService.findOrderById(delivery.getOrderId());
 
-        if(order == null){
+        if (order == null) {
             throw new BadArgumentException("Delivery isn't linked to an order");
         }
 
         Customer customer = order.getCustomer();
 
-        if(customer == null){
+        if (customer == null) {
             throw new BadArgumentException("Order doesn't have a customer");
         }
 
         String email = customer.getEmail();
 
-        if(email == null){
+        if (email == null) {
             throw new BadArgumentException("Customer doesn't have an email");
         }
 

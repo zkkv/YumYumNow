@@ -151,10 +151,9 @@ public class DeliveryController implements DeliveryApi {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        try{
-            deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(),id);
-        }
-        catch (BadArgumentException e){
+        try {
+            deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id);
+        } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
