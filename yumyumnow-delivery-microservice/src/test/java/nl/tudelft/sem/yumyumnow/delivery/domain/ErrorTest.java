@@ -50,7 +50,7 @@ class ErrorTest {
     }
 
     @Test
-    void testNotEqualSameAddress() {
+    void testEqualSameAddress() {
         Error error = new Error();
         error.setCode(200);
         error.setMessage("Error");
