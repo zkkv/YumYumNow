@@ -50,6 +50,7 @@ public class Customer {
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    deliveryAddress: ").append(toIndentedString(deliveryAddress)).append("\n");
+        sb.append("    email: ").append(toIndentedString(email)).append("\n");
         sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
         sb.append("}");
         return sb.toString();
