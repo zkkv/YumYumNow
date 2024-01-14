@@ -74,15 +74,16 @@ public class VendorService {
                 .get("longitude"))));
 
         BigDecimal maxZone = null;
-        if (!(Boolean) response.get("allowsOnlyOwnCouriers")) {
-            // If a vendor does not have its own couriers, then the default maxzone is used.
+        if (!(Boolean) response.get("allowsOnlyOwnCouriers") || response.get("maxDeliveryZone") == null) {
+            // If a vendor does not have its own couriers or the maxzone is not set by the vendor,
+            // then the default maxzone is used.
             Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
             if (!optionalGlobalConfig.isEmpty()) {
                 GlobalConfig globalConfig = optionalGlobalConfig.get();
                 maxZone = globalConfig.getDefaultMaxZone();
             }
         } else {
-            // If a vendor have its own couriers, then the customized maxzone is used.
+            // If a vendor have its own couriers and set its own maxzone, then the customized maxzone is used.
             maxZone = new BigDecimal(String.valueOf(response.get("maxDeliveryZone")));
         }
 
