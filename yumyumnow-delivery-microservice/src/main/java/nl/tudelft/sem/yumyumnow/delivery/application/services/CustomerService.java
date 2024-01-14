@@ -66,6 +66,7 @@ public class CustomerService {
             .setName((String) response.get("name"))
             .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
             .setAddress(address)
+                .setEmail((String) ((Map<String, Object>) response.get("contactInfo")).get("email"))
             .create();
 
         return customer;

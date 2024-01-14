@@ -14,6 +14,8 @@ public class CustomerBuilder implements Builder<Customer> {
     private String phoneNumber;
     private Location address;
 
+    private String email;
+
     public CustomerBuilder setId(UUID id) {
         this.id = id;
         return this;
@@ -34,9 +36,14 @@ public class CustomerBuilder implements Builder<Customer> {
         return this;
     }
 
+    public CustomerBuilder setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
     @Override
     public Customer create() {
-        return new Customer(id, name, address, phoneNumber);
+        return new Customer(id, name, address,email, phoneNumber);
     }
 
     @Override
