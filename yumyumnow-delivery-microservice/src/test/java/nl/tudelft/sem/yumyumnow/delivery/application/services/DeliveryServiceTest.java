@@ -859,7 +859,7 @@ public class DeliveryServiceTest {
 
         DeliveryIdStatusPutRequest.StatusEnum status = DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED;
 
-        when(emailService.send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com")).thenCallRealMethod();
+        when(emailService.send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com")).thenReturn("Email has been successfully sent");
 
 
         assertEquals("Email has been successfully sent", deliveryService.sendEmail(status, deliverId));
