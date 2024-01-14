@@ -3,7 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.builders;
 import net.jqwik.api.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.UUID;

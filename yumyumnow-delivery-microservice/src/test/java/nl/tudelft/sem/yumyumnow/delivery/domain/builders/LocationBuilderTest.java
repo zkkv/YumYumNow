@@ -3,7 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.builders;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -63,7 +63,7 @@ public class LocationBuilderTest {
 
     @Test
     public void setTimestamp() {
-        OffsetDateTime timestamp = OffsetDateTime.now();
+        OffsetDateTime timestamp = OffsetDateTime.MIN;
         
         Location location = new LocationBuilder()
                 .setTimestamp(timestamp)
