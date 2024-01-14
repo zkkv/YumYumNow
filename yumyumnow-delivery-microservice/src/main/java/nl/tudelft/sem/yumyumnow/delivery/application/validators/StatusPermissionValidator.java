@@ -47,7 +47,9 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
             return;
         }
 
-        this.next = next.get(gotUser.getClass());
+        if(next != null) {
+            this.next = next.get(gotUser.getClass());
+        }
 
         this.toValidate = toValidate;
         this.user = gotUser;
@@ -68,6 +70,7 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
         if (user == null) {
             return false;
         }
+
         if (user.getClass() == Vendor.class) {
             if (toValidate == StatusEnum.IN_TRANSIT
                     || toValidate == StatusEnum.DELIVERED
