@@ -6,6 +6,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -145,4 +147,126 @@ public class DeliveryTimeTest {
         assertThat(actual.getSeconds()).isEqualTo(0);
     }
 
+    @Test
+    void deliveryDoesNotExistTest() {
+        UUID deliveryId = UUID.randomUUID();
+        when(deliveryRepository.findById(deliveryId)).thenReturn(Optional.empty());
+        assertThrows(NoDeliveryFoundException.class, () -> deliveryService.addDeliveryTime(
+                deliveryId,
+                orderService,
+                userService));
+    }
+
+    @Test
+    void orderIsNullTest() {
+        UUID deliveryId = UUID.randomUUID();
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .create();
+
+        UUID orderId = UUID.randomUUID();
+
+        when(deliveryRepository.findById(deliveryId)).thenReturn(Optional.of(delivery));
+        when(orderService.findOrderById(orderId)).thenReturn(null);
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.addDeliveryTime(
+                deliveryId,
+                orderService,
+                userService));
+    }
+
+    @Test
+    void customerIsNullTest() {
+        UUID deliveryId = UUID.randomUUID();
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .create();
+
+        UUID orderId = UUID.randomUUID();
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .create();
+        delivery.setOrderId(orderId);
+
+        order.setCustomer(null);
+
+        when(deliveryRepository.findById(deliveryId)).thenReturn(Optional.of(delivery));
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.addDeliveryTime(
+                deliveryId,
+                orderService,
+                userService));
+    }
+
+    @Test
+    void customerLocationIsNullTest() {
+        UUID deliveryId = UUID.randomUUID();
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .create();
+
+        UUID orderId = UUID.randomUUID();
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .create();
+        delivery.setOrderId(orderId);
+
+        UUID customerId = UUID.randomUUID();
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .setAddress(null)
+                .create();
+
+        order.setCustomer(customer);
+
+        when(deliveryRepository.findById(deliveryId)).thenReturn(Optional.of(delivery));
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+        when(userService.getCustomerAddress(customerId)).thenReturn(null);
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.addDeliveryTime(
+                deliveryId,
+                orderService,
+                userService));
+    }
+
+    @Test
+    void vendorLocationIsNullTest() {
+        UUID deliveryId = UUID.randomUUID();
+
+        Delivery delivery = new DeliveryBuilder()
+                .setId(deliveryId)
+                .setCurrentLocation(null)
+                .create();
+
+        UUID orderId = UUID.randomUUID();
+        Order order = new OrderBuilder()
+                .setOrderId(orderId)
+                .create();
+        delivery.setOrderId(orderId);
+
+        Location customerLocation = new Location();
+        customerLocation.setLatitude(BigDecimal.valueOf(0));
+        customerLocation.setLongitude(BigDecimal.valueOf(0));
+
+        UUID customerId = UUID.randomUUID();
+        Customer customer = new CustomerBuilder()
+                .setId(customerId)
+                .setAddress(customerLocation)
+                .create();
+
+        order.setCustomer(customer);
+
+        when(deliveryRepository.findById(deliveryId)).thenReturn(Optional.of(delivery));
+        when(orderService.findOrderById(orderId)).thenReturn(order);
+        when(userService.getCustomerAddress(customerId)).thenReturn(customerLocation);
+
+        assertThrows(BadArgumentException.class, () -> deliveryService.addDeliveryTime(
+                deliveryId,
+                orderService,
+                userService));
+    }
 }

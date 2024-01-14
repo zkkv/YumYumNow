@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -31,11 +30,23 @@ public class CustomerService {
         this.customerServiceUrl = userServiceUrl + "/customer/";
     }
 
+    /**
+     * Get a customer by userid.
+     *
+     * @param userId the id of customer
+     * @return the customer as a json map
+     */
     private Map<String, Object> getCustomerRaw(String userId) {
         String url = customerServiceUrl + userId;
         return restTemplate.getForObject(url, Map.class);
     }
 
+    /**
+     * Get a customer by userid.
+     *
+     * @param customerId the id of customer
+     * @return the customer object
+     */
     public Customer getCustomer(String customerId) {
         Map<String, Object> response = getCustomerRaw(customerId);
 
@@ -45,8 +56,10 @@ public class CustomerService {
 
         Location address = new Location();
         address.setTimestamp(OffsetDateTime.now());
-        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("latitude"))));
-        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location")).get("longitude"))));
+        address.setLatitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
+                .get("latitude"))));
+        address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
+                .get("longitude"))));
 
         Customer customer = new CustomerBuilder()
             .setId(UUID.fromString((String) response.get("userID")))

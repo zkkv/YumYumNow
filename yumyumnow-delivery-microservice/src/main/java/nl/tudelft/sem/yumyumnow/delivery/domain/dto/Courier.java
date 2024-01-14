@@ -3,7 +3,6 @@ package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,10 +34,10 @@ public class Courier {
 
     @Override
     public String toString() {
-        return "class Courier {\n" +
-                "    id: " + toIndentedString(id) + "\n" +
-                "    vendor: " + toIndentedString(vendor) + "\n" +
-                "}";
+        return "class Courier {\n"
+                + "    id: " + toIndentedString(id) + "\n"
+                + "    vendor: " + toIndentedString(vendor) + "\n"
+                + "}";
     }
 
     /**

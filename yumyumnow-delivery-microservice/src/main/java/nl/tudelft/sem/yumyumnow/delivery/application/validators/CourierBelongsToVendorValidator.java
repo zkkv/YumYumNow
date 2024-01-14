@@ -5,7 +5,6 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-
 import java.util.UUID;
 
 /**
@@ -18,6 +17,7 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
 
     /**
      * Constructor for CourierValidator.
+     *
      * @param next The next validator in the chain
      * @param toValidate ID of the courier to validate
      * @param courierService Courier service to get the courier from
@@ -40,20 +40,26 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
      * 2. Check if the courier is allowed to deliver the order
      * 3. Check if the vendor allows only its own couriers, and if so,
      *   check if the courier is from the same vendor
-     * 4. If the next validator exists, call it
+     * 4. If the next validator exists, call it.
+     *
      * @param delivery The delivery to validate against
      * @return True if the validation was successful, false otherwise
      */
     @Override
     public boolean process(Delivery delivery) {
         Vendor vendor = vendorService.getVendor(delivery.getVendorId().toString());
-        if (vendor == null) return true;
+        if (vendor == null) {
+            return true;
+        }
 
-        if (vendor.getAllowsOnlyOwnCouriers() &&
-                !vendor.getId().equals(toValidate.getVendor().getId()))
+        if (vendor.getAllowsOnlyOwnCouriers()
+                && !vendor.getId().equals(toValidate.getVendor().getId())) {
             return false;
+        }
 
-        if (next == null) return true;
+        if (next == null) {
+            return true;
+        }
         return next.process(delivery);
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
@@ -69,7 +68,7 @@ public class OrderService {
     public boolean isPaid(UUID orderId) throws HttpClientErrorException {
         String url = orderServiceUrl + "/order/" + orderId.toString() + "/isPaid";
         ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
-        return response.getBody() != null && response.getBody();
+        return Boolean.TRUE.equals(response.getBody());
     }
 
     /**

@@ -308,12 +308,15 @@ public class DeliveryService {
         return optionalDelivery.get();
     }
 
-    /** Calculates the distance between two locations
-     * @param location1 first location, generic Location type
-     * @param location2 second location, DeliveryCurrentLocation type
-     * @return the distance as a double
+
+    /**
+     * Helper method to calculate the distance between two locations.
+     *
+     * @param location1 first given location
+     * @param location2 second given location
+     * @return the distance as double
      */
-    public Double distanceBetween(Location location1, DeliveryCurrentLocation location2){
+    public Double distanceBetween(Location location1, DeliveryCurrentLocation location2) {
         // Convert the latitudes and longitudes from degrees to radians.
         double lat1 = location1.getLatitude().doubleValue();
         double lat2 = location2.getLatitude().doubleValue();
@@ -475,8 +478,8 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -501,9 +504,9 @@ public class DeliveryService {
 
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
         return filteredDeliveries.size();
     }
@@ -533,9 +536,9 @@ public class DeliveryService {
         long numberOfDeliveries = 0;
 
         List<Delivery> filteredDeliveries = deliveries.stream()
-                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED &&
-                        x.getEstimatedDeliveryTime().isAfter(startDate) &&
-                        x.getEstimatedDeliveryTime().isBefore(endDate))
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
 
         for (Delivery delivery : filteredDeliveries) {
@@ -553,6 +556,7 @@ public class DeliveryService {
         }
 
         return totalSum / numberOfDeliveries;
+        
     }
 
     public String sendEmail (DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
@@ -582,7 +586,7 @@ public class DeliveryService {
     }
 
     /**
-     * Returns a list of all deliveries available for a courier ordered by distance
+     * Returns a list of all deliveries available for a courier ordered by distance.
      *
      * @param radius maximum distance from the courier
      * @param location the current location of the courier
@@ -595,11 +599,11 @@ public class DeliveryService {
     public List<Delivery> getAvailableDeliveries(BigDecimal radius, Location location, UUID courierId)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
         Courier courier = courierService.getCourier(courierId.toString());
-        if(courier == null){
+        if (courier == null) {
             throw new AccessForbiddenException("User is not a courier.");
         }
 
-        if(radius.compareTo(BigDecimal.ZERO) <= 0){
+        if (radius.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadArgumentException("Invalid radius value");
         }
 
@@ -611,11 +615,11 @@ public class DeliveryService {
                 .filter(d -> {
                     UUID vendorId = d.getVendorId();
                     Vendor vendor = vendorService.getVendor(vendorId.toString());
-                    if(courier.getVendor()!= null && !courier.getVendor().equals(vendor)){
+                    if (courier.getVendor() != null && !courier.getVendor().equals(vendor)) {
                         return false;
                     }
-                    if(vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
-                            || !courier.getVendor().equals(vendor))){
+                    if (vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
+                            || !courier.getVendor().equals(vendor))) {
                         return false;
                     }
                     return true;
@@ -623,7 +627,7 @@ public class DeliveryService {
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 
-        checkedDeliveries.sort((x,y) -> {
+        checkedDeliveries.sort((x, y) -> {
             Double distX = distanceBetween(location, x.getCurrentLocation());
             Double distY = distanceBetween(location, y.getCurrentLocation());
 
@@ -634,6 +638,48 @@ public class DeliveryService {
 
 
 
+    }
+
+    /**
+     * Get the average duration of a delivery between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the number of minutes spent on average delivering an order
+     * @throws AccessForbiddenException when the user has no right to access the analytics
+     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws ServiceUnavailableException when the service does not respond
+     */
+    public long getDeliveryTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        //make sure that the user has a right to the analytics
+        if (!adminService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        //make sure the dates are correct
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+        //get all deliveries from the repo that were delivered in that time span
+        List<Delivery> relevantDeliveries = deliveryRepository.findAll()
+                .stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        //count total delivery times in minutes and number of deliveries
+        long totalTime = 0;
+        long numberOfDeliveries = 0;
+        for (Delivery delivery : relevantDeliveries) {
+            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
+            Duration difference = Duration.between(preparationFinishTime, deliveryTime);
+
+            totalTime += difference.toMinutes();
+            numberOfDeliveries++;
+        }
+        return totalTime / numberOfDeliveries;
     }
 }
 

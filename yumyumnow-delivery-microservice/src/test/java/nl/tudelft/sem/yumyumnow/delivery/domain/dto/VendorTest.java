@@ -1,15 +1,20 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import net.jqwik.api.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.LocationBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class VendorTest {
 
@@ -31,6 +36,28 @@ public class VendorTest {
         assertThat(vendor).isEqualTo(vendor);
         assertThat(vendor).isEqualTo(vendor2);
         assertThat(vendor).isEqualTo(vendor3);
+    }
+
+    @Test
+    public void testNotEqualsWithNull() {
+        Vendor vendor = new VendorBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = null;
+
+        assertNotEquals(vendor, o);
+    }
+
+    @Test
+    public void testNotEqualsWithOtherClass() {
+        Vendor vendor = new VendorBuilder()
+                .setId(UUID.randomUUID())
+                .create();
+
+        Object o = new Object();
+
+        assertNotEquals(vendor, o);
     }
 
     @Property
@@ -95,5 +122,26 @@ public class VendorTest {
         return Combinators
                 .combine(id, address, phoneNumber, allowsOnlyOwnCouriers, maxDeliveryZoneKm)
                 .as(Vendor::new);
+    }
+
+    @Test
+    void vendorToStringTest() {
+        UUID id = UUID.randomUUID();
+        Vendor vendor = new VendorBuilder()
+                .setId(id)
+                .create();
+
+        String idString = id.toString();
+
+        String unformatted = """
+                class Vendor {
+                    id: %s
+                    address: null
+                    phone: null
+                    allowsOnlyOwnCouriers: false
+                    maxDeliveryZoneKm: null
+                }""";
+        String expected = String.format(unformatted, idString);
+        assertEquals(expected, vendor.toString());
     }
 }

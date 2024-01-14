@@ -1,7 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.dto;
 
 import java.util.Objects;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +10,9 @@ import java.util.*;
  * Order DTO.
  * Used for easy data representation and transfer with other microservices.
  */
-@AllArgsConstructor @Setter @Getter
+@AllArgsConstructor
+@Setter
+@Getter
 public class Order {
 
     private UUID id;
