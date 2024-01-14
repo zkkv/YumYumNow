@@ -121,6 +121,7 @@ public class CustomerTest {
                     id: %s
                     name: null
                     deliveryAddress: null
+                    email: null
                     phone: null
                 }""";
         String expected = String.format(unformatted, idString);
