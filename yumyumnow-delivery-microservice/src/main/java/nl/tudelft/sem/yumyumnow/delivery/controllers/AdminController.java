@@ -48,7 +48,7 @@ public class AdminController implements DeliveryApi {
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId
     ) {
         try {
-            DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
+            DeliveryAdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId, adminService);
             if (response == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -73,7 +73,7 @@ public class AdminController implements DeliveryApi {
     ) {
         try {
             DeliveryAdminMaxZoneGet200Response response =
-                    deliveryService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
+                    adminService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
                             deliveryAdminMaxZoneGet200Response.getRadiusKm(), adminService);
 
             if (response == null) {

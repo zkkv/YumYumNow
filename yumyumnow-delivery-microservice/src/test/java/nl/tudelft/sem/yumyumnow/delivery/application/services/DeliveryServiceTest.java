@@ -44,6 +44,7 @@ public class DeliveryServiceTest {
     private OrderService orderService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
+    private AdminValidatorService adminValidatorService;
 
     @BeforeEach
     void setUp(){
@@ -53,7 +54,7 @@ public class DeliveryServiceTest {
         this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
-
+        this.adminValidatorService = mock(AdminValidatorService.class);
         deliveryService = new DeliveryService(
                 deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
     }
@@ -643,122 +644,6 @@ public class DeliveryServiceTest {
                 () -> deliveryService.assignCourier(id, courierId));
     }
 
-    @Test
-    public void adminGetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-
-        GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setGlobalConfigId(globalConfigId);
-        globalConfig.setDefaultMaxZone(defaultMaxZone);
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
-        assertEquals(deliveryAdminMaxZoneGet200Response, response);
-    }
-
-    @Test
-    public void adminGetMaxZoneNotFoundTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
-        assertNull(response);
-    }
-
-    @Test
-    public void adminGetMaxZoneNullDefaultTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-
-        GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setGlobalConfigId(globalConfigId);
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
-
-        assertEquals(deliveryAdminMaxZoneGet200Response, response);
-    }
-
-    @Test
-    public void adminGetMaxZoneExceptionTest() throws ServiceUnavailableException {
-        UUID adminId = UUID.randomUUID();
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
-        when(adminService.validate(adminId)).thenReturn(false);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.adminGetMaxZone(adminId, adminService);
-        });
-    }
-
-    @Test
-    public void adminSetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal newMaxZone = BigDecimal.valueOf(20);
-        BigDecimal originalMaxZone = BigDecimal.valueOf(10);
-
-        GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setGlobalConfigId(globalConfigId);
-        globalConfig.setDefaultMaxZone(originalMaxZone);
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.of(globalConfig);
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(newMaxZone);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, newMaxZone, adminService);
-
-        assertEquals(BigDecimal.valueOf(20), globalConfig.getDefaultMaxZone());
-        verify(globalConfigRepository).save(globalConfig);
-        assertEquals(deliveryAdminMaxZoneGet200Response, response);
-    }
-
-    @Test
-    public void adminSetMaxZoneNotFoundTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
-        assertNull(response);
-    }
-
-    @Test
-    public void adminSetMaxZoneExceptionTest() throws ServiceUnavailableException{
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-
-        Optional<GlobalConfig> optionalGlobalConfig = Optional.empty();
-        when(adminService.validate(adminId)).thenReturn(false);
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(optionalGlobalConfig);
-
-        assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
-        });
-    }
 
     @Test
     public void unpaidStatusChangeTest() {

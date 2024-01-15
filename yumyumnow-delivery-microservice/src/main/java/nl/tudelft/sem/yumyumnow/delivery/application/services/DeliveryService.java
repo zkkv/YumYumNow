@@ -227,63 +227,6 @@ public class DeliveryService {
         return null;
     }
 
-    /**
-     * Get the default maximum delivery zone as an admin.
-     *
-     * @param adminId the id of admin
-     * @param adminService admin service from user microservice
-     * @return the response contains admin id and default maximum delivery zone
-     */
-    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
-            throws AccessForbiddenException, ServiceUnavailableException {
-
-        if (!adminService.validate(adminId)) {
-            throw new AccessForbiddenException("User has no right to get default max zone.");
-        }
-
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
-
-        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
-        response.setAdminId(adminId);
-        response.setRadiusKm(defaultMaxZone);
-        return response;
-    }
-
-    /**
-     * Set a new default maximum delivery zone as an admin.
-     *
-     * @param adminId the id of admin
-     * @param defaultMaxZone the new default maximum delivery zone
-     * @param adminService admin service from user microservice
-     * @return the response contains admin id and updated default maximum delivery zone
-     */
-    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
-                                                              AdminService adminService)
-            throws AccessForbiddenException, ServiceUnavailableException {
-
-        if (!adminService.validate(adminId)) {
-            throw new AccessForbiddenException("User has no right to get default max zone.");
-        }
-
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        globalConfig.setDefaultMaxZone(defaultMaxZone);
-        globalConfigRepository.save(globalConfig);
-
-        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
-        response.setAdminId(adminId);
-        response.setRadiusKm(defaultMaxZone);
-
-        return response;
-    }
 
     /**
      * Returns the delivery specified by {@code id} from deliveryRepository, or throws

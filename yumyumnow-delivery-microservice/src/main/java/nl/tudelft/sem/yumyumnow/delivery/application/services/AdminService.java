@@ -3,69 +3,48 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
 
-    private final RestTemplate restTemplate;
-    private final String userServiceUrl;
     private final OrderService orderService;
     private final DeliveryRepository deliveryRepository;
+    private final AdminValidatorService adminValidatorService;
+    private final GlobalConfigRepository globalConfigRepository;
+    @Value("${globalConfigId}$")
+    private UUID globalConfigId;
 
     /**
      * Constructor for admin service.
      *
-     * @param restTemplate       restTemplate to interact with other api
-     * @param userServiceUrl     url for user microservice
      * @param orderService
      * @param deliveryRepository
+     * @param globalConfigRepository
      */
     @Autowired
-    public AdminService(RestTemplate restTemplate,
-                        @Value("${user.microservice.url}") String userServiceUrl,
-                        OrderService orderService, DeliveryRepository deliveryRepository) {
-        this.restTemplate = restTemplate;
-        this.userServiceUrl = userServiceUrl;
+    public AdminService(OrderService orderService,
+                        DeliveryRepository deliveryRepository,
+                        AdminValidatorService adminValidatorService,
+                        GlobalConfigRepository globalConfigRepository) {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
-    }
-
-    /**
-     * Validate the admin.
-     *
-     * @param adminId The admin to validate
-     * @return The validation result.
-     * @throws ServiceUnavailableException Exception if the service of other microservice is unavailable.
-     */
-    public boolean validate(UUID adminId) throws ServiceUnavailableException {
-        try {
-            Map<String, Object> responseUser = restTemplate.getForObject(userServiceUrl
-                    + "/" + adminId.toString(), Map.class);
-            String type = (String) responseUser.get("userType");
-            if (Objects.equals(type, "Admin")) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            throw new ServiceUnavailableException(e.getMessage());
-        }
+        this.adminValidatorService = adminValidatorService;
+        this.globalConfigRepository = globalConfigRepository;
     }
 
     /**
@@ -79,7 +58,7 @@ public class AdminService {
 
     public int getTotalDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
-        if (!validate(adminId)) {
+        if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -105,7 +84,7 @@ public class AdminService {
      */
     public int getSuccessfulDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
-        if (!validate(adminId)) {
+        if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -134,7 +113,7 @@ public class AdminService {
      */
     public long getPreparationTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
-        if (!validate(adminId)) {
+        if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -182,7 +161,7 @@ public class AdminService {
      */
     public long getDeliveryTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
-        if (!validate(adminId)) {
+        if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -207,4 +186,63 @@ public class AdminService {
         }
         return totalTime / numberOfDeliveries;
     }
+
+    /**
+     * Get the default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminValidatorService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+        return response;
+    }
+
+    /**
+     * Set a new default maximum delivery zone as an admin.
+     *
+     * @param adminId the id of admin
+     * @param defaultMaxZone the new default maximum delivery zone
+     * @param adminService admin service from user microservice
+     * @return the response contains admin id and updated default maximum delivery zone
+     */
+    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
+                                                              AdminService adminService)
+            throws AccessForbiddenException, ServiceUnavailableException {
+
+        if (!adminValidatorService.validate(adminId)) {
+            throw new AccessForbiddenException("User has no right to get default max zone.");
+        }
+
+        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+        if (optionalGlobalConfig.isEmpty()) {
+            return null;
+        }
+        GlobalConfig globalConfig = optionalGlobalConfig.get();
+        globalConfig.setDefaultMaxZone(defaultMaxZone);
+        globalConfigRepository.save(globalConfig);
+
+        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        response.setAdminId(adminId);
+        response.setRadiusKm(defaultMaxZone);
+
+        return response;
+    }
+
 }
