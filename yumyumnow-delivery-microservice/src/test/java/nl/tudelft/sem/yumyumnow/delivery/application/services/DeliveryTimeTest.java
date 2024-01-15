@@ -32,6 +32,8 @@ public class DeliveryTimeTest {
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
+
+    private EmailService emailService;
     private AdminService adminService;
 
     @BeforeEach

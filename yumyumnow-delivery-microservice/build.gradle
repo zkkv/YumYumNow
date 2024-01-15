@@ -93,7 +93,10 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     "**/api/**",
-                    "**/model/**"
+                    "**/model/**",
+                    "**/delivery/config/*",
+                    "**/delivery/Application.class",
+                    "**/delivery/Config.class",
             ])
         }))
     }
@@ -111,9 +114,21 @@ jacocoTestCoverageVerification() {
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.1
+                minimum = 0.85
             }
         }
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/api/**",
+                    "**/model/**",
+                    "**/delivery/config/*",
+                    "**/delivery/Application.class",
+                    "**/delivery/Config.class",
+            ])
+        }))
     }
 }
 
@@ -155,10 +170,17 @@ pitest {
     junit5PluginVersion = '0.12'
 
     targetClasses = ['nl.tudelft.sem.yumyumnow.delivery.*']  //by default "${project.group}.*"
-    pitestVersion = '1.5.1' //not needed when a default PIT version should be used
+    pitestVersion = '1.7.3' //not needed when a default PIT version should be used
     threads = 4
     outputFormats = ['XML', 'HTML']
     timestampedReports = false
+    excludedClasses = [
+            '**.api.**',
+            '**.model.**',
+            '**.delivery.config.**',
+            '**.delivery.Config',
+            '**.delivery.Application',
+    ]
 }
 
 apply plugin: 'org.openapi.generator'

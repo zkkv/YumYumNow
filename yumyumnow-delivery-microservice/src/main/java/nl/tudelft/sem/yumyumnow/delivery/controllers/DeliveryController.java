@@ -4,16 +4,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.ApiUtil;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.AdminService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.OrderService;
+import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.CustomerService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.DeliveryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +31,8 @@ public class DeliveryController implements DeliveryApi {
     private final CustomerService userService;
     private final VendorService vendorService;
     private final AdminService adminService;
+
+    private final EmailService emailService;
     private final OrderService orderService;
 
     /**
@@ -45,17 +43,20 @@ public class DeliveryController implements DeliveryApi {
      * @param vendorService vendor service from User microservice
      * @param adminService admin service from User microservice
      * @param orderService order service
+     * @param emailService email service
      */
     public DeliveryController(DeliveryService deliveryService,
                               CustomerService userService,
                               VendorService vendorService,
                               AdminService adminService,
-                              OrderService orderService) {
+                              OrderService orderService,
+                              EmailService emailService) {
         this.deliveryService = deliveryService;
         this.userService = userService;
         this.vendorService = vendorService;
         this.adminService = adminService;
         this.orderService = orderService;
+        this.emailService = emailService;
     }
 
     /**
@@ -147,6 +148,12 @@ public class DeliveryController implements DeliveryApi {
             delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(),
                     deliveryIdStatusPutRequest.getStatus());
         } catch (NoDeliveryFoundException | BadArgumentException | AccessForbiddenException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id);
+        } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

@@ -52,6 +52,7 @@ public class DeliveryService {
      * @param vendorService          service of the vendor
      * @param courierService         service of the courier
      * @param orderService           service of the order
+     * @param emailService           service of emails
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
@@ -243,6 +244,7 @@ public class DeliveryService {
         return optionalDelivery.get();
     }
 
+
     /**
      * Helper method to calculate the distance between two locations.
      *
@@ -391,6 +393,39 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
 
         return delivery;
+    }
+
+    /** Creates the email for notifying a customer that the status for their order has been updated.
+     *
+     * @param status the updated status
+     * @param id id of the delivery
+     * @return a confirmation string that the email has been sent
+     * @throws BadArgumentException if the order, customer or email cannot be found
+     */
+    public String sendEmail(DeliveryIdStatusPutRequest.StatusEnum status, UUID id) throws BadArgumentException {
+        Delivery delivery = deliveryRepository.findById(id).get();
+
+        Order order = orderService.findOrderById(delivery.getOrderId());
+
+        if (order == null) {
+            throw new BadArgumentException("Delivery isn't linked to an order");
+        }
+
+        Customer customer = order.getCustomer();
+
+        if (customer == null) {
+            throw new BadArgumentException("Order doesn't have a customer");
+        }
+
+        String email = customer.getEmail();
+
+        if (email == null) {
+            throw new BadArgumentException("Customer doesn't have an email");
+        }
+
+        String emailText = "The status of your order has been changed to " + status.getValue();
+
+        return emailService.send(emailText, email);
     }
 
     /**
