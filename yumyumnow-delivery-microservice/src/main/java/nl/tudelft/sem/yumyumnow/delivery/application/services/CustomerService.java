@@ -20,7 +20,7 @@ public class CustomerService {
     private final String customerServiceUrl;
 
     /**
-     * Creates a new User Service.
+     * Creates a new User Service with RestTemplateBuilder.
      *
      * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
      * @param userServiceUrl the url of the User Microservice.
@@ -31,6 +31,12 @@ public class CustomerService {
         this.customerServiceUrl = userServiceUrl + "/customer/";
     }
 
+    /**
+     * Creates a new User Service with RestTemplate.
+     *
+     * @param restTemplate the RestTemplate object used for making HTTP requests to the Order microservice.
+     * @param userServiceUrl the url of the User Microservice.
+     */
     public CustomerService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.customerServiceUrl = userServiceUrl + "/customer/";

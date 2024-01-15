@@ -21,10 +21,11 @@ public class CourierService {
     private final VendorService vendorService;
 
     /**
-     * Constructor for courier service.
+     * Constructor for courier service with RestTemplateBuilder.
      *
      * @param restTemplate restTemplate to interact with other api
      * @param userServiceUrl url for user microservice
+     * @param vendorService the vender service
      */
     @Autowired
     public CourierService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
@@ -34,6 +35,13 @@ public class CourierService {
         this.vendorService = vendorService;
     }
 
+    /**
+     * Constructor for courier service RestTemplate.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     * @param vendorService the vender service
+     */
     public CourierService(RestTemplate restTemplate, String userServiceUrl, VendorService vendorService) {
         this.restTemplate = restTemplate;
         this.courierServiceUrl = userServiceUrl + "/courier/";

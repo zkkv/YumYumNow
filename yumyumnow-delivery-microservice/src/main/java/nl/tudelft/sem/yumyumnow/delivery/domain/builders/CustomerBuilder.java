@@ -43,7 +43,7 @@ public class CustomerBuilder implements Builder<Customer> {
 
     @Override
     public Customer create() {
-        return new Customer(id, name, address,email, phoneNumber);
+        return new Customer(id, name, address, email, phoneNumber);
     }
 
     @Override

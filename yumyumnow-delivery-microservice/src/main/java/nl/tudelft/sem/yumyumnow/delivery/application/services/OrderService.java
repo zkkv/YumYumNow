@@ -22,10 +22,12 @@ public class OrderService {
     private final VendorService vendorService;
 
     /**
-     * Creates a new Order Service.
+     * Creates a new Order Service with RestTemplateBuilder.
      *
      * @param restTemplate    the RestTemplate object used for making HTTP requests to the Order microservice.
      * @param orderServiceUrl the url of the Order Microservice.
+     * @param customerService the customer service
+     * @param vendorService the vendor service
      */
     @Autowired
     public OrderService(RestTemplateBuilder restTemplate,
@@ -38,6 +40,14 @@ public class OrderService {
         this.vendorService = vendorService;
     }
 
+    /**
+     * Creates a new Order Service with RestTemplate for testing.
+     *
+     * @param restTemplate    the RestTemplate object used for making HTTP requests to the Order microservice.
+     * @param orderServiceUrl the url of the Order Microservice.
+     * @param customerService the customer service
+     * @param vendorService the vendor service
+     */
     public OrderService(RestTemplate restTemplate,
                         String orderServiceUrl,
                         CustomerService customerService,

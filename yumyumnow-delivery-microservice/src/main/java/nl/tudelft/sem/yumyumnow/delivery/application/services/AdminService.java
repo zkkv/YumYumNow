@@ -17,7 +17,7 @@ public class AdminService {
     private final String userServiceUrl;
 
     /**
-     * Constructor for admin service.
+     * Constructor for admin service with RestTemplateBuilder.
      *
      * @param restTemplate restTemplate to interact with other api
      * @param userServiceUrl url for user microservice
@@ -28,6 +28,12 @@ public class AdminService {
         this.userServiceUrl = userServiceUrl;
     }
 
+    /**
+     * Constructor for admin service with RestTemplate.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     */
     public AdminService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.userServiceUrl = userServiceUrl;
