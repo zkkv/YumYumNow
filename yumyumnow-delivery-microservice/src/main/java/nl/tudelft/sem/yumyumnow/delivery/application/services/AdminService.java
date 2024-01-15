@@ -3,6 +3,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
@@ -22,7 +23,12 @@ public class AdminService {
      * @param userServiceUrl url for user microservice
      */
     @Autowired
-    public AdminService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+    public AdminService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate.build();
+        this.userServiceUrl = userServiceUrl;
+    }
+
+    public AdminService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.userServiceUrl = userServiceUrl;
     }

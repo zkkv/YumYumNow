@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,7 +26,12 @@ public class CustomerService {
      * @param userServiceUrl the url of the User Microservice.
      */
     @Autowired
-    public CustomerService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+    public CustomerService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate.build();
+        this.customerServiceUrl = userServiceUrl + "/customer/";
+    }
+
+    public CustomerService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.customerServiceUrl = userServiceUrl + "/customer/";
     }

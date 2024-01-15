@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,7 +29,12 @@ public class VendorService {
      * @param userServiceUrl url for user microservice
      */
     @Autowired
-    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+    public VendorService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate.build();
+        this.vendorServiceUrl = userServiceUrl + "/vendor/";
+    }
+
+    public VendorService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
     }

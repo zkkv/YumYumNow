@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,18 @@ public class OrderService {
      * @param orderServiceUrl the url of the Order Microservice.
      */
     @Autowired
-    public OrderService(RestTemplate restTemplate,
+    public OrderService(RestTemplateBuilder restTemplate,
                         @Value("${order.microservice.url}") String orderServiceUrl,
+                        CustomerService customerService,
+                        VendorService vendorService) {
+        this.restTemplate = restTemplate.build();
+        this.orderServiceUrl = orderServiceUrl;
+        this.customerService = customerService;
+        this.vendorService = vendorService;
+    }
+
+    public OrderService(RestTemplate restTemplate,
+                        String orderServiceUrl,
                         CustomerService customerService,
                         VendorService vendorService) {
         this.restTemplate = restTemplate;

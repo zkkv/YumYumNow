@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,8 +27,14 @@ public class CourierService {
      * @param userServiceUrl url for user microservice
      */
     @Autowired
-    public CourierService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
+    public CourierService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
                           VendorService vendorService) {
+        this.restTemplate = restTemplate.build();
+        this.courierServiceUrl = userServiceUrl + "/courier/";
+        this.vendorService = vendorService;
+    }
+
+    public CourierService(RestTemplate restTemplate, String userServiceUrl, VendorService vendorService) {
         this.restTemplate = restTemplate;
         this.courierServiceUrl = userServiceUrl + "/courier/";
         this.vendorService = vendorService;

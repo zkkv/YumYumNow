@@ -42,8 +42,8 @@ public class DeliveryService {
     private final AdminService adminService;
 
     private final EmailService emailService;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
+//    @Value("${globalConfigId}$")
+//    private UUID globalConfigId;
 
     private final OrderService orderService;
 
@@ -246,16 +246,16 @@ public class DeliveryService {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+//        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+//        if (optionalGlobalConfig.isEmpty()) {
+//            return null;
+//        }
+//        GlobalConfig globalConfig = optionalGlobalConfig.get();
+//        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
 
         DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
         response.setAdminId(adminId);
-        response.setRadiusKm(defaultMaxZone);
+        response.setRadiusKm(BigDecimal.valueOf(10));
         return response;
     }
 
@@ -275,13 +275,13 @@ public class DeliveryService {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        globalConfig.setDefaultMaxZone(defaultMaxZone);
-        globalConfigRepository.save(globalConfig);
+//        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
+//        if (optionalGlobalConfig.isEmpty()) {
+//            return null;
+//        }
+//        GlobalConfig globalConfig = optionalGlobalConfig.get();
+//        globalConfig.setDefaultMaxZone(defaultMaxZone);
+//        globalConfigRepository.save(globalConfig);
 
         DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
         response.setAdminId(adminId);
