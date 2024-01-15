@@ -43,6 +43,7 @@ public class DeliveryService {
     private UUID globalConfigId;
 
     private final OrderService orderService;
+    private final EmailService emailService;
 
     /**
      * Create a new DeliveryService.
@@ -59,13 +60,14 @@ public class DeliveryService {
                            GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
                            CourierService courierService,
-                           OrderService orderService) {
+                           OrderService orderService,
+                           EmailService emailService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
-
+        this.emailService = emailService;
     }
 
     /**

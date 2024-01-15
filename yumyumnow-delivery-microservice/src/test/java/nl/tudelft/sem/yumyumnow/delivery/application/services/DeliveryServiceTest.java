@@ -59,8 +59,9 @@ public class DeliveryServiceTest {
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
         this.adminValidatorService = mock(AdminValidatorService.class);
+        this.emailService = mock(EmailService.class);
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService, emailService);
     }
 
     @Test
@@ -353,7 +354,7 @@ public class DeliveryServiceTest {
                 .create();
 
         //I chose to set courier id twice because that's what happens in the original code
-        //I'm not sure if that choice was on purpose so I chose to preserve it
+        //I'm not sure if that choice was on purpose, so I chose to preserve it
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(UUID.randomUUID())

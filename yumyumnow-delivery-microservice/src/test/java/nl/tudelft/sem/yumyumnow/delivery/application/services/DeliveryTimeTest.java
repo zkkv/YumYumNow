@@ -14,12 +14,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Optional;
 import java.util.UUID;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +32,6 @@ public class DeliveryTimeTest {
     private CustomerService userService;
 
     private EmailService emailService;
-    private AdminService adminService;
 
     @BeforeEach
     void setUp() {
@@ -43,8 +40,8 @@ public class DeliveryTimeTest {
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
-        adminService = mock(AdminService.class);
-        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService);
+        emailService = mock(EmailService.class);
+        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService, emailService);
         userService = mock(CustomerService.class);
     }
 
