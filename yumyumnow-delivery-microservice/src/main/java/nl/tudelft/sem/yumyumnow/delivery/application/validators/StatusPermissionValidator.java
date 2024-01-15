@@ -47,7 +47,7 @@ public class StatusPermissionValidator extends AuthProcessor<StatusEnum> {
             return;
         }
 
-        if(next != null) {
+        if (next != null) {
             this.next = next.get(gotUser.getClass());
         }
 
