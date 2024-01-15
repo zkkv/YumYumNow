@@ -5,11 +5,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -19,28 +17,21 @@ import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AnalyticsTest {
     private DeliveryRepository deliveryRepository;
-    private GlobalConfigRepository globalConfigRepository;
-
     private DeliveryService deliveryService;
     private VendorService vendorService;
     private AdminService adminService;
     private CourierService courierService;
-
     private EmailService emailService;
     private OrderService orderService;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
 
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
-        this.globalConfigRepository = mock(GlobalConfigRepository.class);
         this.vendorService = mock(VendorService.class);
         this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
@@ -48,7 +39,7 @@ public class AnalyticsTest {
         this.emailService = mock(EmailService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService,emailService);
+                deliveryRepository, vendorService, courierService, adminService, orderService,emailService);
     }
 
     @Test

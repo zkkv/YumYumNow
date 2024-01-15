@@ -2,11 +2,10 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,45 +15,51 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class VendorService {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl;
-    private final GlobalConfigRepository globalConfigRepository;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
+    private BigDecimal defaultMaxDeliveryZone;
 
     /**
-     * Constructor for vendor service.
+     * Constructor for vendor service with RestTemplateBuilder.
      *
      * @param restTemplate restTemplate to interact with other api
      * @param userServiceUrl url for user microservice
-     * @param globalConfigRepository global configuration repository
      */
     @Autowired
-    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
-                         GlobalConfigRepository globalConfigRepository) {
-        this.restTemplate = restTemplate;
+    public VendorService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate.build();
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
-        this.globalConfigRepository = globalConfigRepository;
     }
 
     /**
-     * Get a vendor as json map  by its user id.
+     * Constructor for vendor service with RestTemplate.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     */
+    public VendorService(RestTemplate restTemplate, String userServiceUrl) {
+        this.restTemplate = restTemplate;
+        this.vendorServiceUrl = userServiceUrl + "/vendor/";
+    }
+
+    /**
+     * Get a vendor as json map by its user id.
      *
      * @param vendorId vendorId
      * @return the json map of that vendor
      */
+
     private Map<String, Object> getVendorRaw(String vendorId) {
         String url = vendorServiceUrl + vendorId;
         return restTemplate.getForObject(url, Map.class);
     }
 
     /**
-     * Get a vendor with updated max delivery zone by its user id.
+     * Get a vendor by its user id.
      *
      * @param vendorId The id of the vendor.
      * @return the vendor as a map of response JSON
@@ -73,15 +78,11 @@ public class VendorService {
         address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
                 .get("longitude"))));
 
-        BigDecimal maxZone = null;
+        BigDecimal maxZone;
         if (!(Boolean) response.get("allowsOnlyOwnCouriers") || response.get("maxDeliveryZone") == null) {
             // If a vendor does not have its own couriers or the maxzone is not set by the vendor,
             // then the default maxzone is used.
-            Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-            if (!optionalGlobalConfig.isEmpty()) {
-                GlobalConfig globalConfig = optionalGlobalConfig.get();
-                maxZone = globalConfig.getDefaultMaxZone();
-            }
+            maxZone = defaultMaxDeliveryZone;
         } else {
             // If a vendor have its own couriers and set its own maxzone, then the customized maxzone is used.
             maxZone = new BigDecimal(String.valueOf(response.get("maxDeliveryZone")));
@@ -123,5 +124,23 @@ public class VendorService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
         return response.getStatusCode().is2xxSuccessful();
+    }
+
+    /**
+     * Getter for default max delivery zone.
+     *
+     * @return the default max delivery zone.
+     */
+    public BigDecimal getDefaultMaxDeliveryZone() {
+        return defaultMaxDeliveryZone;
+    }
+
+    /**
+     * Setter for default max delivery zone.
+     *
+     * @param defaultMaxDeliveryZone  the default max delivery zone.
+     */
+    public void setDefaultMaxDeliveryZone(BigDecimal defaultMaxDeliveryZone) {
+        this.defaultMaxDeliveryZone = defaultMaxDeliveryZone;
     }
 }

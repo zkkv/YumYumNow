@@ -2,12 +2,9 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,7 +13,6 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,19 +24,14 @@ public class VendorServiceTest {
 
     private VendorService vendorService;
     private RestTemplate restTemplate;
-    private GlobalConfigRepository globalConfigRepository;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
     private final String testWebsite = "test://website";
 
     @BeforeEach
     void setUp() {
         restTemplate = mock(RestTemplate.class);
-        globalConfigRepository = mock(GlobalConfigRepository.class);
         vendorService = new VendorService(
                 restTemplate,
-                testWebsite,
-                globalConfigRepository
+                testWebsite
         );
     }
 
@@ -120,9 +111,7 @@ public class VendorServiceTest {
         address.setLatitude(BigDecimal.valueOf(0));
         address.setLongitude(BigDecimal.valueOf(0));
 
-        GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setDefaultMaxZone(BigDecimal.valueOf(10));
-        when(globalConfigRepository.findById(globalConfigId)).thenReturn(Optional.of(globalConfig));
+        vendorService.setDefaultMaxDeliveryZone(BigDecimal.valueOf(10));
 
         Vendor expectedVendor = new VendorBuilder()
                 .setId(userId)
@@ -255,6 +244,14 @@ public class VendorServiceTest {
         )).thenReturn(responseEntity);
 
         assertFalse(vendorService.putVendor(vendor));
+    }
+
+    @Test
+    public void getDefaultMaxDeliveryZone() {
+        vendorService.setDefaultMaxDeliveryZone(BigDecimal.valueOf(20));
+        BigDecimal maxZone = vendorService.getDefaultMaxDeliveryZone();
+
+        assertEquals(BigDecimal.valueOf(20), maxZone);
     }
 
 }
