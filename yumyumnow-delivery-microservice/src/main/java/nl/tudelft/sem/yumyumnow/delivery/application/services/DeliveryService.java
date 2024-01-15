@@ -39,7 +39,6 @@ public class DeliveryService {
     private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
-    private final AdminService adminService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
 
@@ -52,7 +51,6 @@ public class DeliveryService {
      * @param globalConfigRepository The repository for global configuration
      * @param vendorService          service of the vendor
      * @param courierService         service of the courier
-     * @param adminService           service of the admin
      * @param orderService           service of the order
      */
     @Autowired
@@ -60,14 +58,13 @@ public class DeliveryService {
                            GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
                            CourierService courierService,
-                           AdminService adminService,
                            OrderService orderService) {
         this.deliveryRepository = deliveryRepository;
         this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
-        this.adminService = adminService;
+
     }
 
     /**

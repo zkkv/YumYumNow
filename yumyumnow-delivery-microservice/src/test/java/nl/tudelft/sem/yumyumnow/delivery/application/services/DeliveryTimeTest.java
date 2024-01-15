@@ -42,7 +42,7 @@ public class DeliveryTimeTest {
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
         adminService = mock(AdminService.class);
-        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, adminService, orderService);
+        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService);
         userService = mock(CustomerService.class);
     }
 

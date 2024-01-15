@@ -32,9 +32,9 @@ public class AdminService {
     /**
      * Constructor for admin service.
      *
-     * @param orderService
-     * @param deliveryRepository
-     * @param globalConfigRepository
+     * @param orderService              the service for order
+     * @param deliveryRepository        the repository for delivery
+     * @param globalConfigRepository    the repository for global config
      */
     @Autowired
     public AdminService(OrderService orderService,

@@ -56,7 +56,7 @@ public class DeliveryServiceTest {
         this.orderService = mock(OrderService.class);
         this.adminValidatorService = mock(AdminValidatorService.class);
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, adminService, orderService);
+                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService);
     }
 
     @Test

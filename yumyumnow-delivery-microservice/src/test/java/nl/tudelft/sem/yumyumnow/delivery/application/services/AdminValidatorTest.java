@@ -17,15 +17,11 @@ public class AdminValidatorTest {
 
     private AdminValidatorService adminValidatorService;
     private RestTemplate restTemplate;
-    private OrderService orderService;
-    private DeliveryRepository deliveryRepository;
     private final String testWebsite = "test://website";
 
     @BeforeEach
     void setUp() {
         restTemplate = mock(RestTemplate.class);
-        deliveryRepository = mock(DeliveryRepository.class);
-        orderService = mock(OrderService.class);
         adminValidatorService = new AdminValidatorService(restTemplate, testWebsite);
     }
 

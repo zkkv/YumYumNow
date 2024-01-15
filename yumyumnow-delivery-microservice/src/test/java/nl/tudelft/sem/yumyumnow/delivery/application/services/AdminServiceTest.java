@@ -23,11 +23,7 @@ public class AdminServiceTest {
 
     private DeliveryRepository deliveryRepository;
     private GlobalConfigRepository globalConfigRepository;
-
-    private DeliveryService deliveryService;
-    private VendorService vendorService;
     private AdminService adminService;
-    private CourierService courierService;
     private OrderService orderService;
     @Value("${globalConfigId}$")
     private UUID globalConfigId;
