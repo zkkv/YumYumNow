@@ -130,7 +130,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
+        when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
         DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
@@ -150,7 +150,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
+        when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
@@ -166,7 +166,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
+        when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
@@ -182,7 +182,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
+        when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
@@ -198,7 +198,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
+        when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
         DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
@@ -218,7 +218,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
+        when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
@@ -234,7 +234,7 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
+        when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
@@ -250,10 +250,31 @@ public class AdminControllerTest {
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
 
-        when(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
+        when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getPrepTimeSuccessfulTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate)).thenReturn(1L);
+
+        DeliveryAdminAnalyticsPreparationTimeGet200Response response = new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setPreparationTime(BigDecimal.valueOf(1));
+
+        ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> actual = adminController.deliveryAdminAnalyticsPreparationTimeGet(
                 adminId, startDate, endDate
         );
 

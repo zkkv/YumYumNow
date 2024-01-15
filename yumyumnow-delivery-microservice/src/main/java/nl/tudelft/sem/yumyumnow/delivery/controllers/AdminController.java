@@ -111,7 +111,7 @@ public class AdminController implements DeliveryApi {
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
-            int totalDeliveries = deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            int totalDeliveries = adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
             response.setTotalDeliveries(BigDecimal.valueOf(totalDeliveries));
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -148,7 +148,7 @@ public class AdminController implements DeliveryApi {
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
-            int totalDeliveries = deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            int totalDeliveries = adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
             response.setSuccessfulDeliveries(BigDecimal.valueOf(totalDeliveries));
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -186,7 +186,7 @@ public class AdminController implements DeliveryApi {
         response.setEndDate(endDate);
 
         try {
-            long averagePreparationTime = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            long averagePreparationTime = adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
             response.setPreparationTime(BigDecimal.valueOf(averagePreparationTime));
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -223,7 +223,7 @@ public class AdminController implements DeliveryApi {
         response.setEndDate(endDate);
 
         try {
-            long averageDeliveryTime = deliveryService.getDeliveryTimeAnalytic(adminId, startDate, endDate);
+            long averageDeliveryTime = adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate);
             response.setDeliveryTime(BigDecimal.valueOf(averageDeliveryTime));
         } catch (BadArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

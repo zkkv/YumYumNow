@@ -1,20 +1,12 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
-import nl.tudelft.sem.yumyumnow.delivery.model.Location;
+import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionConfigurationException;
-import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,15 +19,19 @@ public class AdminServiceTest {
 
     private AdminService adminService;
     private RestTemplate restTemplate;
+    private OrderService orderService;
+    private DeliveryRepository deliveryRepository;
     private final String testWebsite = "test://website";
 
     @BeforeEach
     void setUp() {
         restTemplate = mock(RestTemplate.class);
+        deliveryRepository = mock(DeliveryRepository.class);
+        orderService = mock(OrderService.class);
         adminService = new AdminService(
                 restTemplate,
-                testWebsite
-        );
+                testWebsite,
+                orderService, deliveryRepository);
     }
 
     @Test

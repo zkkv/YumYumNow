@@ -74,7 +74,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
+        assertThat(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -97,7 +97,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -137,7 +137,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
+        assertThat(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -160,7 +160,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -223,7 +223,7 @@ public class AnalyticsTest {
         when(orderService.getTimeOfPlacement(orderId4)).thenReturn(null);
 
         long expected = 18218L;
-        long actual = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+        long actual = adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -236,7 +236,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -248,7 +248,7 @@ public class AnalyticsTest {
         when(adminService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -259,7 +259,7 @@ public class AnalyticsTest {
         UUID id = UUID.randomUUID();
         when(adminService.validate(id)).thenReturn(true);
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+            adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
     }
     @Test
@@ -269,7 +269,7 @@ public class AnalyticsTest {
         UUID id = UUID.randomUUID();
         when(adminService.validate(id)).thenReturn(false);
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+            adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
     }
 
@@ -315,6 +315,6 @@ public class AnalyticsTest {
         deliveries.add(delivery4);
 
         when(deliveryRepository.findAll()).thenReturn(deliveries);
-        assertThat(deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
+        assertThat(adminService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
     }
 }
