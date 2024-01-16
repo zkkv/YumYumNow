@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.domain.builders;
 import net.jqwik.api.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import org.junit.jupiter.api.Test;
@@ -157,6 +158,47 @@ public class DeliveryBuilderTest {
                 .longs()
                 .tuple2()
                 .map(longs -> new UUID(longs.get1(), longs.get2()));
+    }
+
+    @Test
+    void resetTest() {
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+        OffsetDateTime date = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        UUID id = UUID.randomUUID();
+        UUID courierId = UUID.randomUUID();
+        UUID vendorId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        DeliveryCurrentLocation location = new DeliveryCurrentLocation();
+        location.setLatitude(new BigDecimal(50));
+        location.setLongitude(new BigDecimal(42));
+
+
+        DeliveryBuilder builder = new DeliveryBuilder()
+                .setId(id)
+                .setCourierId(courierId)
+                .setVendorId(vendorId)
+                .setOrderId(orderId)
+                .setStatus(Delivery.StatusEnum.ACCEPTED)
+                .setCurrentLocation(location)
+                .setEstimatedPreparationFinishTime(date)
+                .setEstimatedDeliveryTime(date);
+
+        builder.reset();
+
+        Delivery delivery  = builder.create();
+
+        assertThat(delivery).isNotNull();
+        assertThat(delivery.getId()).isNull();
+        assertThat(delivery.getOrderId()).isNull();
+        assertThat(delivery.getCourierId()).isNull();
+        assertThat(delivery.getVendorId()).isNull();
+        assertThat(delivery.getStatus()).isNull();
+        assertThat(delivery.getEstimatedDeliveryTime()).isNull();
+        assertThat(delivery.getEstimatedPreparationFinishTime()).isNull();
     }
 
 }
