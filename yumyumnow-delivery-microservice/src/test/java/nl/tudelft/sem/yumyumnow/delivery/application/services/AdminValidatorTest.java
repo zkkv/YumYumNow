@@ -1,7 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClientException;
@@ -9,8 +8,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AdminValidatorTest {

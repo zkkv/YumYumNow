@@ -8,7 +8,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryCurrentLocation;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
@@ -26,22 +25,22 @@ import static org.mockito.Mockito.when;
 
 public class DeliveryTimeTest {
     private DeliveryRepository deliveryRepository;
-    private GlobalConfigRepository globalConfigRepository;
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
 
     private EmailService emailService;
+    private AdminValidatorService adminValidatorService;
 
     @BeforeEach
     void setUp() {
         deliveryRepository = mock(DeliveryRepository.class);
-        globalConfigRepository = mock(GlobalConfigRepository.class);
         VendorService vendorService = mock(VendorService.class);
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
         emailService = mock(EmailService.class);
-        deliveryService = new DeliveryService(deliveryRepository, globalConfigRepository, vendorService, courierService, orderService, emailService);
+        adminValidatorService = mock(AdminValidatorService.class);
+        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService, orderService, emailService, adminValidatorService);
         userService = mock(CustomerService.class);
     }
 

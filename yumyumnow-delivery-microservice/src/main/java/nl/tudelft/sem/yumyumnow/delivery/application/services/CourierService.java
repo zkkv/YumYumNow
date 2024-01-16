@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,14 +21,28 @@ public class CourierService {
     private final VendorService vendorService;
 
     /**
-     * Constructor for courier service.
+     * Constructor for courier service with RestTemplateBuilder.
      *
      * @param restTemplate restTemplate to interact with other api
      * @param userServiceUrl url for user microservice
+     * @param vendorService the vender service
      */
     @Autowired
-    public CourierService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
+    public CourierService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl,
                           VendorService vendorService) {
+        this.restTemplate = restTemplate.build();
+        this.courierServiceUrl = userServiceUrl + "/courier/";
+        this.vendorService = vendorService;
+    }
+
+    /**
+     * Constructor for courier service RestTemplate.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     * @param vendorService the vender service
+     */
+    public CourierService(RestTemplate restTemplate, String userServiceUrl, VendorService vendorService) {
         this.restTemplate = restTemplate;
         this.courierServiceUrl = userServiceUrl + "/courier/";
         this.vendorService = vendorService;

@@ -1,14 +1,10 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryIdStatusPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdMaxZonePutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -21,11 +17,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundExcept
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -36,20 +30,16 @@ import java.util.stream.Collectors;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
-    private final GlobalConfigRepository globalConfigRepository;
     private final VendorService vendorService;
     private final CourierService courierService;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
-
     private final OrderService orderService;
     private final EmailService emailService;
+    private final AdminValidatorService adminValidatorService;
 
     /**
      * Create a new DeliveryService.
      *
      * @param deliveryRepository     The repository to use for delivery
-     * @param globalConfigRepository The repository for global configuration
      * @param vendorService          service of the vendor
      * @param courierService         service of the courier
      * @param orderService           service of the order
@@ -57,17 +47,17 @@ public class DeliveryService {
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
-                           GlobalConfigRepository globalConfigRepository,
                            VendorService vendorService,
                            CourierService courierService,
                            OrderService orderService,
-                           EmailService emailService) {
+                           EmailService emailService,
+                           AdminValidatorService adminValidatorService) {
         this.deliveryRepository = deliveryRepository;
-        this.globalConfigRepository = globalConfigRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
         this.emailService = emailService;
+        this.adminValidatorService = adminValidatorService;
     }
 
     /**
@@ -226,7 +216,6 @@ public class DeliveryService {
         }
         return null;
     }
-
 
     /**
      * Returns the delivery specified by {@code id} from deliveryRepository, or throws

@@ -4,6 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,34 @@ public class OrderService {
     private final VendorService vendorService;
 
     /**
-     * Creates a new Order Service.
+     * Creates a new Order Service with RestTemplateBuilder.
      *
      * @param restTemplate    the RestTemplate object used for making HTTP requests to the Order microservice.
      * @param orderServiceUrl the url of the Order Microservice.
+     * @param customerService the customer service
+     * @param vendorService the vendor service
      */
     @Autowired
-    public OrderService(RestTemplate restTemplate,
+    public OrderService(RestTemplateBuilder restTemplate,
                         @Value("${order.microservice.url}") String orderServiceUrl,
+                        CustomerService customerService,
+                        VendorService vendorService) {
+        this.restTemplate = restTemplate.build();
+        this.orderServiceUrl = orderServiceUrl;
+        this.customerService = customerService;
+        this.vendorService = vendorService;
+    }
+
+    /**
+     * Creates a new Order Service with RestTemplate for testing.
+     *
+     * @param restTemplate    the RestTemplate object used for making HTTP requests to the Order microservice.
+     * @param orderServiceUrl the url of the Order Microservice.
+     * @param customerService the customer service
+     * @param vendorService the vendor service
+     */
+    public OrderService(RestTemplate restTemplate,
+                        String orderServiceUrl,
                         CustomerService customerService,
                         VendorService vendorService) {
         this.restTemplate = restTemplate;

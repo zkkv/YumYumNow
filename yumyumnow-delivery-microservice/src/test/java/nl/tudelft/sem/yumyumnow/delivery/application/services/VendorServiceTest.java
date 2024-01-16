@@ -52,8 +52,8 @@ public class VendorServiceTest {
                 "contactInfo", Map.of(
                         "phoneNumber", "123456789"
                         ),
-                "allowsOnlyOwnCouriers", false,
-                "maxDeliveryZone", 0
+                "allowsOnlyOwnCouriers", true,
+                "maxDeliveryZone", 5
         ));
 
         Location address = new Location();
@@ -64,8 +64,8 @@ public class VendorServiceTest {
 
         Vendor expectedVendor = new VendorBuilder()
                 .setId(userId)
-                .setAllowsOnlyOwnCouriers(false)
-                .setMaxDeliveryZoneKm(BigDecimal.ZERO)
+                .setAllowsOnlyOwnCouriers(true)
+                .setMaxDeliveryZoneKm(BigDecimal.valueOf(5))
                 .setPhoneNumber("123456789")
                 .setAddress(address)
                 .create();
@@ -80,8 +80,58 @@ public class VendorServiceTest {
         assertEquals(gotVendor.getAddress().getLongitude(), address.getLongitude());
         assertTrue(ChronoUnit.SECONDS.between(timestamp, gotVendor.getAddress().getTimestamp()) < 10);
         assertEquals(gotVendor.getPhone(), "123456789");
+        assertEquals(gotVendor.getAllowsOnlyOwnCouriers(), true);
+        assertEquals(gotVendor.getMaxDeliveryZoneKm(), BigDecimal.valueOf(5));
+    }
+
+    @Test
+    public void testGetVendorUseDefaultMazZone() {
+        UUID vendorId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        when(restTemplate.getForObject(
+                testWebsite + "/vendor/" + vendorId,
+                Map.class
+        )).thenReturn(Map.of(
+                "userID", userId.toString(),
+                "location", Map.of(
+                        "latitude", 0,
+                        "longitude", 0
+                ),
+                "contactInfo", Map.of(
+                        "phoneNumber", "123456789"
+                ),
+                "allowsOnlyOwnCouriers", false,
+                "maxDeliveryZone", 5
+        ));
+
+        Location address = new Location();
+        OffsetDateTime timestamp = OffsetDateTime.now();
+        address.setTimestamp(timestamp);
+        address.setLatitude(BigDecimal.valueOf(0));
+        address.setLongitude(BigDecimal.valueOf(0));
+
+        vendorService.setDefaultMaxDeliveryZone(BigDecimal.valueOf(10));
+
+        Vendor expectedVendor = new VendorBuilder()
+                .setId(userId)
+                .setAllowsOnlyOwnCouriers(false)
+                .setMaxDeliveryZoneKm(BigDecimal.valueOf(5))
+                .setPhoneNumber("123456789")
+                .setAddress(address)
+                .create();
+
+        expectedVendor.setAddress(address);
+
+        Vendor gotVendor = vendorService.getVendor(vendorId.toString());
+
+        assertEquals(expectedVendor, gotVendor);
+        assertEquals(gotVendor.getAddress().getLatitude(), address.getLatitude());
+        assertEquals(gotVendor.getAddress().getLongitude(), address.getLongitude());
+        assertTrue(ChronoUnit.SECONDS.between(timestamp, gotVendor.getAddress().getTimestamp()) < 10);
+        assertEquals(gotVendor.getPhone(), "123456789");
         assertEquals(gotVendor.getAllowsOnlyOwnCouriers(), false);
-        assertEquals(gotVendor.getMaxDeliveryZoneKm(), BigDecimal.ZERO);
+        assertEquals(gotVendor.getMaxDeliveryZoneKm(), BigDecimal.valueOf(10));
     }
 
     @Test
@@ -194,6 +244,14 @@ public class VendorServiceTest {
         )).thenReturn(responseEntity);
 
         assertFalse(vendorService.putVendor(vendor));
+    }
+
+    @Test
+    public void getDefaultMaxDeliveryZone() {
+        vendorService.setDefaultMaxDeliveryZone(BigDecimal.valueOf(20));
+        BigDecimal maxZone = vendorService.getDefaultMaxDeliveryZone();
+
+        assertEquals(BigDecimal.valueOf(20), maxZone);
     }
 
 }

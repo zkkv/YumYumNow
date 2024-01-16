@@ -34,12 +34,12 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
+        AdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new AdminMaxZoneGet200Response();
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenReturn(deliveryAdminMaxZoneGet200Response);
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZoneGet(adminId);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
         assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
     }
 
@@ -48,7 +48,7 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenReturn(null);
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZoneGet(adminId);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
         assertEquals(ResponseEntity.badRequest().body(null), response);
     }
 
@@ -57,7 +57,7 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new ServiceUnavailableException(""));
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZoneGet(adminId);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
         assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
     }
 
@@ -66,7 +66,7 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new AccessForbiddenException(""));
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZoneGet(adminId);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
         assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
     }
 
@@ -75,38 +75,38 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+        AdminMaxZoneGet200Response adminMaxZoneGet200Response = new AdminMaxZoneGet200Response();
+        adminMaxZoneGet200Response.setAdminId(adminId);
+        adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminSetMaxZone(adminId, defaultMaxZone, adminService)).thenReturn(deliveryAdminMaxZoneGet200Response);
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
-        assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
+        when(adminService.adminSetMaxZone(adminId, defaultMaxZone, adminService)).thenReturn(adminMaxZoneGet200Response);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
+        assertEquals(ResponseEntity.ok(adminMaxZoneGet200Response), response);
     }
 
     @Test
     void adminMaxZoneSetFailTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+        AdminMaxZoneGet200Response adminMaxZoneGet200Response = new AdminMaxZoneGet200Response();
+        adminMaxZoneGet200Response.setAdminId(adminId);
+        adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenReturn(null);
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
-        assertEquals(ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response), response);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
+        assertEquals(ResponseEntity.badRequest().body(adminMaxZoneGet200Response), response);
     }
 
     @Test
     void adminMaxZoneSetServiceUnavailableTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+        AdminMaxZoneGet200Response adminMaxZoneGet200Response = new AdminMaxZoneGet200Response();
+        adminMaxZoneGet200Response.setAdminId(adminId);
+        adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new ServiceUnavailableException(""));
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
         assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
     }
 
@@ -114,12 +114,12 @@ public class AdminControllerTest {
     void adminMaxZoneSetAccessForbiddenTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+        AdminMaxZoneGet200Response adminMaxZoneGet200Response = new AdminMaxZoneGet200Response();
+        adminMaxZoneGet200Response.setAdminId(adminId);
+        adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new AccessForbiddenException(""));
-        ResponseEntity<DeliveryAdminMaxZoneGet200Response> response = adminController.deliveryAdminMaxZonePut(deliveryAdminMaxZoneGet200Response);
+        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
         assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
     }
 
@@ -131,13 +131,13 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
-        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response = new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
+        AdminAnalyticsTotalDeliveriesGet200Response response = new AdminAnalyticsTotalDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         response.setTotalDeliveries(BigDecimal.valueOf(1));
 
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = ResponseEntity.ok(response);
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -152,8 +152,8 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -168,8 +168,8 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -184,8 +184,8 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsTotalDeliveriesGet(
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -199,13 +199,13 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenReturn(1);
-        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response = new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        AdminAnalyticsSuccessfulDeliveriesGet200Response response = new AdminAnalyticsSuccessfulDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         response.setSuccessfulDeliveries(BigDecimal.valueOf(1));
 
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = ResponseEntity.ok(response);
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -220,8 +220,8 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -236,8 +236,8 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -252,8 +252,8 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
                 adminId, startDate, endDate
         );
 
@@ -268,13 +268,13 @@ public class AdminControllerTest {
 
         when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate)).thenReturn(1L);
 
-        DeliveryAdminAnalyticsPreparationTimeGet200Response response = new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        AdminAnalyticsPreparationTimeGet200Response response = new AdminAnalyticsPreparationTimeGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         response.setPreparationTime(BigDecimal.valueOf(1));
 
-        ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> expected = ResponseEntity.ok(response);
-        ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> actual = adminController.deliveryAdminAnalyticsPreparationTimeGet(
+        ResponseEntity<AdminAnalyticsPreparationTimeGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<AdminAnalyticsPreparationTimeGet200Response> actual = adminController.adminAnalyticsPreparationTimeGet(
                 adminId, startDate, endDate
         );
 

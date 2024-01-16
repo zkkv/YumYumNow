@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import nl.tudelft.sem.yumyumnow.delivery.api.AdminApi;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -20,7 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @RestController
-public class AdminController implements DeliveryApi {
+public class AdminController implements AdminApi {
     private final DeliveryService deliveryService;
     private final AdminService adminService;
 
@@ -43,12 +44,12 @@ public class AdminController implements DeliveryApi {
      * @return The response that contains admin id and default maximum zone.
      */
     @Override
-    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZoneGet(
+    public ResponseEntity<AdminMaxZoneGet200Response> adminMaxZoneGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId
     ) {
         try {
-            DeliveryAdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId, adminService);
+            AdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId, adminService);
             if (response == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -63,21 +64,21 @@ public class AdminController implements DeliveryApi {
     /**
      *  Set default maximum delivery zone as an admin.
      *
-     * @param deliveryAdminMaxZoneGet200Response  (optional)
+     * @param adminMaxZoneGet200Response  (optional)
      * @return The response that contains admin id and default maximum zone.
      */
     @Override
-    public ResponseEntity<DeliveryAdminMaxZoneGet200Response> deliveryAdminMaxZonePut(
-            @Parameter(name = "DeliveryAdminMaxZoneGet200Response", description = "")
-            @Valid @RequestBody(required = false) DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response
+    public ResponseEntity<AdminMaxZoneGet200Response> adminMaxZonePut(
+            @Parameter(name = "AdminMaxZoneGet200Response", description = "")
+            @Valid @RequestBody(required = false) AdminMaxZoneGet200Response adminMaxZoneGet200Response
     ) {
         try {
-            DeliveryAdminMaxZoneGet200Response response =
-                    adminService.adminSetMaxZone(deliveryAdminMaxZoneGet200Response.getAdminId(),
-                            deliveryAdminMaxZoneGet200Response.getRadiusKm(), adminService);
+            AdminMaxZoneGet200Response response =
+                    adminService.adminSetMaxZone(adminMaxZoneGet200Response.getAdminId(),
+                            adminMaxZoneGet200Response.getRadiusKm(), adminService);
 
             if (response == null) {
-                return ResponseEntity.badRequest().body(deliveryAdminMaxZoneGet200Response);
+                return ResponseEntity.badRequest().body(adminMaxZoneGet200Response);
             }
             return ResponseEntity.ok(response);
         } catch (ServiceUnavailableException e) {
@@ -96,18 +97,16 @@ public class AdminController implements DeliveryApi {
      * @return a DeliveryAdminAnalyticsTotalDeliveriesGet200Response representing the total number of deliveries.
      */
     @Override
-    public ResponseEntity<DeliveryAdminAnalyticsTotalDeliveriesGet200Response> deliveryAdminAnalyticsTotalDeliveriesGet(
+    public ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> adminAnalyticsTotalDeliveriesGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsTotalDeliveriesGet200Response response =
-                new DeliveryAdminAnalyticsTotalDeliveriesGet200Response();
+        AdminAnalyticsTotalDeliveriesGet200Response response =
+                new AdminAnalyticsTotalDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
@@ -133,18 +132,16 @@ public class AdminController implements DeliveryApi {
      * @return a DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
      */
     @Override
-    public ResponseEntity<DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response> deliveryAdminAnalyticsSuccessfulDeliveriesGet(
+    public ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> adminAnalyticsSuccessfulDeliveriesGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response response =
-                new DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response();
+        AdminAnalyticsSuccessfulDeliveriesGet200Response response =
+                new AdminAnalyticsSuccessfulDeliveriesGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
         try {
@@ -170,18 +167,16 @@ public class AdminController implements DeliveryApi {
      * @return a DeliveryAdminAnalyticsPreparationTimeGet200Response response representing the average time
      */
     @Override
-    public ResponseEntity<DeliveryAdminAnalyticsPreparationTimeGet200Response> deliveryAdminAnalyticsPreparationTimeGet(
+    public ResponseEntity<AdminAnalyticsPreparationTimeGet200Response> adminAnalyticsPreparationTimeGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsPreparationTimeGet200Response response =
-                new DeliveryAdminAnalyticsPreparationTimeGet200Response();
+        AdminAnalyticsPreparationTimeGet200Response response =
+                new AdminAnalyticsPreparationTimeGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
 
@@ -208,17 +203,15 @@ public class AdminController implements DeliveryApi {
      * @return a DeliveryAdminAnalyticsDeliveryTimeGet200Response response representing the average duration of a delivery
      */
     @Override
-    public ResponseEntity<DeliveryAdminAnalyticsDeliveryTimeGet200Response> deliveryAdminAnalyticsDeliveryTimeGet(
+    public ResponseEntity<AdminAnalyticsDeliveryTimeGet200Response> adminAnalyticsDeliveryTimeGet(
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
-        DeliveryAdminAnalyticsDeliveryTimeGet200Response response = new DeliveryAdminAnalyticsDeliveryTimeGet200Response();
+        AdminAnalyticsDeliveryTimeGet200Response response = new AdminAnalyticsDeliveryTimeGet200Response();
         response.setStartDate(startDate);
         response.setEndDate(endDate);
 

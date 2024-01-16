@@ -5,11 +5,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -18,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class AnalyticsTest {
@@ -26,14 +23,15 @@ public class AnalyticsTest {
     private AdminService adminService;
     private OrderService orderService;
     private AdminValidatorService adminValidatorService;
-    private GlobalConfigRepository globalConfigRepository;
 
+    private VendorService vendorService;
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.orderService = mock(OrderService.class);
         this.adminValidatorService = mock(AdminValidatorService.class);
-        this.adminService = new AdminService(orderService, deliveryRepository, adminValidatorService, globalConfigRepository);
+        this.vendorService = mock(VendorService.class);
+        this.adminService = new AdminService(orderService, deliveryRepository, adminValidatorService, vendorService);
     }
 
     @Test

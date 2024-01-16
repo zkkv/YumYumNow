@@ -4,9 +4,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
@@ -37,31 +35,24 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DeliveryServiceTest {
     private DeliveryRepository deliveryRepository;
-    private GlobalConfigRepository globalConfigRepository;
-
     private DeliveryService deliveryService;
     private VendorService vendorService;
-    private AdminService adminService;
     private CourierService courierService;
     private OrderService orderService;
-
     private EmailService emailService;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
     private AdminValidatorService adminValidatorService;
 
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
-        this.globalConfigRepository = mock(GlobalConfigRepository.class);
         this.vendorService = mock(VendorService.class);
-        this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
         this.adminValidatorService = mock(AdminValidatorService.class);
         this.emailService = mock(EmailService.class);
+
         deliveryService = new DeliveryService(
-                deliveryRepository, globalConfigRepository,vendorService, courierService, orderService, emailService);
+                deliveryRepository, vendorService, courierService, orderService, emailService, adminValidatorService);
     }
 
     @Test
@@ -648,7 +639,6 @@ public class DeliveryServiceTest {
         assertThrows(AccessForbiddenException.class,
                 () -> deliveryService.assignCourier(id, courierId));
     }
-
 
     @Test
     public void unpaidStatusChangeTest() {

@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,18 +21,37 @@ import java.util.UUID;
 public class VendorService {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl;
+    private BigDecimal defaultMaxDeliveryZone;
 
     /**
-     * Constructor for vendor service.
+     * Constructor for vendor service with RestTemplateBuilder.
      *
      * @param restTemplate restTemplate to interact with other api
      * @param userServiceUrl url for user microservice
      */
     @Autowired
-    public VendorService(RestTemplate restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+    public VendorService(RestTemplateBuilder restTemplate, @Value("${user.microservice.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate.build();
+        this.vendorServiceUrl = userServiceUrl + "/vendor/";
+    }
+
+    /**
+     * Constructor for vendor service with RestTemplate.
+     *
+     * @param restTemplate restTemplate to interact with other api
+     * @param userServiceUrl url for user microservice
+     */
+    public VendorService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.vendorServiceUrl = userServiceUrl + "/vendor/";
     }
+
+    /**
+     * Get a vendor as json map by its user id.
+     *
+     * @param vendorId vendorId
+     * @return the json map of that vendor
+     */
 
     private Map<String, Object> getVendorRaw(String vendorId) {
         String url = vendorServiceUrl + vendorId;
@@ -58,13 +78,22 @@ public class VendorService {
         address.setLongitude(new BigDecimal(String.valueOf(((Map<String, Object>) response.get("location"))
                 .get("longitude"))));
 
+        BigDecimal maxZone;
+        if (!(Boolean) response.get("allowsOnlyOwnCouriers") || response.get("maxDeliveryZone") == null) {
+            // If a vendor does not have its own couriers or the maxzone is not set by the vendor,
+            // then the default maxzone is used.
+            maxZone = defaultMaxDeliveryZone;
+        } else {
+            // If a vendor have its own couriers and set its own maxzone, then the customized maxzone is used.
+            maxZone = new BigDecimal(String.valueOf(response.get("maxDeliveryZone")));
+        }
 
         return new VendorBuilder()
                 .setId(UUID.fromString((String) response.get("userID")))
                 .setAddress(address)
                 .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
                 .setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"))
-                .setMaxDeliveryZoneKm(new BigDecimal(String.valueOf(response.get("maxDeliveryZone"))))
+                .setMaxDeliveryZoneKm(maxZone)
                 .create();
     }
 
@@ -95,5 +124,23 @@ public class VendorService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
         return response.getStatusCode().is2xxSuccessful();
+    }
+
+    /**
+     * Getter for default max delivery zone.
+     *
+     * @return the default max delivery zone.
+     */
+    public BigDecimal getDefaultMaxDeliveryZone() {
+        return defaultMaxDeliveryZone;
+    }
+
+    /**
+     * Setter for default max delivery zone.
+     *
+     * @param defaultMaxDeliveryZone  the default max delivery zone.
+     */
+    public void setDefaultMaxDeliveryZone(BigDecimal defaultMaxDeliveryZone) {
+        this.defaultMaxDeliveryZone = defaultMaxDeliveryZone;
     }
 }

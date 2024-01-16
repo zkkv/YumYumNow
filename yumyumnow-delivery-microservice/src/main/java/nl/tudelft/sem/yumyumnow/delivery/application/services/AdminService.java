@@ -3,15 +3,11 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
-import nl.tudelft.sem.yumyumnow.delivery.domain.model.entities.GlobalConfig;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.repos.GlobalConfigRepository;
+import nl.tudelft.sem.yumyumnow.delivery.model.AdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryAdminMaxZoneGet200Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -25,26 +21,23 @@ public class AdminService {
     private final OrderService orderService;
     private final DeliveryRepository deliveryRepository;
     private final AdminValidatorService adminValidatorService;
-    private final GlobalConfigRepository globalConfigRepository;
-    @Value("${globalConfigId}$")
-    private UUID globalConfigId;
+    private final VendorService vendorService;
 
     /**
      * Constructor for admin service.
      *
      * @param orderService              the service for order
      * @param deliveryRepository        the repository for delivery
-     * @param globalConfigRepository    the repository for global config
      */
     @Autowired
     public AdminService(OrderService orderService,
                         DeliveryRepository deliveryRepository,
                         AdminValidatorService adminValidatorService,
-                        GlobalConfigRepository globalConfigRepository) {
+                        VendorService vendorService) {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
         this.adminValidatorService = adminValidatorService;
-        this.globalConfigRepository = globalConfigRepository;
+        this.vendorService = vendorService;
     }
 
     /**
@@ -194,21 +187,16 @@ public class AdminService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and default maximum delivery zone
      */
-    public DeliveryAdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+    public AdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
 
         if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        BigDecimal defaultMaxZone = globalConfig.getDefaultMaxZone();
+        BigDecimal defaultMaxZone = vendorService.getDefaultMaxDeliveryZone();
 
-        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        AdminMaxZoneGet200Response response = new AdminMaxZoneGet200Response();
         response.setAdminId(adminId);
         response.setRadiusKm(defaultMaxZone);
         return response;
@@ -218,29 +206,26 @@ public class AdminService {
      * Set a new default maximum delivery zone as an admin.
      *
      * @param adminId the id of admin
-     * @param defaultMaxZone the new default maximum delivery zone
+     * @param newMaxZone the new default maximum delivery zone
      * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
-    public DeliveryAdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal defaultMaxZone,
+    public AdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal newMaxZone,
                                                               AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
 
+        if (newMaxZone.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
         if (!adminValidatorService.validate(adminId)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
-        Optional<GlobalConfig> optionalGlobalConfig = globalConfigRepository.findById(globalConfigId);
-        if (optionalGlobalConfig.isEmpty()) {
-            return null;
-        }
-        GlobalConfig globalConfig = optionalGlobalConfig.get();
-        globalConfig.setDefaultMaxZone(defaultMaxZone);
-        globalConfigRepository.save(globalConfig);
+        vendorService.setDefaultMaxDeliveryZone(newMaxZone);
 
-        DeliveryAdminMaxZoneGet200Response response = new DeliveryAdminMaxZoneGet200Response();
+        AdminMaxZoneGet200Response response = new AdminMaxZoneGet200Response();
         response.setAdminId(adminId);
-        response.setRadiusKm(defaultMaxZone);
+        response.setRadiusKm(newMaxZone);
 
         return response;
     }
