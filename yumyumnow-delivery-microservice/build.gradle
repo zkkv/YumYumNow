@@ -9,7 +9,6 @@ buildscript {
         classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.2'
     }
 }
-
 plugins {
     id 'org.springframework.boot' version '2.3.5.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
@@ -48,6 +47,8 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'junit:junit:4.13.1'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8-standalone:2.32.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 

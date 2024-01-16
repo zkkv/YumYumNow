@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
@@ -60,6 +61,7 @@ public class DeliveryServiceTest {
         UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().create());
+        when(orderService.findOrderById(orderId)).thenReturn(new OrderBuilder().create());
 
         Delivery actual = deliveryService.createDelivery(orderId, vendorId);
 
