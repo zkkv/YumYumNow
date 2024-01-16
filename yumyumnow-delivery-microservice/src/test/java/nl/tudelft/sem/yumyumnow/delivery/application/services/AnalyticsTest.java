@@ -8,7 +8,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -17,29 +16,22 @@ import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AnalyticsTest {
     private DeliveryRepository deliveryRepository;
-    private DeliveryService deliveryService;
-    private VendorService vendorService;
     private AdminService adminService;
-    private CourierService courierService;
-    private EmailService emailService;
     private OrderService orderService;
+    private AdminValidatorService adminValidatorService;
 
+    private VendorService vendorService;
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
-        this.vendorService = mock(VendorService.class);
-        this.adminService = mock(AdminService.class);
-        this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
-        this.emailService = mock(EmailService.class);
-
-        deliveryService = new DeliveryService(
-                deliveryRepository, vendorService, courierService, adminService, orderService,emailService);
+        this.adminValidatorService = mock(AdminValidatorService.class);
+        this.vendorService = mock(VendorService.class);
+        this.adminService = new AdminService(orderService, deliveryRepository, adminValidatorService, vendorService);
     }
 
     @Test
@@ -64,11 +56,12 @@ public class AnalyticsTest {
         deliveries.add(delivery1);
         deliveries.add(delivery2);
 
+
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
+        assertThat(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
@@ -76,10 +69,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -88,10 +81,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(false);
+        when(adminValidatorService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -128,10 +121,10 @@ public class AnalyticsTest {
         deliveries.add(delivery3);
 
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
-        assertThat(deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
+        assertThat(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
     }
 
     @Test
@@ -139,10 +132,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -151,10 +144,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(false);
+        when(adminValidatorService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
+            adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -163,7 +156,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2022, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2024, 12, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
 
         // setting up the deliveries
         UUID id1 = UUID.randomUUID();
@@ -217,7 +210,7 @@ public class AnalyticsTest {
         when(orderService.getTimeOfPlacement(orderId4)).thenReturn(null);
 
         long expected = 18218L;
-        long actual = deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+        long actual = adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -227,10 +220,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(false);
+        when(adminValidatorService.validate(adminId)).thenReturn(false);
 
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -239,10 +232,10 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminService.validate(adminId)).thenReturn(true);
+        when(adminValidatorService.validate(adminId)).thenReturn(true);
 
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getPreparationTimeAnalytic(adminId, startDate, endDate);
+            adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
         });
     }
 
@@ -251,9 +244,9 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminService.validate(id)).thenReturn(true);
+        when(adminValidatorService.validate(id)).thenReturn(true);
         assertThrows(BadArgumentException.class, () -> {
-            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+            adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
     }
     @Test
@@ -261,9 +254,9 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminService.validate(id)).thenReturn(false);
+        when(adminValidatorService.validate(id)).thenReturn(false);
         assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate);
+            adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
     }
 
@@ -272,7 +265,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminService.validate(id)).thenReturn(true);
+        when(adminValidatorService.validate(id)).thenReturn(true);
 
         Delivery delivery1 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
@@ -309,6 +302,6 @@ public class AnalyticsTest {
         deliveries.add(delivery4);
 
         when(deliveryRepository.findAll()).thenReturn(deliveries);
-        assertThat(deliveryService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
+        assertThat(adminService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
     }
 }
