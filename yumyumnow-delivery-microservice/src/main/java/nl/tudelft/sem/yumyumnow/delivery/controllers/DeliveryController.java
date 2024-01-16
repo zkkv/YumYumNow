@@ -123,10 +123,8 @@ public class DeliveryController implements DeliveryApi {
     ) {
         Delivery delivery = null;
         try {
-            System.err.println("HERE 1");
             delivery = deliveryService.getDelivery(id);
         } catch (NoDeliveryFoundException e) {
-            System.out.println("HERE");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No delivery found by id.");
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
