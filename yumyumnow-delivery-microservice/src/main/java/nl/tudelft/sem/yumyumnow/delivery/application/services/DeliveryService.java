@@ -142,11 +142,12 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
-        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+        Delivery delivery = optionalDelivery.get();
+
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(delivery.getOrderId())) {
             throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
-        Delivery delivery = optionalDelivery.get();
 
         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                 Map.of(
@@ -201,7 +202,7 @@ public class DeliveryService {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId.toString()) == null) {
+        if (!vendorId.equals(vendorToUpdate) || vendorService.getVendor(vendorId.toString()) == null) {
             return null;
         }
 
@@ -447,18 +448,9 @@ public class DeliveryService {
         List<Delivery> checkedDeliveries = deliveries
                 .stream()
                 .filter(d -> d.getCourierId() == null) //Only unassigned orders
-                .filter(d -> {
-                    UUID vendorId = d.getVendorId();
-                    Vendor vendor = vendorService.getVendor(vendorId.toString());
-                    if (courier.getVendor() != null && !courier.getVendor().equals(vendor)) {
-                        return false;
-                    }
-                    if (vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
-                            || !courier.getVendor().equals(vendor))) {
-                        return false;
-                    }
-                    return true;
-                }) //Check if the courier is eligible to see this order
+                .filter(d -> new CourierBelongsToVendorValidator(
+                            null, courierId, courierService, vendorService
+                    ).process(d)) //Check if the courier is eligible to see this order
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 

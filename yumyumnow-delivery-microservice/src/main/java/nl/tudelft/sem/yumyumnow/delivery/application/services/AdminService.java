@@ -1,13 +1,21 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import lombok.SneakyThrows;
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.UserIsAdminValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.AdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -20,26 +28,42 @@ public class AdminService {
 
     private final OrderService orderService;
     private final DeliveryRepository deliveryRepository;
-    private final AdminValidatorService adminValidatorService;
     private final VendorService vendorService;
+    private final String userServiceUrl;
+    private final RestTemplate restTemplate;
 
     /**
      * Constructor for admin service.
      *
-     * @param orderService              the service for order
-     * @param deliveryRepository        the repository for delivery
-     * @param adminValidatorService     the service for admin validator
-     * @param vendorService             the service for the vendor
+     * @param orderService       the service for order
+     * @param deliveryRepository the repository for delivery
+     * @param vendorService      the service for the vendor
      */
     @Autowired
     public AdminService(OrderService orderService,
                         DeliveryRepository deliveryRepository,
-                        AdminValidatorService adminValidatorService,
-                        VendorService vendorService) {
+                        VendorService vendorService,
+                        RestTemplateBuilder restTemplateBuilder,
+                        @Value("${user.microservice.url}") String userServiceUrl)
+    {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
-        this.adminValidatorService = adminValidatorService;
         this.vendorService = vendorService;
+        this.userServiceUrl = userServiceUrl;
+        this.restTemplate = restTemplateBuilder.build();
+    }
+
+    public AdminService(OrderService orderService,
+                        DeliveryRepository deliveryRepository,
+                        VendorService vendorService,
+                        RestTemplate restTemplate,
+                        @Value("${user.microservice.url}") String userServiceUrl)
+    {
+        this.orderService = orderService;
+        this.deliveryRepository = deliveryRepository;
+        this.vendorService = vendorService;
+        this.userServiceUrl = userServiceUrl;
+        this.restTemplate = restTemplate;
     }
 
     /**
@@ -53,7 +77,7 @@ public class AdminService {
 
     public int getTotalDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -79,7 +103,7 @@ public class AdminService {
      */
     public int getSuccessfulDeliveriesAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws BadArgumentException, AccessForbiddenException, ServiceUnavailableException {
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -108,7 +132,7 @@ public class AdminService {
      */
     public long getPreparationTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -156,7 +180,7 @@ public class AdminService {
      */
     public long getDeliveryTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
         if (startDate.isAfter(endDate)) {
@@ -189,10 +213,11 @@ public class AdminService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and default maximum delivery zone
      */
+    @SneakyThrows
     public AdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
 
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
@@ -212,14 +237,15 @@ public class AdminService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
+    @SneakyThrows
     public AdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal newMaxZone,
-                                                              AdminService adminService)
+                                                      AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
 
         if (newMaxZone.compareTo(BigDecimal.ZERO) <= 0) {
             return null;
         }
-        if (!adminValidatorService.validate(adminId)) {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get default max zone.");
         }
 
@@ -231,5 +257,11 @@ public class AdminService {
 
         return response;
     }
+
+    private Map<String, Object> getAdminUser(UUID adminId, String userServiceUrl) {
+        return this.restTemplate.getForObject(userServiceUrl
+                + "/" + adminId.toString(), Map.class);
+    }
+
 
 }
