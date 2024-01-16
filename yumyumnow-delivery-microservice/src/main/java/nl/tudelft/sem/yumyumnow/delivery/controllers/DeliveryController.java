@@ -10,16 +10,19 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+import nl.tudelft.sem.yumyumnow.delivery.model.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -57,6 +60,26 @@ public class DeliveryController implements DeliveryApi {
         this.emailService = emailService;
     }
 
+
+    /**
+     * Handler for Spring exception which is thrown REST request parameters have wrong format.
+     *
+     * @param e exception of type MethodArgumentTypeMismatchException
+     * @return response entity with error
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<Error> handleResourceNotFoundException(MethodArgumentTypeMismatchException e,
+                                                                 HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(new Error()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Received parameters have incorrect format.")
+                .path(request.getRequestURI()));
+    }
+
     /**
      * Create a delivery based on order data.
      *
@@ -75,7 +98,13 @@ public class DeliveryController implements DeliveryApi {
             delivery = deliveryService.createDelivery(order.getOrderId(),
                     order.getVendorId());
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor does not exist");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
         return ResponseEntity.ok(delivery);
     }
@@ -94,9 +123,17 @@ public class DeliveryController implements DeliveryApi {
     ) {
         Delivery delivery = null;
         try {
+            System.err.println("HERE 1");
             delivery = deliveryService.getDelivery(id);
         } catch (NoDeliveryFoundException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            System.out.println("HERE");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No delivery found by id.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(delivery);
@@ -122,7 +159,7 @@ public class DeliveryController implements DeliveryApi {
         );
 
         if (delivery == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "");
         }
 
         return ResponseEntity.ok(delivery);
@@ -146,15 +183,25 @@ public class DeliveryController implements DeliveryApi {
             delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(),
                     deliveryIdStatusPutRequest.getStatus());
         } catch (NoDeliveryFoundException | BadArgumentException | AccessForbiddenException e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         try {
             deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id);
         } catch (BadArgumentException e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(delivery);
@@ -176,7 +223,7 @@ public class DeliveryController implements DeliveryApi {
         Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(),
                 deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
         if (delivery == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
         }
 
         return ResponseEntity.ok(delivery);
@@ -201,7 +248,7 @@ public class DeliveryController implements DeliveryApi {
                 deliveryVendorIdMaxZonePutRequest, vendorService);
 
         if (response == null) {
-            return ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
         }
 
         return ResponseEntity.ok(response);
@@ -224,8 +271,14 @@ public class DeliveryController implements DeliveryApi {
         Delivery delivery;
         try {
             delivery = deliveryService.addDeliveryTime(id, orderService, userService);
+        } catch (NoDeliveryFoundException | BadArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
         return ResponseEntity.ok(delivery);
     }
@@ -251,9 +304,15 @@ public class DeliveryController implements DeliveryApi {
         try {
             delivery = deliveryService.assignCourier(id, courierId);
         } catch (NoDeliveryFoundException | BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access for that user type is forbidden.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(delivery);
@@ -276,9 +335,14 @@ public class DeliveryController implements DeliveryApi {
         Delivery delivery;
         try {
             delivery = deliveryService.addDeliveryTime(id, orderService, userService);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NoDeliveryFoundException | BadArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        }catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(delivery);
@@ -305,11 +369,14 @@ public class DeliveryController implements DeliveryApi {
         try {
             deliveries = deliveryService.getAvailableDeliveries(radius, location, courierId);
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid radius value");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a courier.");
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(deliveries);
@@ -334,8 +401,14 @@ public class DeliveryController implements DeliveryApi {
         try {
             Delivery delivery = deliveryService.updateLocation(id, location);
             return ResponseEntity.ok(delivery);
+        } catch (NoDeliveryFoundException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No delivery found by id.");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
     }
 }

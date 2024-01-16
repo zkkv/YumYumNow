@@ -7,12 +7,16 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+import nl.tudelft.sem.yumyumnow.delivery.model.Error;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -37,6 +41,25 @@ public class AdminController implements AdminApi {
     }
 
     /**
+     * Handler for Spring exception which is thrown REST request parameters have wrong format.
+     *
+     * @param e exception of type MethodArgumentTypeMismatchException
+     * @return response entity with error
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<Error> handleResourceNotFoundException(MethodArgumentTypeMismatchException e,
+                                                                 HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(new Error()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Received parameters have incorrect format.")
+                .path(request.getRequestURI()));
+    }
+
+    /**
      * Get default maximum delivery zone as an admin.
      *
      * @param adminId The admin ID (required)
@@ -47,17 +70,20 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId
     ) {
+        AdminMaxZoneGet200Response response = null;
         try {
-            AdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId, adminService);
-            if (response == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            return ResponseEntity.ok(response);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            response = adminService.adminGetMaxZone(adminId, adminService);
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get default max zone.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal server error.");
         }
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -71,20 +97,26 @@ public class AdminController implements AdminApi {
             @Parameter(name = "AdminMaxZoneGet200Response", description = "")
             @Valid @RequestBody(required = false) AdminMaxZoneGet200Response adminMaxZoneGet200Response
     ) {
+        AdminMaxZoneGet200Response response = null;
         try {
-            AdminMaxZoneGet200Response response =
-                    adminService.adminSetMaxZone(adminMaxZoneGet200Response.getAdminId(),
+            response = adminService.adminSetMaxZone(adminMaxZoneGet200Response.getAdminId(),
                             adminMaxZoneGet200Response.getRadiusKm(), adminService);
-
             if (response == null) {
-                return ResponseEntity.badRequest().body(adminMaxZoneGet200Response);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Max zone has to be positive.");
             }
-            return ResponseEntity.ok(response);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get default max zone.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -112,11 +144,17 @@ public class AdminController implements AdminApi {
             int totalDeliveries = adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
             response.setTotalDeliveries(BigDecimal.valueOf(totalDeliveries));
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date cannot be greater than end date.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get analytics.");
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(response);
@@ -147,11 +185,17 @@ public class AdminController implements AdminApi {
             int totalDeliveries = adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
             response.setSuccessfulDeliveries(BigDecimal.valueOf(totalDeliveries));
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date cannot be greater than end date.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get analytics.");
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(response);
@@ -183,11 +227,17 @@ public class AdminController implements AdminApi {
             long averagePreparationTime = adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
             response.setPreparationTime(BigDecimal.valueOf(averagePreparationTime));
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date cannot be greater than end date.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get analytics.");
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(response);
@@ -218,11 +268,17 @@ public class AdminController implements AdminApi {
             long averageDeliveryTime = adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate);
             response.setDeliveryTime(BigDecimal.valueOf(averageDeliveryTime));
         } catch (BadArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date cannot be greater than end date.");
         } catch (AccessForbiddenException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (ServiceUnavailableException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get analytics.");
+        } catch (ServiceUnavailableException | RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
         return ResponseEntity.ok(response);

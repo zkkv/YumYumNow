@@ -291,7 +291,7 @@ public class DeliveryService {
      * @throws Exception the exception to be thrown.
      */
     public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService)
-            throws Exception {
+            throws NoDeliveryFoundException, BadArgumentException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
