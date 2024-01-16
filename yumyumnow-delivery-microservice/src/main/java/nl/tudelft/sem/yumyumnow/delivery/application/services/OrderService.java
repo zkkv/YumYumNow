@@ -26,7 +26,7 @@ public class OrderService {
      *
      * @param restTemplate    the RestTemplate object used for making HTTP requests to the Order microservice.
      * @param orderServiceUrl the url of the Order Microservice.
-     * @param customerService the customer service
+         * @param customerService the customer service
      * @param vendorService the vendor service
      */
     @Autowired

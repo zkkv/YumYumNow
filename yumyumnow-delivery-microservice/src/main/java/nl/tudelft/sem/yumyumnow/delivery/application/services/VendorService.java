@@ -79,7 +79,7 @@ public class VendorService {
                 .get("longitude"))));
 
         BigDecimal maxZone;
-        if (!(Boolean) response.get("allowsOnlyOwnCouriers") || response.get("maxDeliveryZone") == null) {
+        if (!(Boolean) response.get("allowOnlyOwnCouriers") || response.get("maxDeliveryZone") == null) {
             // If a vendor does not have its own couriers or the maxzone is not set by the vendor,
             // then the default maxzone is used.
             maxZone = defaultMaxDeliveryZone;
@@ -91,8 +91,8 @@ public class VendorService {
         return new VendorBuilder()
                 .setId(UUID.fromString((String) response.get("userID")))
                 .setAddress(address)
-                .setPhoneNumber((String) ((Map<String, Object>) response.get("contactInfo")).get("phoneNumber"))
-                .setAllowsOnlyOwnCouriers((Boolean) response.get("allowsOnlyOwnCouriers"))
+                .setPhoneNumber(String.valueOf(((Map<String, Object>) response.get("contactInfo")).get("phoneNumber")))
+                .setAllowsOnlyOwnCouriers((Boolean) response.get("allowOnlyOwnCouriers"))
                 .setMaxDeliveryZoneKm(maxZone)
                 .create();
     }
