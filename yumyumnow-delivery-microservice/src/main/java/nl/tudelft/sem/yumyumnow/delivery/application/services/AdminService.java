@@ -10,12 +10,10 @@ import nl.tudelft.sem.yumyumnow.delivery.model.AdminMaxZoneGet200Response;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,14 +36,14 @@ public class AdminService {
      * @param orderService       the service for order
      * @param deliveryRepository the repository for delivery
      * @param vendorService      the service for the vendor
+     * @param restTemplateBuilder the rest template builder
      */
     @Autowired
     public AdminService(OrderService orderService,
                         DeliveryRepository deliveryRepository,
                         VendorService vendorService,
                         RestTemplateBuilder restTemplateBuilder,
-                        @Value("${user.microservice.url}") String userServiceUrl)
-    {
+                        @Value("${user.microservice.url}") String userServiceUrl)  {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
@@ -53,6 +51,14 @@ public class AdminService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
+    /**
+     * Constructor for admin service.
+     *
+     * @param orderService       the service for order
+     * @param deliveryRepository the repository for delivery
+     * @param vendorService      the service for the vendor
+     * @param restTemplate       the rest template
+     */
     public AdminService(OrderService orderService,
                         DeliveryRepository deliveryRepository,
                         VendorService vendorService,

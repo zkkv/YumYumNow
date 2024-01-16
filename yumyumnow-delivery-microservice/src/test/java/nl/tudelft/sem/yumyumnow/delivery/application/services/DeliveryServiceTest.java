@@ -15,7 +15,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundExcept
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -58,7 +57,6 @@ public class DeliveryServiceTest {
     public void createDeliverySuccess() throws BadArgumentException {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().create());
 
@@ -71,7 +69,6 @@ public class DeliveryServiceTest {
     public void createDeliveryFail() {
         UUID orderId = UUID.randomUUID();
         UUID vendorId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(null);
 
@@ -303,7 +300,7 @@ public class DeliveryServiceTest {
                 .setId(id)
                 .setVendorId(userId)
                 .create();
-        ;
+
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
         when(vendorService.getVendor(userId.toString())).thenReturn(vendor);
@@ -742,7 +739,8 @@ public class DeliveryServiceTest {
         verify(emailService).send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com");
     }
 
-    public void voidGetAvailableDeliveriesAsNonCourier() {
+    @Test
+    public void getAvailableDeliveriesAsNonCourier() {
         UUID courierId = UUID.randomUUID();
 
         when(courierService.getCourier(courierId.toString())).thenReturn(null);
@@ -751,7 +749,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void voidGetAvailableDeliveriesInvalidRadius() {
+    public void getAvailableDeliveriesInvalidRadius() {
         UUID courierId = UUID.randomUUID();
 
         when(courierService.getCourier(courierId.toString())).thenReturn(new Courier(courierId, null));
@@ -760,7 +758,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void voidGetAvailableDeliveriesUnassignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+    public void getAvailableDeliveriesUnassignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         UUID courierId = UUID.randomUUID();
 
         when(courierService.getCourier(courierId.toString())).thenReturn(new CourierBuilder()
@@ -785,9 +783,9 @@ public class DeliveryServiceTest {
         delivery5location.setLatitude(BigDecimal.valueOf(100));
         delivery5location.setLongitude(BigDecimal.valueOf(100));
 
-        Vendor delivery2vendor = new Vendor(delivery2vendorId, new Location(), new String(), false, BigDecimal.TEN);
+        Vendor delivery2vendor = new Vendor(delivery2vendorId, new Location(), "", false, BigDecimal.TEN);
 
-        Vendor delivery3vendor = new Vendor(delivery3vendorId, new Location(), new String(), true, BigDecimal.TEN);
+        Vendor delivery3vendor = new Vendor(delivery3vendorId, new Location(), "", true, BigDecimal.TEN);
 
 
         Delivery delivery1 = new Delivery();
