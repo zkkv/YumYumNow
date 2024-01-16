@@ -146,12 +146,14 @@ public class DeliveryController implements DeliveryApi {
             delivery = deliveryService.updateStatus(id, deliveryIdStatusPutRequest.getUserId(),
                     deliveryIdStatusPutRequest.getStatus());
         } catch (NoDeliveryFoundException | BadArgumentException | AccessForbiddenException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         try {
             deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id);
         } catch (BadArgumentException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
