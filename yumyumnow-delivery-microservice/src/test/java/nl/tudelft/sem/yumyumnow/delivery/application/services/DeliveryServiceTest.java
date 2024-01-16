@@ -37,7 +37,6 @@ public class DeliveryServiceTest {
     private DeliveryRepository deliveryRepository;
     private DeliveryService deliveryService;
     private VendorService vendorService;
-    private AdminService adminService;
     private CourierService courierService;
     private OrderService orderService;
     private EmailService emailService;
@@ -46,13 +45,12 @@ public class DeliveryServiceTest {
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.vendorService = mock(VendorService.class);
-        this.adminService = mock(AdminService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
         this.emailService = mock(EmailService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, vendorService, courierService, adminService, orderService,emailService);
+                deliveryRepository, vendorService, courierService, orderService, emailService);
     }
 
     @Test
@@ -345,7 +343,7 @@ public class DeliveryServiceTest {
                 .create();
 
         //I chose to set courier id twice because that's what happens in the original code
-        //I'm not sure if that choice was on purpose so I chose to preserve it
+        //I'm not sure if that choice was on purpose, so I chose to preserve it
         Delivery expected = new DeliveryBuilder()
                 .setId(id)
                 .setVendorId(UUID.randomUUID())
@@ -638,75 +636,6 @@ public class DeliveryServiceTest {
 
         assertThrows(AccessForbiddenException.class,
                 () -> deliveryService.assignCourier(id, courierId));
-    }
-
-    @Test
-    public void adminGetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-
-        when(adminService.validate(adminId)).thenReturn(true);
-        when(vendorService.getDefaultMaxDeliveryZone()).thenReturn(BigDecimal.valueOf(20));
-
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminGetMaxZone(adminId, adminService);
-        assertEquals(deliveryAdminMaxZoneGet200Response, response);
-    }
-
-    @Test
-    public void adminGetMaxZoneExceptionTest() throws ServiceUnavailableException {
-        UUID adminId = UUID.randomUUID();
-
-        when(adminService.validate(adminId)).thenReturn(false);
-        when(vendorService.getDefaultMaxDeliveryZone()).thenReturn(BigDecimal.valueOf(20));
-
-        assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.adminGetMaxZone(adminId, adminService);
-        });
-    }
-
-    @Test
-    public void adminSetMaxZoneTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal newMaxZone = BigDecimal.valueOf(20);
-
-        when(adminService.validate(adminId)).thenReturn(true);
-
-        DeliveryAdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new DeliveryAdminMaxZoneGet200Response();
-        deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
-        deliveryAdminMaxZoneGet200Response.setRadiusKm(newMaxZone);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, newMaxZone, adminService);
-
-        verify(vendorService).setDefaultMaxDeliveryZone(newMaxZone);
-        assertEquals(deliveryAdminMaxZoneGet200Response, response);
-    }
-
-    @Test
-    public void adminSetMaxZoneExceptionTest() throws ServiceUnavailableException{
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
-
-        when(adminService.validate(adminId)).thenReturn(false);
-
-        assertThrows(AccessForbiddenException.class, () -> {
-            deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
-        });
-    }
-
-    @Test
-    public void adminSetMaxZoneNotValidTest() throws ServiceUnavailableException, AccessForbiddenException {
-        UUID adminId = UUID.randomUUID();
-        BigDecimal defaultMaxZone = BigDecimal.valueOf(-2);
-
-        when(adminService.validate(adminId)).thenReturn(true);
-
-        DeliveryAdminMaxZoneGet200Response response = deliveryService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
-
-        assertEquals(null, response);
     }
 
     @Test

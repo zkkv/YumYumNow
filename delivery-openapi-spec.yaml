@@ -488,7 +488,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/max-zone:
+  /admin/max-zone:
     put:
       tags:
         - Admin
@@ -598,7 +598,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/preparation-time:
+  /admin/analytics/preparation-time:
     get:
       tags:
         - Admin
@@ -671,7 +671,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/delivery-time:
+  /admin/analytics/delivery-time:
     get:
       tags:
         - Admin
@@ -744,7 +744,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/driver-efficiency:
+  /admin/analytics/driver-efficiency:
     get:
       tags:
         - Admin
@@ -817,7 +817,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/issues:
+  /admin/analytics/issues:
     get:
       tags:
         - Admin
@@ -892,7 +892,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/total-deliveries:
+  /admin/analytics/total-deliveries:
     get:
       tags:
         - Admin
@@ -965,7 +965,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /delivery/admin/analytics/successful-deliveries:
+  /admin/analytics/successful-deliveries:
     get:
       tags:
         - Admin
