@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.LocationBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -35,11 +37,11 @@ public class DeliveryController implements DeliveryApi {
      * Constructor for delivery controller.
      *
      * @param deliveryService delivery service for the logic
-     * @param userService customer service from User microservice
-     * @param vendorService vendor service from User microservice
-     * @param adminService admin service from User microservice
-     * @param orderService order service
-     * @param emailService email service
+     * @param userService     customer service from User microservice
+     * @param vendorService   vendor service from User microservice
+     * @param adminService    admin service from User microservice
+     * @param orderService    order service
+     * @param emailService    email service
      */
     public DeliveryController(DeliveryService deliveryService,
                               CustomerService userService,
@@ -104,8 +106,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Add the estimated time to a delivery.
      *
-     * @param id UUID of the delivery (required)
-     * @param deliveryIdDeliveryTimePostRequest  (optional)
+     * @param id                                UUID of the delivery (required)
+     * @param deliveryIdDeliveryTimePostRequest (optional)
      * @return the updated delivery
      */
     @Override
@@ -130,8 +132,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Change the status of the delivery.
      *
-     * @param id UUID of the delivery (required)
-     * @param deliveryIdStatusPutRequest  (optional)
+     * @param id                         UUID of the delivery (required)
+     * @param deliveryIdStatusPutRequest (optional)
      * @return the updated delivery
      */
     public ResponseEntity<Delivery> deliveryIdStatusPut(
@@ -161,8 +163,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Update the estimated time of a delivery.
      *
-     * @param id UUID of the delivery (required)
-     * @param deliveryIdDeliveryTimePostRequest1  (optional)
+     * @param id                                 UUID of the delivery (required)
+     * @param deliveryIdDeliveryTimePostRequest1 (optional)
      * @return the updated delivery
      */
     @Override
@@ -184,7 +186,7 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Update the maximum delivery zone of a vendor.
      *
-     * @param id UUID of the vendor
+     * @param id                                UUID of the vendor
      * @param deliveryVendorIdMaxZonePutRequest (contains the vendor to update and a new maximum delivery zone)
      * @return the vendorID with its updated maximum delivery zone
      */
@@ -208,8 +210,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Update the total delivery time of an order for a POST request.
      *
-     * @param id UUID of the delivery (required).
-     * @param deliveryIdDeliveryTimePostRequest1  (optional)/
+     * @param id                                 UUID of the delivery (required).
+     * @param deliveryIdDeliveryTimePostRequest1 (optional)/
      * @return a Delivery ResponseEntity representing the updated delivery.
      */
     @Override
@@ -232,7 +234,7 @@ public class DeliveryController implements DeliveryApi {
      * Assigns courier with id provided as a query parameter to the delivery
      * with the given {@code id}.
      *
-     * @param id UUID of the delivery (required)
+     * @param id                         UUID of the delivery (required)
      * @param deliveryIdAssignPutRequest request containing the courier id query parameter
      * @return a Delivery ResponseEntity representing the updated delivery
      * @author Kirill Zhankov
@@ -260,8 +262,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Update the total delivery time of an order for PUT request.
      *
-     * @param id UUID of the delivery (required).
-     * @param deliveryIdDeliveryTimePostRequest  (optional).
+     * @param id                                UUID of the delivery (required).
+     * @param deliveryIdDeliveryTimePostRequest (optional).
      * @return a Delivery ResponseEntity representing the updated delivery.
      */
     @Override
@@ -275,6 +277,7 @@ public class DeliveryController implements DeliveryApi {
         try {
             delivery = deliveryService.addDeliveryTime(id, orderService, userService);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -284,8 +287,8 @@ public class DeliveryController implements DeliveryApi {
     /**
      * Get all deliveries available for a courier to accept.
      *
-     * @param radius The maximum distance in kilometers (required)
-     * @param location The location for which the distances are calculated (required)
+     * @param radius    The maximum distance in kilometers (required)
+     * @param location  The location for which the distances are calculated (required)
      * @param courierId The courier ID (required)
      * @return the list of said deliveries ordered by distance from the courier (the shortest first)
      */
@@ -310,5 +313,29 @@ public class DeliveryController implements DeliveryApi {
         }
 
         return ResponseEntity.ok(deliveries);
+    }
+
+    /**
+     * Update the location of a delivery.
+     * 
+     * @param id UUID of the delivery (required)
+     * @param deliveryIdLocationPutRequest  (optional)
+     * @return the delivery
+     */
+    @Override
+    public ResponseEntity<Delivery> deliveryIdLocationPut(
+            @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryIdLocationPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdLocationPutRequest deliveryIdLocationPutRequest) {
+        Location location = new LocationBuilder()
+                .setTimestamp(deliveryIdLocationPutRequest.getLocation().getTimestamp())
+                .setLatitude(deliveryIdLocationPutRequest.getLocation().getLatitude())
+                .setLongitude(deliveryIdLocationPutRequest.getLocation().getLongitude())
+                .create();
+        try {
+            Delivery delivery = deliveryService.updateLocation(id, location);
+            return ResponseEntity.ok(delivery);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
