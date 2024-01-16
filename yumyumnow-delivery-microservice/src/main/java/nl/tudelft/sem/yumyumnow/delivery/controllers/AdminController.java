@@ -2,7 +2,6 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import nl.tudelft.sem.yumyumnow.delivery.api.AdminApi;
-import nl.tudelft.sem.yumyumnow.delivery.api.DeliveryApi;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
@@ -94,7 +93,7 @@ public class AdminController implements AdminApi {
      * @param adminId The admin ID (required)
      * @param startDate Start date of the analytic. (required)
      * @param endDate End date of the analytic. (required)
-     * @return a DeliveryAdminAnalyticsTotalDeliveriesGet200Response representing the total number of deliveries.
+     * @return a AdminAnalyticsTotalDeliveriesGet200Response representing the total number of deliveries.
      */
     @Override
     public ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> adminAnalyticsTotalDeliveriesGet(
@@ -129,7 +128,7 @@ public class AdminController implements AdminApi {
      * @param adminId The admin ID (required)
      * @param startDate Start date of the analytic. (required)
      * @param endDate End date of the analytic. (required)
-     * @return a DeliveryAdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
+     * @return a AdminAnalyticsSuccessfulDeliveriesGet200Response representing the total number of deliveries.
      */
     @Override
     public ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> adminAnalyticsSuccessfulDeliveriesGet(
@@ -164,7 +163,7 @@ public class AdminController implements AdminApi {
      * @param adminId The admin ID (required)
      * @param startDate Start date of the analytic. (required)
      * @param endDate End date of the analytic. (required)
-     * @return a DeliveryAdminAnalyticsPreparationTimeGet200Response response representing the average time
+     * @return a AdminAnalyticsPreparationTimeGet200Response response representing the average time
      */
     @Override
     public ResponseEntity<AdminAnalyticsPreparationTimeGet200Response> adminAnalyticsPreparationTimeGet(
@@ -200,7 +199,7 @@ public class AdminController implements AdminApi {
      * @param adminId The admin ID.
      * @param startDate Start date of the analytic.
      * @param endDate End date of the analytic.
-     * @return a DeliveryAdminAnalyticsDeliveryTimeGet200Response response representing the average duration of a delivery
+     * @return a AdminAnalyticsDeliveryTimeGet200Response response representing the average duration of a delivery
      */
     @Override
     public ResponseEntity<AdminAnalyticsDeliveryTimeGet200Response> adminAnalyticsDeliveryTimeGet(

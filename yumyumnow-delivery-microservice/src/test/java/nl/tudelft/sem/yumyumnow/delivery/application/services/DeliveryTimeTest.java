@@ -28,9 +28,7 @@ public class DeliveryTimeTest {
     private DeliveryService deliveryService;
     private OrderService orderService;
     private CustomerService userService;
-
     private EmailService emailService;
-    private AdminValidatorService adminValidatorService;
 
     @BeforeEach
     void setUp() {
@@ -39,8 +37,7 @@ public class DeliveryTimeTest {
         CourierService courierService = mock(CourierService.class);
         orderService = mock(OrderService.class);
         emailService = mock(EmailService.class);
-        adminValidatorService = mock(AdminValidatorService.class);
-        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService, orderService, emailService, adminValidatorService);
+        deliveryService = new DeliveryService(deliveryRepository, vendorService, courierService, orderService, emailService);
         userService = mock(CustomerService.class);
     }
 

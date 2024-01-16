@@ -28,6 +28,8 @@ public class AdminService {
      *
      * @param orderService              the service for order
      * @param deliveryRepository        the repository for delivery
+     * @param adminValidatorService     the service for admin validator
+     * @param vendorService             the service for the vendor
      */
     @Autowired
     public AdminService(OrderService orderService,

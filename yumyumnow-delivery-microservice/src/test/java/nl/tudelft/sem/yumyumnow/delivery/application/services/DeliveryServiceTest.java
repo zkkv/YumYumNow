@@ -40,7 +40,6 @@ public class DeliveryServiceTest {
     private CourierService courierService;
     private OrderService orderService;
     private EmailService emailService;
-    private AdminValidatorService adminValidatorService;
 
     @BeforeEach
     void setUp(){
@@ -48,11 +47,10 @@ public class DeliveryServiceTest {
         this.vendorService = mock(VendorService.class);
         this.courierService = mock(CourierService.class);
         this.orderService = mock(OrderService.class);
-        this.adminValidatorService = mock(AdminValidatorService.class);
         this.emailService = mock(EmailService.class);
 
         deliveryService = new DeliveryService(
-                deliveryRepository, vendorService, courierService, orderService, emailService, adminValidatorService);
+                deliveryRepository, vendorService, courierService, orderService, emailService);
     }
 
     @Test

@@ -34,7 +34,6 @@ public class DeliveryService {
     private final CourierService courierService;
     private final OrderService orderService;
     private final EmailService emailService;
-    private final AdminValidatorService adminValidatorService;
 
     /**
      * Create a new DeliveryService.
@@ -50,14 +49,12 @@ public class DeliveryService {
                            VendorService vendorService,
                            CourierService courierService,
                            OrderService orderService,
-                           EmailService emailService,
-                           AdminValidatorService adminValidatorService) {
+                           EmailService emailService) {
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
         this.courierService = courierService;
         this.orderService = orderService;
         this.emailService = emailService;
-        this.adminValidatorService = adminValidatorService;
     }
 
     /**

@@ -17,12 +17,13 @@ public class AdminValidatorService {
     private final String userServiceUrl;
 
     /**
-     * Constructor for AdminValidator object with RestTemplateBuilder
+     * Constructor for AdminValidator object with RestTemplateBuilder.
+     *
      * @param restTemplateBuilder      the RestTemplate object used for making HTTP requests to the Order microservice.
      * @param userServiceUrl    the url for the user microservice
      */
     @Autowired
-    public AdminValidatorService(RestTemplateBuilder restTemplateBuilder, @Value("${user.microservice.url}") String userServiceUrl){
+    public AdminValidatorService(RestTemplateBuilder restTemplateBuilder, @Value("${user.microservice.url}") String userServiceUrl) {
         this.restTemplate = restTemplateBuilder.build();
         this.userServiceUrl = userServiceUrl;
     }
@@ -34,7 +35,7 @@ public class AdminValidatorService {
      * @param userServiceUrl url for user microservice
      */
 
-    public AdminValidatorService(RestTemplate restTemplate, String userServiceUrl){
+    public AdminValidatorService(RestTemplate restTemplate, String userServiceUrl) {
         this.restTemplate = restTemplate;
         this.userServiceUrl = userServiceUrl;
     }
