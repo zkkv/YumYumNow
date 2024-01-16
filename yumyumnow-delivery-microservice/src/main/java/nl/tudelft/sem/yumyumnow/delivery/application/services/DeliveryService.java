@@ -71,6 +71,9 @@ public class DeliveryService {
         if (vendorService.getVendor(vendorId.toString()) == null) {
             throw new BadArgumentException("Vendor does not exist");
         }
+        if (orderService.findOrderById(orderId) == null) {
+            throw new BadArgumentException("Order does not exist");
+        }
         Delivery delivery = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setOrderId(orderId)
