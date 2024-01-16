@@ -52,7 +52,7 @@ public class VendorServiceTest {
                 "contactInfo", Map.of(
                         "phoneNumber", "123456789"
                         ),
-                "allowsOnlyOwnCouriers", true,
+                "allowOnlyOwnCouriers", true,
                 "maxDeliveryZone", 5
         ));
 
@@ -101,7 +101,7 @@ public class VendorServiceTest {
                 "contactInfo", Map.of(
                         "phoneNumber", "123456789"
                 ),
-                "allowsOnlyOwnCouriers", false,
+                "allowOnlyOwnCouriers", false,
                 "maxDeliveryZone", 5
         ));
 
