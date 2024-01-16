@@ -1216,9 +1216,20 @@ components:
     Error:
       type: object
       properties:
-        code:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-16T15:53:08.472+00:00"
+        status:
           type: integer
-          example: 404
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
         message:
           type: string
           example: "Not Found"
+        path:
+          type: string
+          example: "/delivery"
+
