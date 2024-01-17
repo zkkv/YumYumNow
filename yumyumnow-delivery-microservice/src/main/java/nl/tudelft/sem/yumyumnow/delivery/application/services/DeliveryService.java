@@ -58,6 +58,16 @@ public class DeliveryService {
         this.courierService = courierService;
         this.orderService = orderService;
         this.emailService = emailService;
+
+        // Initialize a default delivery for TA purposes
+        Delivery d = new DeliveryBuilder()
+                .setId(UUID.fromString("131304a3-693b-4550-b4e7-2438a2d686d0"))
+                .setOrderId(UUID.fromString("c93e6205-c256-484f-8ebf-e76d625d3444"))
+                .setVendorId(UUID.fromString("aec02858-71ae-40d6-a252-7d8b45338d91"))
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
+        deliveryRepository.save(d);
+        System.out.println("Created a default delivery with id: " + d.getId());
     }
 
     /**

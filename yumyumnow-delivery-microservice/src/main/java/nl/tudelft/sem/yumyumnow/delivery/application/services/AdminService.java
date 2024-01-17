@@ -219,7 +219,6 @@ public class AdminService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and default maximum delivery zone
      */
-    @SneakyThrows
     public AdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
 
@@ -243,7 +242,6 @@ public class AdminService {
      * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
-    @SneakyThrows
     public AdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal newMaxZone,
                                                       AdminService adminService)
             throws AccessForbiddenException, ServiceUnavailableException {
@@ -266,7 +264,7 @@ public class AdminService {
 
     private Map<String, Object> getAdminUser(UUID adminId, String userServiceUrl) {
         return this.restTemplate.getForObject(userServiceUrl
-                + "/" + adminId.toString(), Map.class);
+                + "/user/" + adminId.toString(), Map.class);
     }
 
 
