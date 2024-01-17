@@ -475,16 +475,17 @@ class DeliveryControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
+    @Test
     void getDeliveriesInRadiusUnauthorized() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         BigDecimal radius = BigDecimal.ONE;
         Location location = new Location();
         UUID courierId = UUID.randomUUID();
 
         when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(AccessForbiddenException.class);
-
-        ResponseEntity<List<Delivery>> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-
-        assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
+        
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryAvailableGet(radius,location,courierId));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -499,6 +500,20 @@ class DeliveryControllerTest {
                 () -> deliveryController.deliveryAvailableGet(radius, location, courierId));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
+
+    @Test
+    void getDeliveriesInRadiusServiceUnavailable() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        BigDecimal radius = BigDecimal.valueOf(-1);
+        Location location = new Location();
+        UUID courierId = UUID.randomUUID();
+
+        when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(ServiceUnavailableException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryAvailableGet(radius,location,courierId));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
 
     @Test
     void getDeliveriesInRadiusSuccess() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
@@ -517,4 +532,21 @@ class DeliveryControllerTest {
 
         assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
     }
+
+    @Test
+    void updateTotalDeliveryTimeUnsuccessfulTest() throws BadArgumentException, NoDeliveryFoundException {
+        UUID deliveryId = UUID.randomUUID();
+        Delivery delivery = new Delivery();
+        delivery.setId(deliveryId);
+
+        when(deliveryService.addDeliveryTime(deliveryId, orderService, userService))
+                .thenThrow(NoDeliveryFoundException.class);
+
+        DeliveryIdDeliveryTimePostRequest deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest();
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
 }

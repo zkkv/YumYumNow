@@ -219,7 +219,7 @@ public class AdminControllerTest {
     }
 
     @Test
-    void getSuccessfulDeliveriesExceptionTest() throws Exception {
+    void getSuccessfulDeliveriesBadArgumentTest() throws Exception {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
