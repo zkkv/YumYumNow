@@ -81,6 +81,19 @@ public class DeliveryServiceTest {
     }
 
     @Test
+    public void testDistance(){
+        Location location1 = new Location();
+        location1.setLongitude(BigDecimal.ONE);
+        location1.setLatitude(BigDecimal.TEN);
+
+        DeliveryCurrentLocation location2 = new DeliveryCurrentLocation();
+        location2.setLongitude(BigDecimal.ZERO);
+        location2.setLatitude(BigDecimal.ONE);
+
+        assertEquals(1007.9498662033461, deliveryService.distanceBetween(location1,location2));
+    }
+
+    @Test
     public void getExistingDelivery() throws NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
 
@@ -511,7 +524,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void vendorMaxZoneTest() {
+    public void adminMaxZoneTest() {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
@@ -741,6 +754,7 @@ public class DeliveryServiceTest {
 
         verify(emailService).send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com");
     }
+    @Test
     public void voidGetAvailableDeliveriesAsNonCourier(){
         UUID courierId = UUID.randomUUID();
 
