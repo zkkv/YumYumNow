@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdCustomCouriersPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -142,5 +143,21 @@ public class VendorService {
      */
     public void setDefaultMaxDeliveryZone(BigDecimal defaultMaxDeliveryZone) {
         this.defaultMaxDeliveryZone = defaultMaxDeliveryZone;
+    }
+
+    /**
+     * Setter for the allowsOnlyOwnCouriers field.
+     *
+     * @param id the vendor id
+     * @param allowsOnlyOwnCouriers the boolean to be set as allowsOnlyOwnCouriers
+     * @return a DeliveryVendorIdCustomCouriersPutRequest
+     */
+    public DeliveryVendorIdCustomCouriersPutRequest setOwnCouriers(UUID id, Boolean allowsOnlyOwnCouriers) {
+        Vendor vendor = getVendor(id.toString());
+        vendor.setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
+        putVendor(vendor);
+        return new DeliveryVendorIdCustomCouriersPutRequest()
+                .vendorId(id)
+                .allowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
     }
 }

@@ -1,4 +1,9 @@
-# Lab Template
+# YumYumNow Delivery Microservice - Team 11B
+
+## Mocked Services
+The code on the `main` branch has the other two microservices mocked.
+
+## Lab Template
 
 This template contains two microservices:
 - authentication-microservice

@@ -15,9 +15,12 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+
 import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -38,11 +41,11 @@ public class DeliveryService {
     /**
      * Create a new DeliveryService.
      *
-     * @param deliveryRepository     The repository to use for delivery
-     * @param vendorService          service of the vendor
-     * @param courierService         service of the courier
-     * @param orderService           service of the order
-     * @param emailService           service of emails
+     * @param deliveryRepository The repository to use for delivery
+     * @param vendorService      service of the vendor
+     * @param courierService     service of the courier
+     * @param orderService       service of the order
+     * @param emailService       service of emails
      */
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
@@ -55,15 +58,25 @@ public class DeliveryService {
         this.courierService = courierService;
         this.orderService = orderService;
         this.emailService = emailService;
+
+        // Initialize a default delivery for TA purposes
+        Delivery d = new DeliveryBuilder()
+                .setId(UUID.fromString("131304a3-693b-4550-b4e7-2438a2d686d0"))
+                .setOrderId(UUID.fromString("c93e6205-c256-484f-8ebf-e76d625d3444"))
+                .setVendorId(UUID.fromString("aec02858-71ae-40d6-a252-7d8b45338d91"))
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
+        deliveryRepository.save(d);
+        System.out.println("Created a default delivery with id: " + d.getId());
     }
 
     /**
      * Create a delivery based on order data.
      *
-     * @param orderId The order ID to which the delivery corresponds
-     *              (UUID).
+     * @param orderId  The order ID to which the delivery corresponds
+     *                 (UUID).
      * @param vendorId The vendor ID to which the delivery corresponds
-     *               (UUID).
+     *                 (UUID).
      * @return The created delivery.
      */
     public Delivery createDelivery(UUID orderId, UUID vendorId) throws BadArgumentException {
@@ -126,7 +139,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     *         update it or if delivery is not found.
+     * update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -142,34 +155,36 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
-        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+        Delivery delivery = optionalDelivery.get();
+
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(delivery.getOrderId())) {
             throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
-        Delivery delivery = optionalDelivery.get();
 
         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
-                 Map.of(
-                         Vendor.class, new VendorExistsValidator(
-                                 new VendorBelongsToDeliveryValidator(null, userId, vendorService),
-                                 userId, vendorService),
-                         Courier.class, new CourierExistsValidator(
-                                 new CourierBelongsToVendorValidator(
-                                 new CourierBelongsToDeliveryValidator(null, userId, courierService),
-                                 userId, courierService, vendorService), userId, courierService)
-                 ), status, userId, vendorService, courierService);
-
+                Map.of(
+                        Vendor.class, new VendorExistsValidator(
+                                new VendorBelongsToDeliveryValidator(null, userId, vendorService),
+                                userId, vendorService),
+                        Courier.class, new CourierExistsValidator(
+                                new CourierBelongsToVendorValidator(
+                                        new CourierBelongsToDeliveryValidator(null, userId, courierService),
+                                        userId, courierService, vendorService), userId, courierService)
+                ), status, userId, vendorService, courierService);
 
         if (!statusPermissionValidator.process(delivery)) {
             throw new AccessForbiddenException("User has no right to update delivery status.");
         }
-
         switch (status) {
             case ACCEPTED -> delivery.setStatus(Delivery.StatusEnum.ACCEPTED);
             case REJECTED -> delivery.setStatus(Delivery.StatusEnum.REJECTED);
             case DELIVERED -> delivery.setStatus(Delivery.StatusEnum.DELIVERED);
             case PREPARING -> delivery.setStatus(Delivery.StatusEnum.PREPARING);
-            case IN_TRANSIT -> delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
+            case IN_TRANSIT -> {
+                delivery.setStatus(Delivery.StatusEnum.IN_TRANSIT);
+
+            }
             case GIVEN_TO_COURIER -> delivery.setStatus(Delivery.StatusEnum.GIVEN_TO_COURIER);
             default -> throw new BadArgumentException(
                     "Status can only be one of: ACCEPTED, REJECTED, DELIVERED, "
@@ -187,7 +202,7 @@ public class DeliveryService {
      *
      * @param vendorId                          the current vendorId
      * @param deliveryVendorIdMaxZonePutRequest contains id for the vendor to update (should be the same as current vendorId)
-     *                                          and the new maximium delivery zone
+     *                                          and the new maximum delivery zone
      * @param vendorService                     vendor service to interact with user api
      * @return the vendorID with its updated maximum delivery zone
      */
@@ -199,9 +214,8 @@ public class DeliveryService {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-
-
         if (!vendorId.equals(vendorToUpdate)  || vendorService.getVendor(vendorId.toString()) == null) {
+
             return null;
         }
         Vendor vendor = vendorService.getVendor(vendorId.toString());
@@ -288,10 +302,9 @@ public class DeliveryService {
      * @param userService  the instance of the user service.
      * @return a Delivery object representing the update delivery.
      * @throws Exception the exception to be thrown.
-     *
      */
     public Delivery addDeliveryTime(UUID deliveryId, OrderService orderService, CustomerService userService)
-            throws Exception {
+            throws NoDeliveryFoundException, BadArgumentException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
         if (optionalDelivery.isEmpty()) {
             throw new NoDeliveryFoundException("You cannot update the time of a non-existing delivery.");
@@ -335,7 +348,7 @@ public class DeliveryService {
      * Assigns courier with the provided {@code courierId} to the delivery
      * with the given {@code id}.
      *
-     * @param id id of the delivery
+     * @param id        id of the delivery
      * @param courierId id of the courier
      * @return delivery after assigning the courier to it
      * @author Kirill Zhankov
@@ -359,9 +372,9 @@ public class DeliveryService {
 
         // Chain of validators that checks that courier is associated with vendor.
         var validator = new CourierExistsValidator(
-                        new VendorExistsValidator(
+                new VendorExistsValidator(
                         new CourierBelongsToVendorValidator(null,
-                        courierId, courierService, vendorService),
+                                courierId, courierService, vendorService),
                         delivery.getVendorId(), vendorService),
                 courierId, courierService);
 
@@ -386,10 +399,11 @@ public class DeliveryService {
         return delivery;
     }
 
-    /** Creates the email for notifying a customer that the status for their order has been updated.
+    /**
+     * Creates the email for notifying a customer that the status for their order has been updated.
      *
      * @param status the updated status
-     * @param id id of the delivery
+     * @param id     id of the delivery
      * @return a confirmation string that the email has been sent
      * @throws BadArgumentException if the order, customer or email cannot be found
      */
@@ -422,12 +436,12 @@ public class DeliveryService {
     /**
      * Returns a list of all deliveries available for a courier ordered by distance.
      *
-     * @param radius maximum distance from the courier
-     * @param location the current location of the courier
+     * @param radius    maximum distance from the courier
+     * @param location  the current location of the courier
      * @param courierId the id of the courier
      * @return the list aforementioned
-     * @throws AccessForbiddenException if the user trying to access is not a courier
-     * @throws BadArgumentException if the radius is invalid
+     * @throws AccessForbiddenException    if the user trying to access is not a courier
+     * @throws BadArgumentException        if the radius is invalid
      * @throws ServiceUnavailableException if there is a failure at other services
      */
     public List<Delivery> getAvailableDeliveries(BigDecimal radius, Location location, UUID courierId)
@@ -454,18 +468,9 @@ public class DeliveryService {
         List<Delivery> checkedDeliveries = deliveries
                 .stream()
                 .filter(d -> d.getCourierId() == null) //Only unassigned orders
-                .filter(d -> {
-                    UUID vendorId = d.getVendorId();
-                    Vendor vendor = vendorService.getVendor(vendorId.toString());
-                    if (courier.getVendor() != null && !courier.getVendor().equals(vendor)) {
-                        return false;
-                    }
-                    if (vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
-                            || !courier.getVendor().equals(vendor))) {
-                        return false;
-                    }
-                    return true;
-                }) //Check if the courier is eligible to see this order
+                .filter(d -> new CourierBelongsToVendorValidator(
+                            null, courierId, courierService, vendorService
+                    ).process(d)) //Check if the courier is eligible to see this order
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 
@@ -479,5 +484,29 @@ public class DeliveryService {
         return checkedDeliveries;
     }
 
+    /**
+     * Updates the current location of a delivery.
+     *
+     * @param id the delivery id
+     * @param location the new delivery location
+     * @return the delivery with the location changed
+     * @throws NoDeliveryFoundException
+     */
+    public Delivery updateLocation(UUID id, Location location) throws NoDeliveryFoundException {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
+
+        if (optionalDelivery.isEmpty()) {
+            throw new NoDeliveryFoundException("No delivery found by id.");
+        }
+
+        Delivery delivery = optionalDelivery.get();
+        DeliveryCurrentLocation currentLocation = new DeliveryCurrentLocation()
+                .timestamp(location.getTimestamp())
+                .latitude(location.getLatitude())
+                .longitude(location.getLongitude());
+        delivery.setCurrentLocation(currentLocation);
+        deliveryRepository.save(delivery);
+        return delivery;
+    }
 }
 

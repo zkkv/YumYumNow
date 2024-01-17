@@ -83,8 +83,6 @@ public class IntegratedAppTest {
     @MockBean
     private CustomerService customerService;
 
-    @MockBean
-    private AdminValidatorService adminValidatorService;
 
     @MockBean
     private DeliveryRepository deliveryRepository;
@@ -350,7 +348,6 @@ public class IntegratedAppTest {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
         when(vendorService.getDefaultMaxDeliveryZone()).thenReturn(BigDecimal.valueOf(20));
 
         AdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new  AdminMaxZoneGet200Response();
