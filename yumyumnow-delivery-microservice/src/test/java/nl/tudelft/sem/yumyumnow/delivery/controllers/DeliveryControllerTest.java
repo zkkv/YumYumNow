@@ -558,14 +558,17 @@ class DeliveryControllerTest {
         when(request.getRequestURL()).thenReturn(new StringBuffer(expectedMessage));
 
         ResponseEntity<Error> expected = ResponseEntity.badRequest().body(new Error()
-                .timestamp(OffsetDateTime.now())
+                .timestamp(OffsetDateTime.MIN)
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Bad Request")
                 .message(expectedMessage)
                 .path(request.getRequestURI()));
 
         ResponseEntity<Error> actual = deliveryController.handleArgumentTypeMismatch(request);
-        assertEquals(expected, actual);
+        assertEquals(expected.getBody().getStatus(), actual.getBody().getStatus());
+        assertEquals(expected.getBody().getError(), actual.getBody().getError());
+        assertEquals(expected.getBody().getMessage(), actual.getBody().getMessage());
+        assertEquals(expected.getBody().getPath(), actual.getBody().getPath());
     }
 
 }
