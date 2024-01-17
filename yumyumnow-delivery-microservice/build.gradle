@@ -47,7 +47,6 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'junit:junit:4.13.1'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8-standalone:2.32.0'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'

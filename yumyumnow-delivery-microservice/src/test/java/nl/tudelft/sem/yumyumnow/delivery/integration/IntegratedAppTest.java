@@ -3,10 +3,6 @@ package nl.tudelft.sem.yumyumnow.delivery.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.controllers.DeliveryController;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
@@ -18,11 +14,8 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-import org.hibernate.type.OffsetDateTimeType;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.BeforeAll;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,11 +29,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import wiremock.org.apache.hc.client5.http.classic.methods.HttpGet;
-import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import wiremock.org.checkerframework.checker.units.qual.C;
-
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,7 +37,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -324,6 +311,28 @@ public class IntegratedAppTest {
                         .param("courierId", String.valueOf(courierId)))
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString("{\"id\":null,\"")));
+    }
+
+    @Test
+    public void setCustomCouriersVendor() throws Exception {
+        UUID vendorId = UUID.randomUUID();
+        DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest = new DeliveryVendorIdCustomCouriersPutRequest();
+
+        deliveryVendorIdCustomCouriersPutRequest.setVendorId(vendorId);
+        deliveryVendorIdCustomCouriersPutRequest.setAllowsOnlyOwnCouriers(true);
+
+        Vendor vendor = new VendorBuilder()
+                .setAllowsOnlyOwnCouriers(false)
+                .setMaxDeliveryZoneKm(BigDecimal.valueOf(2))
+                .create();
+
+        when(vendorService.getVendor(vendorId.toString())).thenReturn(vendor);
+        when(vendorService.putVendor(vendor)).thenReturn(true);
+
+        String requestJson = ow.writeValueAsString(deliveryVendorIdCustomCouriersPutRequest);
+        this.mockMvc.perform(put("/delivery/vendor/" + vendorId + "/customCouriers").contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestJson))
+                .andDo(print()).andExpect(status().isOk());
     }
 
     @Test

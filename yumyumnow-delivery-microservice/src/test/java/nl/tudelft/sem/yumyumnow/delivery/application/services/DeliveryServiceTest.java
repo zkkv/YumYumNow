@@ -523,7 +523,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void adminMaxZoneTest() {
+    public void vendorMaxZoneTest() {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
