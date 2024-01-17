@@ -397,9 +397,9 @@ public class DeliveryController implements DeliveryApi {
                 .setLatitude(deliveryIdLocationPutRequest.getLocation().getLatitude())
                 .setLongitude(deliveryIdLocationPutRequest.getLocation().getLongitude())
                 .create();
+        Delivery delivery = null;
         try {
-            Delivery delivery = deliveryService.updateLocation(id, location);
-            return ResponseEntity.ok(delivery);
+            delivery = deliveryService.updateLocation(id, location);
         } catch (NoDeliveryFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No delivery found by id.");
         } catch (RestClientException e) {
@@ -409,6 +409,7 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
+        return ResponseEntity.ok(delivery);
     }
 
     /**
