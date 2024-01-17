@@ -84,6 +84,9 @@ public class DeliveryService {
         if (vendorService.getVendor(vendorId.toString()) == null) {
             throw new BadArgumentException("Vendor does not exist");
         }
+        if (orderService.findOrderById(orderId) == null) {
+            throw new BadArgumentException("Order does not exist");
+        }
         Delivery delivery = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
                 .setOrderId(orderId)
@@ -141,7 +144,6 @@ public class DeliveryService {
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
             throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
-
         if (status == DeliveryIdStatusPutRequest.StatusEnum.PENDING) {
             throw new BadArgumentException("Status cannot be PENDING.");
         }
@@ -169,7 +171,6 @@ public class DeliveryService {
                                         new CourierBelongsToDeliveryValidator(null, userId, courierService),
                                         userId, courierService, vendorService), userId, courierService)
                 ), status, userId, vendorService, courierService);
-
 
         if (!statusPermissionValidator.process(delivery)) {
             throw new AccessForbiddenException("User has no right to update delivery status.");
@@ -212,10 +213,10 @@ public class DeliveryService {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if (!vendorId.equals(vendorToUpdate) || vendorService.getVendor(vendorId.toString()) == null) {
+        if (!vendorId.equals(vendorToUpdate)  || vendorService.getVendor(vendorId.toString()) == null) {
+
             return null;
         }
-
         Vendor vendor = vendorService.getVendor(vendorId.toString());
 
         if (vendor.getAllowsOnlyOwnCouriers()) {
@@ -451,6 +452,14 @@ public class DeliveryService {
 
         if (radius.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadArgumentException("Invalid radius value");
+        }
+
+        if (location.getLatitude() == null || location.getLongitude() == null) {
+            location.setLatitude(BigDecimal.ZERO);
+            location.setLongitude(BigDecimal.ZERO);
+            //set a default location if none is provided
+            //this is such that courier can have a general idea of what orders exist
+            //without necessarily having their location turned on
         }
 
         List<Delivery> deliveries = deliveryRepository.findAll();

@@ -1,6 +1,7 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
@@ -59,6 +60,7 @@ public class DeliveryServiceTest {
         UUID vendorId = UUID.randomUUID();
 
         when(vendorService.getVendor(vendorId.toString())).thenReturn(new VendorBuilder().create());
+        when(orderService.findOrderById(orderId)).thenReturn(new OrderBuilder().create());
 
         Delivery actual = deliveryService.createDelivery(orderId, vendorId);
 
@@ -74,6 +76,19 @@ public class DeliveryServiceTest {
 
         assertThrows(BadArgumentException.class, () ->
                 deliveryService.createDelivery(orderId, vendorId));
+    }
+
+    @Test
+    public void testDistance(){
+        Location location1 = new Location();
+        location1.setLongitude(BigDecimal.ONE);
+        location1.setLatitude(BigDecimal.TEN);
+
+        DeliveryCurrentLocation location2 = new DeliveryCurrentLocation();
+        location2.setLongitude(BigDecimal.ZERO);
+        location2.setLatitude(BigDecimal.ONE);
+
+        assertEquals(1007.9498662033461, deliveryService.distanceBetween(location1,location2));
     }
 
     @Test
@@ -738,9 +753,9 @@ public class DeliveryServiceTest {
 
         verify(emailService).send("The status of your order has been changed to ACCEPTED", "max.verstappen1@gmail.com");
     }
-
     @Test
-    public void getAvailableDeliveriesAsNonCourier() {
+    public void voidGetAvailableDeliveriesAsNonCourier(){
+
         UUID courierId = UUID.randomUUID();
 
         when(courierService.getCourier(courierId.toString())).thenReturn(null);

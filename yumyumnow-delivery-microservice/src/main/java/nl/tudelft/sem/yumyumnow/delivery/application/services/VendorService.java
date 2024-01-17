@@ -156,8 +156,9 @@ public class VendorService {
         Vendor vendor = getVendor(id.toString());
         vendor.setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
         putVendor(vendor);
-        return new DeliveryVendorIdCustomCouriersPutRequest()
-                .vendorId(id)
-                .allowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
+        DeliveryVendorIdCustomCouriersPutRequest response = new  DeliveryVendorIdCustomCouriersPutRequest();
+        response.setVendorId(id);
+        response.setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
+        return response;
     }
 }
