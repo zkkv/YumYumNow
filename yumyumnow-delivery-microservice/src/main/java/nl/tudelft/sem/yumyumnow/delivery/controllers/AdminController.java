@@ -8,9 +8,11 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.model.Error;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -43,19 +45,18 @@ public class AdminController implements AdminApi {
     /**
      * Handler for Spring exception which is thrown REST request parameters have wrong format.
      *
-     * @param e exception of type MethodArgumentTypeMismatchException
-     * @return response entity with error
+     * @param request HTTP Request causing an exception
+     * @return Response with error
      */
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, NullPointerException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ResponseEntity<Error> handleResourceNotFoundException(MethodArgumentTypeMismatchException e,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<Error> handleArgumentTypeMismatch(HttpServletRequest request) {
         return ResponseEntity.badRequest().body(new Error()
                 .timestamp(OffsetDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Bad Request")
-                .message("Received parameters have incorrect format.")
+                .message("Received parameters have incorrect format or are incomplete.")
                 .path(request.getRequestURI()));
     }
 
