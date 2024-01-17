@@ -144,7 +144,6 @@ public class DeliveryService {
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
             throws NoDeliveryFoundException, AccessForbiddenException, BadArgumentException {
-
         if (status == DeliveryIdStatusPutRequest.StatusEnum.PENDING) {
             throw new BadArgumentException("Status cannot be PENDING.");
         }

@@ -50,7 +50,7 @@ public class AdminServiceTest {
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        AdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId, adminService);
+        AdminMaxZoneGet200Response response = adminService.adminGetMaxZone(adminId);
         assertEquals(deliveryAdminMaxZoneGet200Response, response);
     }
 
@@ -62,7 +62,7 @@ public class AdminServiceTest {
         when(vendorService.getDefaultMaxDeliveryZone()).thenReturn(BigDecimal.valueOf(20));
 
         assertThrows(AccessForbiddenException.class, () -> {
-            adminService.adminGetMaxZone(adminId, adminService);
+            adminService.adminGetMaxZone(adminId);
         });
     }
 
@@ -77,7 +77,7 @@ public class AdminServiceTest {
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(newMaxZone);
 
-        AdminMaxZoneGet200Response response = adminService.adminSetMaxZone(adminId, newMaxZone, adminService);
+        AdminMaxZoneGet200Response response = adminService.adminSetMaxZone(adminId, newMaxZone);
 
         verify(vendorService).setDefaultMaxDeliveryZone(newMaxZone);
         assertEquals(deliveryAdminMaxZoneGet200Response, response);
@@ -91,7 +91,7 @@ public class AdminServiceTest {
         when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
 
         assertThrows(AccessForbiddenException.class, () -> {
-            adminService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
+            adminService.adminSetMaxZone(adminId, defaultMaxZone);
         });
     }
 
@@ -102,7 +102,7 @@ public class AdminServiceTest {
 
         when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
-        AdminMaxZoneGet200Response response = adminService.adminSetMaxZone(adminId, defaultMaxZone, adminService);
+        AdminMaxZoneGet200Response response = adminService.adminSetMaxZone(adminId, defaultMaxZone);
 
         assertEquals(null, response);
     }

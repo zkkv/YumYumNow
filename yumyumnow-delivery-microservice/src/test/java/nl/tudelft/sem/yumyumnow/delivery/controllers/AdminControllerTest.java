@@ -42,7 +42,7 @@ public class AdminControllerTest {
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminGetMaxZone(adminId,adminService)).thenReturn(deliveryAdminMaxZoneGet200Response);
+        when(adminService.adminGetMaxZone(adminId)).thenReturn(deliveryAdminMaxZoneGet200Response);
         ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
         assertEquals(ResponseEntity.ok(deliveryAdminMaxZoneGet200Response), response);
     }
@@ -51,7 +51,7 @@ public class AdminControllerTest {
     void adminMaxZoneGetFailTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
-        when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(RestClientException.class);
+        when(adminService.adminGetMaxZone(adminId)).thenThrow(RestClientException.class);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZoneGet(adminId));
@@ -62,7 +62,7 @@ public class AdminControllerTest {
     void adminMaxZoneGetServiceUnavailableTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
-        when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new ServiceUnavailableException(""));
+        when(adminService.adminGetMaxZone(adminId)).thenThrow(new ServiceUnavailableException(""));
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZoneGet(adminId));
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
@@ -72,7 +72,7 @@ public class AdminControllerTest {
     void adminMaxZoneGetAccessForbiddenTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
-        when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new AccessForbiddenException(""));
+        when(adminService.adminGetMaxZone(adminId)).thenThrow(new AccessForbiddenException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZoneGet(adminId));
@@ -88,7 +88,7 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setAdminId(adminId);
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminSetMaxZone(adminId, defaultMaxZone, adminService)).thenReturn(adminMaxZoneGet200Response);
+        when(adminService.adminSetMaxZone(adminId, defaultMaxZone)).thenReturn(adminMaxZoneGet200Response);
         ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
         assertEquals(ResponseEntity.ok(adminMaxZoneGet200Response), response);
     }
@@ -101,7 +101,7 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setAdminId(adminId);
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenReturn(null);
+        when(adminService.adminSetMaxZone(adminId,defaultMaxZone)).thenReturn(null);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));
@@ -116,7 +116,7 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setAdminId(adminId);
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new ServiceUnavailableException(""));
+        when(adminService.adminSetMaxZone(adminId,defaultMaxZone)).thenThrow(new ServiceUnavailableException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));
@@ -131,7 +131,7 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setAdminId(adminId);
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
-        when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new AccessForbiddenException(""));
+        when(adminService.adminSetMaxZone(adminId,defaultMaxZone)).thenThrow(new AccessForbiddenException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));

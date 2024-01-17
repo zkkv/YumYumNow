@@ -73,7 +73,7 @@ public class AdminController implements AdminApi {
     ) {
         AdminMaxZoneGet200Response response = null;
         try {
-            response = adminService.adminGetMaxZone(adminId, adminService);
+            response = adminService.adminGetMaxZone(adminId);
         } catch (ServiceUnavailableException | RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
@@ -101,7 +101,7 @@ public class AdminController implements AdminApi {
         AdminMaxZoneGet200Response response = null;
         try {
             response = adminService.adminSetMaxZone(adminMaxZoneGet200Response.getAdminId(),
-                            adminMaxZoneGet200Response.getRadiusKm(), adminService);
+                            adminMaxZoneGet200Response.getRadiusKm());
             if (response == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Max zone has to be positive.");

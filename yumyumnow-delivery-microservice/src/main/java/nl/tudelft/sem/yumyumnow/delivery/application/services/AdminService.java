@@ -13,7 +13,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,6 +26,7 @@ public class AdminService {
     private final OrderService orderService;
     private final DeliveryRepository deliveryRepository;
     private final VendorService vendorService;
+
     private final String userServiceUrl;
     private final RestTemplate restTemplate;
 
@@ -63,8 +63,7 @@ public class AdminService {
                         DeliveryRepository deliveryRepository,
                         VendorService vendorService,
                         RestTemplate restTemplate,
-                        @Value("${user.microservice.url}") String userServiceUrl)
-    {
+                        @Value("${user.microservice.url}") String userServiceUrl) {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
@@ -216,10 +215,9 @@ public class AdminService {
      * Get the default maximum delivery zone as an admin.
      *
      * @param adminId the id of admin
-     * @param adminService admin service from user microservice
      * @return the response contains admin id and default maximum delivery zone
      */
-    public AdminMaxZoneGet200Response adminGetMaxZone(UUID adminId, AdminService adminService)
+    public AdminMaxZoneGet200Response adminGetMaxZone(UUID adminId)
             throws AccessForbiddenException, ServiceUnavailableException {
 
         if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
@@ -239,22 +237,19 @@ public class AdminService {
      *
      * @param adminId the id of admin
      * @param newMaxZone the new default maximum delivery zone
-     * @param adminService admin service from user microservice
      * @return the response contains admin id and updated default maximum delivery zone
      */
-    public AdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal newMaxZone,
-                                                      AdminService adminService)
+    public AdminMaxZoneGet200Response adminSetMaxZone(UUID adminId, BigDecimal newMaxZone)
             throws AccessForbiddenException, ServiceUnavailableException {
 
         if (newMaxZone.compareTo(BigDecimal.ZERO) <= 0) {
             return null;
         }
         if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
-            throw new AccessForbiddenException("User has no right to get default max zone.");
+            throw new AccessForbiddenException("User has no right to set default max zone.");
         }
 
         vendorService.setDefaultMaxDeliveryZone(newMaxZone);
-
         AdminMaxZoneGet200Response response = new AdminMaxZoneGet200Response();
         response.setAdminId(adminId);
         response.setRadiusKm(newMaxZone);
@@ -262,7 +257,7 @@ public class AdminService {
         return response;
     }
 
-    private Map<String, Object> getAdminUser(UUID adminId, String userServiceUrl) {
+    public Map<String, Object> getAdminUser(UUID adminId, String userServiceUrl) {
         return this.restTemplate.getForObject(userServiceUrl
                 + "/user/" + adminId.toString(), Map.class);
     }

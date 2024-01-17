@@ -35,6 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import wiremock.org.apache.hc.client5.http.classic.methods.HttpGet;
 import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -52,6 +53,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -83,12 +85,16 @@ public class IntegratedAppTest {
     @MockBean
     private CustomerService customerService;
 
+    @MockBean
+    private AdminService adminService;
 
     @MockBean
     private DeliveryRepository deliveryRepository;
 
+
     @MockBean
     private OrderService orderService;
+
 
     @MockBean
     private CourierService courierService;
@@ -184,7 +190,7 @@ public class IntegratedAppTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
         when(vendorService.getVendor(vendor.getId().toString())).thenReturn(vendor);
-        when(orderService.isPaid(id)).thenReturn(true);
+        when(orderService.isPaid(orderId)).thenReturn(true);
         DeliveryIdStatusPutRequest deliveryIdStatusPutRequest = new DeliveryIdStatusPutRequest();
 
         deliveryIdStatusPutRequest.setStatus(DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED);
@@ -348,11 +354,14 @@ public class IntegratedAppTest {
         UUID adminId = UUID.randomUUID();
         BigDecimal defaultMaxZone = BigDecimal.valueOf(20);
 
-        when(vendorService.getDefaultMaxDeliveryZone()).thenReturn(BigDecimal.valueOf(20));
+
+
 
         AdminMaxZoneGet200Response deliveryAdminMaxZoneGet200Response = new  AdminMaxZoneGet200Response();
         deliveryAdminMaxZoneGet200Response.setAdminId(adminId);
         deliveryAdminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
+
+        when(adminService.adminSetMaxZone(adminId,defaultMaxZone)).thenReturn(deliveryAdminMaxZoneGet200Response);
 
         String requestJson = ow.writeValueAsString(deliveryAdminMaxZoneGet200Response);
         this.mockMvc.perform(put("/admin/max-zone").contentType(MediaType.APPLICATION_JSON_VALUE)
