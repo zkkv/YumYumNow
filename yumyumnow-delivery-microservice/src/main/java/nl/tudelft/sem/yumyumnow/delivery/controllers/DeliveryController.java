@@ -152,16 +152,21 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
             @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest
     ) {
-        Delivery delivery = deliveryService.changePrepTime(
-                id, deliveryIdDeliveryTimePostRequest.getUserId(),
-                deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime()
-        );
-
-        if (delivery == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "");
+        try {
+            Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(),
+                    deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
+            return ResponseEntity.ok(delivery);
+        } catch (NoDeliveryFoundException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
+        } catch (BadArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request paramers");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
-
-        return ResponseEntity.ok(delivery);
     }
 
 
@@ -219,13 +224,23 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryIdDeliveryTimePostRequest1", description = "")
             @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
     ) {
-        Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(),
-                deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
-        if (delivery == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+        Delivery delivery = null;
+        try{
+            delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(),
+                    deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
+        } catch (NoDeliveryFoundException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
+        } catch (BadArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request paramers");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
-
         return ResponseEntity.ok(delivery);
+
     }
 
 
@@ -243,14 +258,20 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryVendorIdMaxZonePutRequest", description = "")
             @Valid @RequestBody(required = false) DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest
     ) {
-        DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
-                deliveryVendorIdMaxZonePutRequest, vendorService);
-
-        if (response == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect parameters.");
+       try{
+           DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
+                   deliveryVendorIdMaxZonePutRequest, vendorService);
+           return ResponseEntity.ok(response);
+       }catch (BadArgumentException e){
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User isn't authorized for this request..");
+       }catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
 
-        return ResponseEntity.ok(response);
     }
 
     /**
@@ -425,8 +446,14 @@ public class DeliveryController implements DeliveryApi {
     {
         try{
             return ResponseEntity.ok(vendorService.setOwnCouriers(id, deliveryVendorIdCustomCouriersPutRequest.getAllowsOnlyOwnCouriers()));
+        }catch (BadArgumentException e){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No vendor found by id.");
+        }catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Server could not respond.");
         } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
         }
     }
 }
