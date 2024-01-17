@@ -410,4 +410,23 @@ public class DeliveryController implements DeliveryApi {
                     "Internal server error.");
         }
     }
+
+    /**
+     * Update the allowsOnlyOwnCouriers field of a vendor.
+     *
+     * @param id UUID of the vendor (required)
+     * @param deliveryVendorIdCustomCouriersPutRequest  (optional)
+     * @return the Response Entity containing the DeliveryVendorIdCustomCouriersPutRequest
+     */
+    @Override
+    public ResponseEntity<DeliveryVendorIdCustomCouriersPutRequest>  deliveryVendorIdCustomCouriersPut(
+            @Parameter(name = "id", description = "UUID of the vendor", required = true) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryVendorIdCustomCouriersPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest)
+    {
+        try{
+            return ResponseEntity.ok(vendorService.setOwnCouriers(id, deliveryVendorIdCustomCouriersPutRequest.getAllowsOnlyOwnCouriers()));
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

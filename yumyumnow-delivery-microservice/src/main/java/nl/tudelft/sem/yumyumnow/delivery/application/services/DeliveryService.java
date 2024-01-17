@@ -58,6 +58,16 @@ public class DeliveryService {
         this.courierService = courierService;
         this.orderService = orderService;
         this.emailService = emailService;
+
+        // Initialize a default delivery for TA purposes
+        Delivery d = new DeliveryBuilder()
+                .setId(UUID.fromString("131304a3-693b-4550-b4e7-2438a2d686d0"))
+                .setOrderId(UUID.fromString("c93e6205-c256-484f-8ebf-e76d625d3444"))
+                .setVendorId(UUID.fromString("aec02858-71ae-40d6-a252-7d8b45338d91"))
+                .setStatus(Delivery.StatusEnum.PENDING)
+                .create();
+        deliveryRepository.save(d);
+        System.out.println("Created a default delivery with id: " + d.getId());
     }
 
     /**
@@ -142,11 +152,12 @@ public class DeliveryService {
             throw new NoDeliveryFoundException("No delivery found by id.");
         }
 
-        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(id)) {
+        Delivery delivery = optionalDelivery.get();
+
+        if (status == DeliveryIdStatusPutRequest.StatusEnum.ACCEPTED && !orderService.isPaid(delivery.getOrderId())) {
             throw new AccessForbiddenException("The delivery hasn't been paid for yet.");
         }
 
-        Delivery delivery = optionalDelivery.get();
 
         StatusPermissionValidator statusPermissionValidator = new StatusPermissionValidator(
                 Map.of(
@@ -201,7 +212,7 @@ public class DeliveryService {
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
-        if (vendorId != vendorToUpdate || vendorService.getVendor(vendorId.toString()) == null) {
+        if (!vendorId.equals(vendorToUpdate) || vendorService.getVendor(vendorId.toString()) == null) {
             return null;
         }
 
@@ -447,18 +458,9 @@ public class DeliveryService {
         List<Delivery> checkedDeliveries = deliveries
                 .stream()
                 .filter(d -> d.getCourierId() == null) //Only unassigned orders
-                .filter(d -> {
-                    UUID vendorId = d.getVendorId();
-                    Vendor vendor = vendorService.getVendor(vendorId.toString());
-                    if (courier.getVendor() != null && !courier.getVendor().equals(vendor)) {
-                        return false;
-                    }
-                    if (vendor.getAllowsOnlyOwnCouriers() && (courier.getVendor() == null
-                            || !courier.getVendor().equals(vendor))) {
-                        return false;
-                    }
-                    return true;
-                }) //Check if the courier is eligible to see this order
+                .filter(d -> new CourierBelongsToVendorValidator(
+                            null, courierId, courierService, vendorService
+                    ).process(d)) //Check if the courier is eligible to see this order
                 .filter(d -> radius.compareTo(BigDecimal.valueOf(distanceBetween(location, d.getCurrentLocation()))) >= 0)
                 .collect(Collectors.toList());
 
