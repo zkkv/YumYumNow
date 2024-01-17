@@ -9,11 +9,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +51,11 @@ public class AdminControllerTest {
     void adminMaxZoneGetFailTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
-        when(adminService.adminGetMaxZone(adminId,adminService)).thenReturn(null);
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
-        assertEquals(ResponseEntity.badRequest().body(null), response);
+        when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(RestClientException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZoneGet(adminId));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -57,8 +63,9 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new ServiceUnavailableException(""));
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
-        assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZoneGet(adminId));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -66,8 +73,10 @@ public class AdminControllerTest {
         UUID adminId = UUID.randomUUID();
 
         when(adminService.adminGetMaxZone(adminId,adminService)).thenThrow(new AccessForbiddenException(""));
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZoneGet(adminId);
-        assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZoneGet(adminId));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -93,8 +102,10 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenReturn(null);
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
-        assertEquals(ResponseEntity.badRequest().body(adminMaxZoneGet200Response), response);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
     }
 
     @Test
@@ -106,8 +117,10 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new ServiceUnavailableException(""));
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
-        assertEquals(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE), response);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -119,8 +132,10 @@ public class AdminControllerTest {
         adminMaxZoneGet200Response.setRadiusKm(defaultMaxZone);
 
         when(adminService.adminSetMaxZone(adminId,defaultMaxZone,adminService)).thenThrow(new AccessForbiddenException(""));
-        ResponseEntity<AdminMaxZoneGet200Response> response = adminController.adminMaxZonePut(adminMaxZoneGet200Response);
-        assertEquals(new ResponseEntity<>(HttpStatus.FORBIDDEN), response);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminMaxZonePut(adminMaxZoneGet200Response));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     // Analytics tests
@@ -152,12 +167,9 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsTotalDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -168,12 +180,9 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsTotalDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -184,12 +193,9 @@ public class AdminControllerTest {
 
         when(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        ResponseEntity<AdminAnalyticsTotalDeliveriesGet200Response> actual = adminController.adminAnalyticsTotalDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsTotalDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -220,12 +226,9 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsSuccessfulDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -236,12 +239,9 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
 
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsSuccessfulDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -252,12 +252,9 @@ public class AdminControllerTest {
 
         when(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).thenThrow(ServiceUnavailableException.class);
 
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> expected = new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        ResponseEntity<AdminAnalyticsSuccessfulDeliveriesGet200Response> actual = adminController.adminAnalyticsSuccessfulDeliveriesGet(
-                adminId, startDate, endDate
-        );
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsSuccessfulDeliveriesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test

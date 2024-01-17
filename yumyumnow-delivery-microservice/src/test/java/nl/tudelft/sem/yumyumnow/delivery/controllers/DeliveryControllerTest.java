@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
@@ -103,11 +104,9 @@ class DeliveryControllerTest {
         request.setOrderId(orderId);
         request.setVendorId(vendorId);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        ResponseEntity<Delivery> actual = deliveryController.deliveryPost(request);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryPost(request));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -132,10 +131,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.getDelivery(id)).thenThrow(NoDeliveryFoundException.class);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdGet(id);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdGet(id));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -158,11 +156,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenReturn(null);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdPrepTimePost(id, deliveryIdDeliveryTimePostRequest);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePost(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -178,12 +174,9 @@ class DeliveryControllerTest {
                 id,deliveryIdStatusPutRequest.getUserId(), deliveryIdStatusPutRequest.getStatus()))
                 .thenThrow(BadArgumentException.class);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest);
-
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -206,11 +199,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenReturn(null);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -329,8 +320,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenReturn(null);
 
-        ResponseEntity<DeliveryVendorIdMaxZonePutRequest> response = deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest);
-        assertEquals(ResponseEntity.badRequest().body(deliveryVendorIdMaxZonePutRequest), response);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -360,10 +352,9 @@ class DeliveryControllerTest {
 
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1 = new DeliveryIdDeliveryTimePostRequest1();
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdDeliveryTimePost(deliveryId, deliveryIdDeliveryTimePostRequest1));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -409,10 +400,10 @@ class DeliveryControllerTest {
         DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
         request.setCourierId(courierId);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
 
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdAssignPut(id, request));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
@@ -434,10 +425,9 @@ class DeliveryControllerTest {
         DeliveryIdAssignPutRequest request = new DeliveryIdAssignPutRequest();
         request.setCourierId(courierId);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdAssignPut(id, request);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdAssignPut(id, request));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -480,11 +470,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.sendEmail(deliveryIdStatusPutRequest.getStatus(), id)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<Delivery> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        ResponseEntity<Delivery> actual = deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest);
-
-        assertEquals(expected, actual);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdStatusPut(id, deliveryIdStatusPutRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     void getDeliveriesInRadiusUnauthorized() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
@@ -507,9 +495,9 @@ class DeliveryControllerTest {
 
         when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(BadArgumentException.class);
 
-        ResponseEntity<List<Delivery>> expected = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        assertEquals(expected, deliveryController.deliveryAvailableGet(radius,location,courierId));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryAvailableGet(radius, location, courierId));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
     @Test
