@@ -305,10 +305,13 @@ public class DeliveryController implements DeliveryApi {
         try {
             deliveries = deliveryService.getAvailableDeliveries(radius, location, courierId);
         } catch (BadArgumentException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (AccessForbiddenException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (ServiceUnavailableException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
 
@@ -334,7 +337,26 @@ public class DeliveryController implements DeliveryApi {
         try {
             Delivery delivery = deliveryService.updateLocation(id, location);
             return ResponseEntity.ok(delivery);
-        } catch (Exception e) {
+        } catch (NoDeliveryFoundException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Update the allowsOnlyOwnCouriers field of a vendor.
+     *
+     * @param id UUID of the vendor (required)
+     * @param deliveryVendorIdCustomCouriersPutRequest  (optional)
+     * @return the Response Entity containing the DeliveryVendorIdCustomCouriersPutRequest
+     */
+    @Override
+    public ResponseEntity<DeliveryVendorIdCustomCouriersPutRequest>  deliveryVendorIdCustomCouriersPut(
+            @Parameter(name = "id", description = "UUID of the vendor", required = true) @PathVariable("id") UUID id,
+            @Parameter(name = "DeliveryVendorIdCustomCouriersPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest)
+    {
+        try{
+            return ResponseEntity.ok(vendorService.setOwnCouriers(id, deliveryVendorIdCustomCouriersPutRequest.getAllowsOnlyOwnCouriers()));
+        } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

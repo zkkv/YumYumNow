@@ -5,6 +5,7 @@ import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
+
 import java.util.UUID;
 
 /**
@@ -18,10 +19,10 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
     /**
      * Constructor for CourierValidator.
      *
-     * @param next The next validator in the chain
-     * @param toValidate ID of the courier to validate
+     * @param next           The next validator in the chain
+     * @param toValidate     ID of the courier to validate
      * @param courierService Courier service to get the courier from
-     * @param vendorService Vendor service to get the vendor from
+     * @param vendorService  Vendor service to get the vendor from
      */
     public CourierBelongsToVendorValidator(
             AuthProcessor next,
@@ -39,7 +40,7 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
      * 1. Check if the courier exists
      * 2. Check if the courier is allowed to deliver the order
      * 3. Check if the vendor allows only its own couriers, and if so,
-     *   check if the courier is from the same vendor
+     * check if the courier is from the same vendor
      * 4. If the next validator exists, call it.
      *
      * @param delivery The delivery to validate against
@@ -52,9 +53,12 @@ public class CourierBelongsToVendorValidator extends AuthProcessor<Courier> {
             return true;
         }
 
-        if (vendor.getAllowsOnlyOwnCouriers()
-                && !vendor.getId().equals(toValidate.getVendor().getId())) {
-            return false;
+        if (vendor.getAllowsOnlyOwnCouriers()) {
+            if (toValidate.getVendor() == null) {
+                return false;
+            } else if (!vendor.getId().equals(toValidate.getVendor().getId())) {
+                return false;
+            }
         }
 
         if (next == null) {

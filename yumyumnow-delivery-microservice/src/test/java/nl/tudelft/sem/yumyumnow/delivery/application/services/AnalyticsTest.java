@@ -1,5 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
+import nl.tudelft.sem.yumyumnow.delivery.application.validators.UserIsAdminValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
@@ -8,11 +9,15 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.env.Environment;
+import org.springframework.web.client.RestTemplate;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,16 +27,18 @@ public class AnalyticsTest {
     private DeliveryRepository deliveryRepository;
     private AdminService adminService;
     private OrderService orderService;
-    private AdminValidatorService adminValidatorService;
-
     private VendorService vendorService;
+    private RestTemplate restTemplate;
     @BeforeEach
     void setUp(){
         this.deliveryRepository = mock(DeliveryRepository.class);
         this.orderService = mock(OrderService.class);
-        this.adminValidatorService = mock(AdminValidatorService.class);
         this.vendorService = mock(VendorService.class);
-        this.adminService = new AdminService(orderService, deliveryRepository, adminValidatorService, vendorService);
+        this.restTemplate = mock(RestTemplate.class);
+        this.adminService = new AdminService(
+                orderService, deliveryRepository,
+                vendorService, restTemplate,
+                "https://testsite.com");
     }
 
     @Test
@@ -58,7 +65,7 @@ public class AnalyticsTest {
 
 
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
         assertThat(adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
@@ -69,7 +76,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
         assertThrows(BadArgumentException.class, () -> {
             adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
@@ -81,7 +88,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(false);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
 
         assertThrows(AccessForbiddenException.class, () -> {
             adminService.getTotalDeliveriesAnalytic(adminId, startDate, endDate);
@@ -121,7 +128,7 @@ public class AnalyticsTest {
         deliveries.add(delivery3);
 
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
         when(deliveryRepository.findAll()).thenReturn(deliveries);
 
         assertThat(adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate)).isEqualTo(1);
@@ -132,7 +139,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
         assertThrows(BadArgumentException.class, () -> {
             adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
@@ -144,7 +151,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(false);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
 
         assertThrows(AccessForbiddenException.class, () -> {
             adminService.getSuccessfulDeliveriesAnalytic(adminId, startDate, endDate);
@@ -156,7 +163,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2022, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2024, 12, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
         // setting up the deliveries
         UUID id1 = UUID.randomUUID();
@@ -220,7 +227,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(false);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
 
         assertThrows(AccessForbiddenException.class, () -> {
             adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
@@ -232,7 +239,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
-        when(adminValidatorService.validate(adminId)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
         assertThrows(BadArgumentException.class, () -> {
             adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
@@ -244,7 +251,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminValidatorService.validate(id)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
         assertThrows(BadArgumentException.class, () -> {
             adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
@@ -254,7 +261,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminValidatorService.validate(id)).thenReturn(false);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
         assertThrows(AccessForbiddenException.class, () -> {
             adminService.getDeliveryTimeAnalytic(id, startDate, endDate);
         });
@@ -265,7 +272,7 @@ public class AnalyticsTest {
         OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID id = UUID.randomUUID();
-        when(adminValidatorService.validate(id)).thenReturn(true);
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
 
         Delivery delivery1 = new DeliveryBuilder()
                 .setId(UUID.randomUUID())
