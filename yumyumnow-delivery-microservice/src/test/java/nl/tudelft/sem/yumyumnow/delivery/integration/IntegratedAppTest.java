@@ -5,15 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import nl.tudelft.sem.yumyumnow.delivery.controllers.DeliveryController;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryPostRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
+import org.hibernate.type.OffsetDateTimeType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,8 +28,16 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
+import wiremock.org.apache.hc.client5.http.classic.methods.HttpGet;
+import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import wiremock.org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,9 +80,14 @@ public class IntegratedAppTest {
 
     @BeforeAll
     static void startWireMock(){
-        wireMockServerUser = new WireMockServer(8081);
+        WireMockConfiguration configurationUser = WireMockConfiguration.options()
+                .port(8081);
+        wireMockServerUser = new WireMockServer(configurationUser);
+        WireMockConfiguration configurationOrder = WireMockConfiguration.options()
+                .port(8083);
+        wireMockServerOrder = new WireMockServer(configurationOrder);
+
         wireMockServerUser.start();
-        wireMockServerOrder = new WireMockServer(8083);
         wireMockServerOrder.start();
 
         mapper = new ObjectMapper();
@@ -107,39 +124,154 @@ public class IntegratedAppTest {
         deliveryPostRequest.setVendorId(orderUUID);
         String requestJson = ow.writeValueAsString(deliveryPostRequest);
 
-        Vendor vendor = new Vendor(vendorUUID, new Location(), "", false, BigDecimal.TEN);
-        String vendorJson = ow.writeValueAsString(vendor);
+        Location location = new Location();
+        location.setLatitude(BigDecimal.ONE);
+        location.setLongitude(BigDecimal.ONE);
 
-        Customer customer = new Customer(customerUUID, "Alex", new Location(), "", "");
-        String customerJson = ow.writeValueAsString(customer);
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
 
-        Order order = new Order(orderUUID, vendor,customer);
-        String orderJson = ow.writeValueAsString(order);
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
 
-//        wireMockServerUser.stubFor(get(urlEqualTo("/vendor/7ddf1a10-8dfa-11ee-b9d1-0242ac120002"))
-//                .willReturn(aResponse()
-//                        .withStatus(200)
-//                        .withHeader("Content-Type", "application/json")
-//                        .withBody(vendorJson)
-//                        ));
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+        location.setTimestamp(offsetDateTime);
+
+        String vendorString = "{\n" +
+                "  \"userID\" : \"7ddf1a10-8dfa-11ee-b9d1-0242ac120002\",\n" +
+                "  \"location\" : {\n" +
+                "    \"timestamp\" : {\n" +
+                "      \"offset\" : {\n" +
+                "        \"totalSeconds\" : 0,\n" +
+                "        \"id\" : \"Z\",\n" +
+                "        \"rules\" : {\n" +
+                "          \"fixedOffset\" : true,\n" +
+                "          \"transitions\" : [ ],\n" +
+                "          \"transitionRules\" : [ ]\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"year\" : 2023,\n" +
+                "      \"monthValue\" : 12,\n" +
+                "      \"dayOfMonth\" : 10,\n" +
+                "      \"hour\" : 12,\n" +
+                "      \"minute\" : 0,\n" +
+                "      \"second\" : 0,\n" +
+                "      \"nano\" : 0,\n" +
+                "      \"dayOfWeek\" : \"SUNDAY\",\n" +
+                "      \"dayOfYear\" : 344,\n" +
+                "      \"month\" : \"DECEMBER\"\n" +
+                "    },\n" +
+                "    \"latitude\" : 1,\n" +
+                "    \"longitude\" : 1\n" +
+                "  },\n" +
+                "  \"contactInfo\" : {\n" +
+                "    \"phoneNumber\" : \"\"\n" +
+                "  },\n" +
+                "  \"allowOnlyOwnCouriers\" : false,\n" +
+                "  \"maxDeliveryZoneKm\" : 10\n" +
+                "}";
+
+        String customerString = "{\n" +
+                "  \"userID\" : \"" + customerUUID + "\",\n" +
+                "  \"name\" : \"Alex\",\n" +
+                "  \"location\" : {\n" +
+                "    \"timestamp\" : {\n" +
+                "      \"offset\" : {\n" +
+                "        \"totalSeconds\" : 0,\n" +
+                "        \"id\" : \"Z\",\n" +
+                "        \"rules\" : {\n" +
+                "          \"fixedOffset\" : true,\n" +
+                "          \"transitions\" : [ ],\n" +
+                "          \"transitionRules\" : [ ]\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"year\" : 2023,\n" +
+                "      \"monthValue\" : 12,\n" +
+                "      \"dayOfMonth\" : 10,\n" +
+                "      \"hour\" : 12,\n" +
+                "      \"minute\" : 0,\n" +
+                "      \"second\" : 0,\n" +
+                "      \"nano\" : 0,\n" +
+                "      \"dayOfWeek\" : \"SUNDAY\",\n" +
+                "      \"dayOfYear\" : 344,\n" +
+                "      \"month\" : \"DECEMBER\"\n" +
+                "    },\n" +
+                "    \"latitude\" : 1,\n" +
+                "    \"longitude\" : 1\n" +
+                "  },\n" +
+                "  \"contactInfo\" : {\n" +
+                "    \"email\" : \"\",\n" +
+                "    \"phoneNumber\" : \"\"\n" +
+                "  }\n" +
+                "}";
+
+        String orderString = "{\n" +
+                "  \"id\" : \"7ddf1a10-8dfa-11ee-b9d1-0242ac120002\",\n" +
+                "  \"vendor\" : {\n" +
+                "    \"id\" : null,\n" +
+                "    \"address\" : null,\n" +
+                "    \"phone\" : null,\n" +
+                "    \"allowsOnlyOwnCouriers\" : false,\n" +
+                "    \"maxDeliveryZoneKm\" : null\n" +
+                "  },\n" +
+                "  \"customerID\" : \""+ customerUUID +"\",\n" +
+                "  \"vendorID\" : \""+ vendorUUID +"\",\n" +
+                "  \"customer\" : {\n" +
+                "    \"id\" : \"6b0d92c0-378b-4369-9e3c-495c48c13154\",\n" +
+                "    \"name\" : \"Alex\",\n" +
+                "    \"location\" : {\n" +
+                "      \"timestamp\" : {\n" +
+                "        \"offset\" : {\n" +
+                "          \"totalSeconds\" : 0,\n" +
+                "          \"id\" : \"Z\",\n" +
+                "          \"rules\" : {\n" +
+                "            \"fixedOffset\" : true,\n" +
+                "            \"transitions\" : [ ],\n" +
+                "            \"transitionRules\" : [ ]\n" +
+                "          }\n" +
+                "        },\n" +
+                "        \"year\" : 2023,\n" +
+                "        \"monthValue\" : 12,\n" +
+                "        \"dayOfMonth\" : 10,\n" +
+                "        \"hour\" : 12,\n" +
+                "        \"minute\" : 0,\n" +
+                "        \"second\" : 0,\n" +
+                "        \"nano\" : 0,\n" +
+                "        \"dayOfWeek\" : \"SUNDAY\",\n" +
+                "        \"dayOfYear\" : 344,\n" +
+                "        \"month\" : \"DECEMBER\"\n" +
+                "      },\n" +
+                "      \"latitude\" : 1,\n" +
+                "      \"longitude\" : 1\n" +
+                "    },\n" +
+                "    \"email\" : \"\",\n" +
+                "    \"phone\" : \"\"\n" +
+                "  }\n" +
+                "}";
+
+        wireMockServerUser.stubFor(get(urlEqualTo("/vendor/7ddf1a10-8dfa-11ee-b9d1-0242ac120002"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(vendorString)
+                ));
 
         wireMockServerUser.stubFor(get(urlEqualTo("/customer/" + customerUUID))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(customerJson)));
+                        .withBody(customerString)));
 
         wireMockServerOrder.stubFor(get(urlEqualTo("/order/7ddf1a10-8dfa-11ee-b9d1-0242ac120002"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(orderJson)));
+                        .withBody(orderString)));
 
 
         this.mockMvc.perform(post("/delivery").contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestJson))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Hello, World")));
+                .andExpect(content().string(containsString("\"orderId\":\"7ddf1a10-8dfa-11ee-b9d1-0242ac120002\",\"courierId\":null,\"vendorId\":\"7ddf1a10-8dfa-11ee-b9d1-0242ac120002\",\"status\":\"PENDING\",\"estimatedDeliveryTime\":null,\"estimatedPreparationFinishTime\":null,\"currentLocation\":null}")));
 
     }
 }
