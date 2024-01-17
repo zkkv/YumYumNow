@@ -5,13 +5,17 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+import nl.tudelft.sem.yumyumnow.delivery.model.Error;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.ServletRequestWrapper;
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -277,4 +281,23 @@ public class AdminControllerTest {
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    void handleArgumentMismatchTest() {
+        HttpServletRequest request= mock(HttpServletRequest.class);
+        String expectedMessage = "Received parameters have incorrect format or are incomplete.";
+        when(request.getRequestURL()).thenReturn(new StringBuffer(expectedMessage));
+
+        ResponseEntity<Error> expected = ResponseEntity.badRequest().body(new Error()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(expectedMessage)
+                .path(request.getRequestURI()));
+
+        ResponseEntity<Error> actual = adminController.handleArgumentTypeMismatch(request);
+        assertEquals(expected, actual);
+    }
+
+
 }

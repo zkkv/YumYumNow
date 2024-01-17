@@ -11,12 +11,14 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
+import nl.tudelft.sem.yumyumnow.delivery.model.Error;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -482,7 +484,7 @@ class DeliveryControllerTest {
         UUID courierId = UUID.randomUUID();
 
         when(deliveryService.getAvailableDeliveries(radius,location,courierId)).thenThrow(AccessForbiddenException.class);
-        
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryAvailableGet(radius,location,courierId));
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
@@ -547,6 +549,23 @@ class DeliveryControllerTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void handleArgumentMismatchTest() {
+        HttpServletRequest request= mock(HttpServletRequest.class);
+        String expectedMessage = "Received parameters have incorrect format or are incomplete.";
+        when(request.getRequestURL()).thenReturn(new StringBuffer(expectedMessage));
+
+        ResponseEntity<Error> expected = ResponseEntity.badRequest().body(new Error()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(expectedMessage)
+                .path(request.getRequestURI()));
+
+        ResponseEntity<Error> actual = deliveryController.handleArgumentTypeMismatch(request);
+        assertEquals(expected, actual);
     }
 
 }
