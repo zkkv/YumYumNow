@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.controllers;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.services.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.LocationBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
@@ -858,4 +859,86 @@ class DeliveryControllerTest {
         assertEquals(expected.getBody().getPath(), actual.getBody().getPath());
     }
 
+    @Test
+    void deliveryLocationPutSuccessful() throws NoDeliveryFoundException {
+        DeliveryIdLocationPutRequest deliveryIdLocationPutRequest = new DeliveryIdLocationPutRequest();
+        Location location = new LocationBuilder()
+                .setTimestamp(OffsetDateTime.MIN)
+                .setLatitude(new BigDecimal(19))
+                .setLongitude(new BigDecimal(25))
+                .create();
+
+        deliveryIdLocationPutRequest.setLocation(location);
+        UUID id = UUID.randomUUID();
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .create();
+
+        when(deliveryService.updateLocation(id, location)).thenReturn(delivery);
+
+
+        ResponseEntity<Delivery> expected = ResponseEntity.ok(delivery);
+        ResponseEntity<Delivery> actual = deliveryController.deliveryIdLocationPut(id, deliveryIdLocationPutRequest);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void deliveryLocationPutBadRequestTest() throws NoDeliveryFoundException {
+        DeliveryIdLocationPutRequest deliveryIdLocationPutRequest = new DeliveryIdLocationPutRequest();
+        Location location = new LocationBuilder()
+                .setTimestamp(OffsetDateTime.MIN)
+                .setLatitude(new BigDecimal(19))
+                .setLongitude(new BigDecimal(25))
+                .create();
+
+        deliveryIdLocationPutRequest.setLocation(location);
+        UUID id = UUID.randomUUID();
+
+        when(deliveryService.updateLocation(id, location))
+                .thenThrow(NoDeliveryFoundException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdLocationPut(id, deliveryIdLocationPutRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void deliveryLocationPutServiceUnavailableTest() throws NoDeliveryFoundException {
+        DeliveryIdLocationPutRequest deliveryIdLocationPutRequest = new DeliveryIdLocationPutRequest();
+        Location location = new LocationBuilder()
+                .setTimestamp(OffsetDateTime.MIN)
+                .setLatitude(new BigDecimal(19))
+                .setLongitude(new BigDecimal(25))
+                .create();
+
+        deliveryIdLocationPutRequest.setLocation(location);
+        UUID id = UUID.randomUUID();
+
+        when(deliveryService.updateLocation(id, location))
+                .thenThrow(RestClientException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdLocationPut(id, deliveryIdLocationPutRequest));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
+    @Test
+    void deliveryLocationPutGenericExceptionTest() throws NoDeliveryFoundException {
+        DeliveryIdLocationPutRequest deliveryIdLocationPutRequest = new DeliveryIdLocationPutRequest();
+        Location location = new LocationBuilder()
+                .setTimestamp(OffsetDateTime.MIN)
+                .setLatitude(new BigDecimal(19))
+                .setLongitude(new BigDecimal(25))
+                .create();
+
+        deliveryIdLocationPutRequest.setLocation(location);
+        UUID id = UUID.randomUUID();
+
+        when(deliveryService.updateLocation(id, location))
+                .thenAnswer(t -> {throw new Exception();});
+
+        assertThrows(Exception.class,
+                () -> deliveryController.deliveryIdLocationPut(id, deliveryIdLocationPutRequest));
+    }
 }
