@@ -441,7 +441,7 @@ public class DeliveryService {
             throw new BadArgumentException("Invalid radius value");
         }
 
-        if(location.getLatitude() == null || location.getLongitude() == null){
+        if (location.getLatitude() == null || location.getLongitude() == null) {
             location.setLatitude(BigDecimal.ZERO);
             location.setLongitude(BigDecimal.ZERO);
             //set a default location if none is provided
