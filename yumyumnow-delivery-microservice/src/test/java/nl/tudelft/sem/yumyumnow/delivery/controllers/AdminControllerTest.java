@@ -318,6 +318,146 @@ public class AdminControllerTest {
     }
 
     @Test
+    void getPrepTimeBadRequestTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(BadArgumentException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsPreparationTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void getPrepTimeForbiddenTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(AccessForbiddenException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsPreparationTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    void getPrepTimeServiceUnavailableTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(ServiceUnavailableException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsPreparationTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
+    @Test
+    void getPrepTimeGenericExceptionTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getPreparationTimeAnalytic(adminId, startDate, endDate))
+                .thenAnswer(t -> {throw new Exception();});
+
+        assertThrows(Exception.class,
+                () -> adminController.adminAnalyticsPreparationTimeGet(adminId, startDate, endDate));
+    }
+
+    @Test
+    void getDeliveryTimeSuccessfulTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate)).thenReturn(1L);
+
+        AdminAnalyticsDeliveryTimeGet200Response response = new AdminAnalyticsDeliveryTimeGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setDeliveryTime(BigDecimal.valueOf(1));
+
+        ResponseEntity<AdminAnalyticsDeliveryTimeGet200Response> expected = ResponseEntity.ok(response);
+        ResponseEntity<AdminAnalyticsDeliveryTimeGet200Response> actual = adminController.adminAnalyticsDeliveryTimeGet(
+                adminId, startDate, endDate
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getDeliveryTimeBadRequestTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(BadArgumentException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsDeliveryTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void getDeliveryTimeForbiddenTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(AccessForbiddenException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsDeliveryTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    void getDeliveryTimeServiceUnavailableTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate))
+                .thenThrow(ServiceUnavailableException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsDeliveryTimeGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
+    @Test
+    void getDeliveryTimeGenericExceptionTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDeliveryTimeAnalytic(adminId, startDate, endDate))
+                .thenAnswer(t -> {throw new Exception();});
+
+        assertThrows(Exception.class,
+                () -> adminController.adminAnalyticsDeliveryTimeGet(adminId, startDate, endDate));
+    }
+
+    @Test
     void handleArgumentMismatchTest() {
         HttpServletRequest request= mock(HttpServletRequest.class);
         String expectedMessage = "Received parameters have incorrect format or are incomplete.";
