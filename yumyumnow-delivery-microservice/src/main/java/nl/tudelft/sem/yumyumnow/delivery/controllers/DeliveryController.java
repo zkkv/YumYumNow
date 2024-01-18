@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -67,7 +66,8 @@ public class DeliveryController implements DeliveryApi {
      * @param request HTTP Request causing an exception
      * @return Response with error
      */
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, NullPointerException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, NullPointerException.class,
+                       HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResponseEntity<Error> handleArgumentTypeMismatch(HttpServletRequest request) {
@@ -153,9 +153,9 @@ public class DeliveryController implements DeliveryApi {
             Delivery delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(),
                     deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime());
             return ResponseEntity.ok(delivery);
-        } catch (NoDeliveryFoundException e){
+        } catch (NoDeliveryFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
-        } catch (BadArgumentException e){
+        } catch (BadArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request parameters");
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
@@ -221,12 +221,12 @@ public class DeliveryController implements DeliveryApi {
             @Valid @RequestBody(required = false) DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest1
     ) {
         Delivery delivery = null;
-        try{
+        try {
             delivery = deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest1.getUserId(),
                     deliveryIdDeliveryTimePostRequest1.getEstimatedNewDeliveryTime());
-        } catch (NoDeliveryFoundException e){
+        } catch (NoDeliveryFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
-        } catch (BadArgumentException e){
+        } catch (BadArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request parameters");
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
@@ -252,13 +252,13 @@ public class DeliveryController implements DeliveryApi {
             @Parameter(name = "DeliveryVendorIdMaxZonePutRequest", description = "")
             @Valid @RequestBody(required = false) DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest
     ) {
-       try{
-           DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
+        try {
+            DeliveryVendorIdMaxZonePutRequest response = deliveryService.vendorMaxZone(id,
                    deliveryVendorIdMaxZonePutRequest, vendorService);
-           return ResponseEntity.ok(response);
-       }catch (BadArgumentException e){
-           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User isn't authorized for this request.");
-       }catch (RestClientException e) {
+            return ResponseEntity.ok(response);
+        } catch (BadArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User isn't authorized for this request.");
+        } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
         } catch (Exception e) {
@@ -352,7 +352,7 @@ public class DeliveryController implements DeliveryApi {
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
@@ -394,7 +394,7 @@ public class DeliveryController implements DeliveryApi {
 
     /**
      * Update the location of a delivery.
-     * 
+     *
      * @param id UUID of the delivery (required)
      * @param deliveryIdLocationPutRequest  (optional)
      * @return the delivery
@@ -402,7 +402,8 @@ public class DeliveryController implements DeliveryApi {
     @Override
     public ResponseEntity<Delivery> deliveryIdLocationPut(
             @Parameter(name = "id", description = "UUID of the delivery", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryIdLocationPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryIdLocationPutRequest deliveryIdLocationPutRequest) {
+            @Parameter(name = "DeliveryIdLocationPutRequest", description = "")
+            @Valid @RequestBody(required = false) DeliveryIdLocationPutRequest deliveryIdLocationPutRequest) {
         Location location = new LocationBuilder()
                 .setTimestamp(deliveryIdLocationPutRequest.getLocation().getTimestamp())
                 .setLatitude(deliveryIdLocationPutRequest.getLocation().getLatitude())
@@ -433,16 +434,18 @@ public class DeliveryController implements DeliveryApi {
     @Override
     public ResponseEntity<DeliveryVendorIdCustomCouriersPutRequest>  deliveryVendorIdCustomCouriersPut(
             @Parameter(name = "id", description = "UUID of the vendor", required = true) @PathVariable("id") UUID id,
-            @Parameter(name = "DeliveryVendorIdCustomCouriersPutRequest", description = "") @Valid @RequestBody(required = false) DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest)
-    {
-        try{
-            return ResponseEntity.ok(vendorService.setOwnCouriers(id, deliveryVendorIdCustomCouriersPutRequest.getAllowsOnlyOwnCouriers()));
-        }catch (BadArgumentException e){
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No vendor found by id.");
-        }catch (RestClientException e) {
+            @Parameter(name = "DeliveryVendorIdCustomCouriersPutRequest", description = "")
+            @Valid @RequestBody(required = false)
+            DeliveryVendorIdCustomCouriersPutRequest deliveryVendorIdCustomCouriersPutRequest) {
+        try {
+            return ResponseEntity.ok(vendorService.setOwnCouriers(
+                    id, deliveryVendorIdCustomCouriersPutRequest.getAllowsOnlyOwnCouriers()));
+        } catch (BadArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No vendor found by id.");
+        } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }

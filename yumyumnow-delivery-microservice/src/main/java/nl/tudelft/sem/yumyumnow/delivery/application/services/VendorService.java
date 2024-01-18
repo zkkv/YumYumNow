@@ -151,10 +151,12 @@ public class VendorService {
      * @param id the vendor id
      * @param allowsOnlyOwnCouriers the boolean to be set as allowsOnlyOwnCouriers
      * @return a DeliveryVendorIdCustomCouriersPutRequest
+     * @throws BadArgumentException if no vendor found by id
      */
-    public DeliveryVendorIdCustomCouriersPutRequest setOwnCouriers(UUID id, Boolean allowsOnlyOwnCouriers) throws BadArgumentException {
+    public DeliveryVendorIdCustomCouriersPutRequest setOwnCouriers(UUID id, Boolean allowsOnlyOwnCouriers)
+            throws BadArgumentException {
         Vendor vendor = getVendor(id.toString());
-        if(vendor == null){
+        if (vendor == null) {
             throw new BadArgumentException("No vendor found by id.");
         }
         vendor.setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers);

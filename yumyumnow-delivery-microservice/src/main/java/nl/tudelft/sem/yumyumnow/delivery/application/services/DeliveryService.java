@@ -15,12 +15,9 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
-
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -105,7 +102,8 @@ public class DeliveryService {
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */
-    public Delivery changePrepTime(UUID deliveryId, UUID vendorId, OffsetDateTime estimatedPrepTime) throws NoDeliveryFoundException, BadArgumentException {
+    public Delivery changePrepTime(UUID deliveryId, UUID vendorId, OffsetDateTime estimatedPrepTime)
+            throws NoDeliveryFoundException, BadArgumentException {
 
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
@@ -139,7 +137,7 @@ public class DeliveryService {
      *               depending on which status they are trying to set.
      * @param status the new status of the delivery.
      * @return delivery object with the update status, or null if user has no right to
-     * update it or if delivery is not found.
+     *          update it or if delivery is not found.
      * @author Horia Radu, Kirill Zhankov
      */
     public Delivery updateStatus(UUID id, UUID userId, DeliveryIdStatusPutRequest.StatusEnum status)
@@ -488,7 +486,7 @@ public class DeliveryService {
      * @param id the delivery id
      * @param location the new delivery location
      * @return the delivery with the location changed
-     * @throws NoDeliveryFoundException
+     * @throws NoDeliveryFoundException if no delivery found by id
      */
     public Delivery updateLocation(UUID id, Location location) throws NoDeliveryFoundException {
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
