@@ -264,5 +264,37 @@ public class AdminService {
                 + "/user/" + adminId.toString(), Map.class);
     }
 
+    /**
+     * Get the efficiency of the drivers between two given dates.
+     *
+     * @param adminId the id of the admin
+     * @param startDate the start date of the period
+     * @param endDate the end date of the period
+     * @return an Integer representing the percentage of efficiency of the drivers
+     * @throws AccessForbiddenException
+     * @throws BadArgumentException
+     * @throws ServiceUnavailableException
+     */
+    public long getDriverEfficiencyAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
+            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        long numberOfDeliveries = deliveries.size();
 
+        List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
+                        && x.getEstimatedDeliveryTime().isAfter(startDate)
+                        && x.getEstimatedDeliveryTime().isBefore(endDate))
+                .collect(Collectors.toList());
+        long numberOfSuccessfulDeliveries = filteredDeliveries.size();
+        if(numberOfDeliveries!=0) {
+            return numberOfSuccessfulDeliveries * 100 / numberOfDeliveries;
+        }
+        return 0;
+    }
 }
