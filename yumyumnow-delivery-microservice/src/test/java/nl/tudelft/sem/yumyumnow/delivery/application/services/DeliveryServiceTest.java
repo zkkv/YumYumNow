@@ -400,7 +400,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void changePrepTimeAsNonVendor() {
+    public void changePrepTimeAsNonVendor() throws BadArgumentException, NoDeliveryFoundException {
         LocalDate localDate = LocalDate.of(2023, 12, 10);
 
         LocalTime localTime = LocalTime.of(12, 0);
@@ -418,11 +418,11 @@ public class DeliveryServiceTest {
         Optional<Delivery> optionalDelivery = Optional.of(expected);
         when(deliveryRepository.findById(id)).thenReturn(optionalDelivery);
 
-        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertThrows(BadArgumentException.class, () -> deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeOnNonExistingOrder() {
+    public void changePrepTimeOnNonExistingOrder() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -435,11 +435,11 @@ public class DeliveryServiceTest {
 
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
-        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertThrows(NoDeliveryFoundException.class , () -> deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeAsVendorNonAccepted() {
+    public void changePrepTimeAsVendorNonAccepted() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -457,11 +457,11 @@ public class DeliveryServiceTest {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
-        assertNull(deliveryService.changePrepTime(id, userId, offsetDateTime));
+        assertThrows(BadArgumentException.class, () -> deliveryService.changePrepTime(id, userId, offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeUnauthorizedVendor() {
+    public void changePrepTimeUnauthorizedVendor() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
 
         Vendor vendor = new VendorBuilder()
@@ -485,12 +485,11 @@ public class DeliveryServiceTest {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
 
         delivery.setEstimatedPreparationFinishTime(offsetDateTime);
-        assertNull(deliveryService.changePrepTime(id, vendor.getId(), offsetDateTime));
-
+        assertThrows(BadArgumentException.class , () -> deliveryService.changePrepTime(id, vendor.getId(), offsetDateTime));
     }
 
     @Test
-    public void changePrepTimeAsVendor() {
+    public void changePrepTimeAsVendor() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
@@ -520,7 +519,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void vendorMaxZoneTest() {
+    public void vendorMaxZoneTest() throws BadArgumentException {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 

@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdCustomCouriersPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +106,6 @@ public class VendorService {
      */
     public boolean putVendor(Vendor vendor) {
         Map<String, Object> vendorMap = getVendorRaw(vendor.getId().toString());
-
         vendorMap.put("location", Map.of(
                 "latitude", vendor.getAddress().getLatitude(),
                 "longitude", vendor.getAddress().getLongitude()
@@ -152,8 +152,11 @@ public class VendorService {
      * @param allowsOnlyOwnCouriers the boolean to be set as allowsOnlyOwnCouriers
      * @return a DeliveryVendorIdCustomCouriersPutRequest
      */
-    public DeliveryVendorIdCustomCouriersPutRequest setOwnCouriers(UUID id, Boolean allowsOnlyOwnCouriers) {
+    public DeliveryVendorIdCustomCouriersPutRequest setOwnCouriers(UUID id, Boolean allowsOnlyOwnCouriers) throws BadArgumentException {
         Vendor vendor = getVendor(id.toString());
+        if(vendor == null){
+            throw new BadArgumentException("No vendor found by id.");
+        }
         vendor.setAllowsOnlyOwnCouriers(allowsOnlyOwnCouriers);
         putVendor(vendor);
         DeliveryVendorIdCustomCouriersPutRequest response = new  DeliveryVendorIdCustomCouriersPutRequest();

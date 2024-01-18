@@ -105,14 +105,14 @@ public class DeliveryService {
      * @param estimatedPrepTime the new estimated time
      * @return the updated delivery
      */
-    public Delivery changePrepTime(UUID deliveryId, UUID vendorId, OffsetDateTime estimatedPrepTime) {
+    public Delivery changePrepTime(UUID deliveryId, UUID vendorId, OffsetDateTime estimatedPrepTime) throws NoDeliveryFoundException, BadArgumentException {
 
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
 
 
         if (optionalDelivery.isEmpty()) {
-            return null;
+            throw new NoDeliveryFoundException("Delivery couldn't be found.");
         }
 
         Delivery delivery = optionalDelivery.get();
@@ -121,7 +121,7 @@ public class DeliveryService {
                 null, vendorId, vendorService);
 
         if (delivery.getStatus() != Delivery.StatusEnum.ACCEPTED || !vendorValidator.process(delivery)) {
-            return null;
+            throw new BadArgumentException("Illegal arguments");
         }
 
         delivery.setEstimatedPreparationFinishTime(estimatedPrepTime);
@@ -208,14 +208,13 @@ public class DeliveryService {
     public DeliveryVendorIdMaxZonePutRequest vendorMaxZone(
             UUID vendorId,
             DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest,
-            VendorService vendorService) {
+            VendorService vendorService) throws BadArgumentException {
 
         UUID vendorToUpdate = deliveryVendorIdMaxZonePutRequest.getVendorId();
         BigDecimal radiusKm = deliveryVendorIdMaxZonePutRequest.getRadiusKm();
 
         if (!vendorId.equals(vendorToUpdate)  || vendorService.getVendor(vendorId.toString()) == null) {
-
-            return null;
+            throw new BadArgumentException("User isn't authorized for this request.");
         }
         Vendor vendor = vendorService.getVendor(vendorId.toString());
 

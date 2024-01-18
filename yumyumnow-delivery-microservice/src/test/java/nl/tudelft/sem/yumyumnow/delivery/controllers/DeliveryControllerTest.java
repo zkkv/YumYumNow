@@ -213,7 +213,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void deliveryIdPrepTimePostFail() {
+    void deliveryIdPrepTimePostFail() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
@@ -230,7 +230,57 @@ class DeliveryControllerTest {
         deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
 
 
-        when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenReturn(null);
+        when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new BadArgumentException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePost(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void deliveryIdPrepTimeServiceUnavailable() throws BadArgumentException, NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
+
+        deliveryIdDeliveryTimePostRequest.setUserId(userId);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
+
+
+        when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new RestClientException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePost(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
+    @Test
+    void deliveryIdPrepTimeNoDelivery() throws BadArgumentException, NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
+
+        deliveryIdDeliveryTimePostRequest.setUserId(userId);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
+
+
+        when(deliveryService.changePrepTime(id, deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new NoDeliveryFoundException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryIdPrepTimePost(id, deliveryIdDeliveryTimePostRequest));
@@ -293,7 +343,7 @@ class DeliveryControllerTest {
 
 
     @Test
-    void deliveryIdPrepTimePutFail() {
+    void deliveryIdPrepTimePutFail() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
@@ -310,7 +360,7 @@ class DeliveryControllerTest {
         deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
 
 
-        when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenReturn(null);
+        when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new BadArgumentException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest));
@@ -318,7 +368,81 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void deliveryIdPrepTimePutSuccess() {
+    void deliveryIdPrepTimePutServiceUnavailable() throws BadArgumentException, NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
+
+        deliveryIdDeliveryTimePostRequest.setUserId(userId);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
+
+
+        when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new RestClientException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
+    }
+
+    @Test
+    void deliveryIdPrepTimePutNoDelivery() throws BadArgumentException, NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
+
+        deliveryIdDeliveryTimePostRequest.setUserId(userId);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
+
+
+        when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new NoDeliveryFoundException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+    @Test
+    void deliveryIdPrepTimePutFail2() throws BadArgumentException, NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
+
+        deliveryIdDeliveryTimePostRequest.setUserId(userId);
+
+        LocalDate localDate = LocalDate.of(2023, 12, 10);
+
+        LocalTime localTime = LocalTime.of(12, 0);
+        ZoneOffset zoneOffset = ZoneOffset.UTC;
+
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDate.atTime(localTime), zoneOffset);
+
+        deliveryIdDeliveryTimePostRequest.setEstimatedNewDeliveryTime(offsetDateTime);
+
+
+        when(deliveryService.changePrepTime(id,deliveryIdDeliveryTimePostRequest.getUserId(), deliveryIdDeliveryTimePostRequest.getEstimatedNewDeliveryTime())).thenThrow(new NoDeliveryFoundException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryIdPrepTimePut(id, deliveryIdDeliveryTimePostRequest));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void deliveryIdPrepTimePutSuccess() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
@@ -351,7 +475,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void deliveryIdPrepTimePostSuccess() {
+    void deliveryIdPrepTimePostSuccess() throws BadArgumentException, NoDeliveryFoundException {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         DeliveryIdDeliveryTimePostRequest1 deliveryIdDeliveryTimePostRequest = new DeliveryIdDeliveryTimePostRequest1();
@@ -410,7 +534,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void vendorMaxZonePutSuccessTest(){
+    void vendorMaxZonePutSuccessTest() throws BadArgumentException {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
@@ -424,18 +548,33 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void vendorMaxZonePutFailedTest(){
+    void vendorMaxZonePutFailedTest() throws BadArgumentException {
         UUID vendorId = UUID.randomUUID();
         DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
 
         deliveryVendorIdMaxZonePutRequest.setVendorId(vendorId);
         deliveryVendorIdMaxZonePutRequest.setRadiusKm(BigDecimal.valueOf(5));
 
-        when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenReturn(null);
+        when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenThrow(new BadArgumentException(""));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void vendorMaxZonePutServiceUnavailable() throws BadArgumentException {
+        UUID vendorId = UUID.randomUUID();
+        DeliveryVendorIdMaxZonePutRequest deliveryVendorIdMaxZonePutRequest = new DeliveryVendorIdMaxZonePutRequest();
+
+        deliveryVendorIdMaxZonePutRequest.setVendorId(vendorId);
+        deliveryVendorIdMaxZonePutRequest.setRadiusKm(BigDecimal.valueOf(5));
+
+        when(deliveryService.vendorMaxZone(vendorId,deliveryVendorIdMaxZonePutRequest,vendorService)).thenThrow(new RestClientException(""));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryVendorIdMaxZonePut(vendorId, deliveryVendorIdMaxZonePutRequest));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -792,6 +931,20 @@ class DeliveryControllerTest {
     }
 
     @Test
+    void setOwnCouriersBadArgument() throws BadArgumentException {
+        UUID vendorId = UUID.randomUUID();
+
+        when(vendorService.setOwnCouriers(vendorId, true))
+                .thenThrow(new BadArgumentException(""));
+
+        DeliveryVendorIdCustomCouriersPutRequest request = new DeliveryVendorIdCustomCouriersPutRequest();
+        request.setVendorId(vendorId);
+        request.setAllowsOnlyOwnCouriers(true);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> deliveryController.deliveryVendorIdCustomCouriersPut(vendorId, request));
+    }
+    @Test
     void updateTotalDeliveryTimeBadRequestTest() throws BadArgumentException, NoDeliveryFoundException {
         UUID deliveryId = UUID.randomUUID();
         Delivery delivery = new Delivery();
@@ -805,6 +958,22 @@ class DeliveryControllerTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deliveryController.deliveryIdDeliveryTimePut(deliveryId, deliveryIdDeliveryTimePostRequest));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void setOwnCouriersServiceUnavailable() throws BadArgumentException {
+        UUID vendorId = UUID.randomUUID();
+
+        when(vendorService.setOwnCouriers(vendorId,true))
+                .thenThrow(new RestClientException(""));
+
+        DeliveryVendorIdCustomCouriersPutRequest request = new DeliveryVendorIdCustomCouriersPutRequest();
+        request.setVendorId(vendorId);
+        request.setAllowsOnlyOwnCouriers(true);
+
+        ResponseStatusException  exception = assertThrows(ResponseStatusException .class,
+                () -> deliveryController.deliveryVendorIdCustomCouriersPut(vendorId, request));
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
     }
 
     @Test
@@ -943,7 +1112,7 @@ class DeliveryControllerTest {
     }
 
     @Test
-    void customCouriersPutTest() {
+    void customCouriersPutTest() throws BadArgumentException {
         DeliveryVendorIdCustomCouriersPutRequest request = new DeliveryVendorIdCustomCouriersPutRequest();
         UUID vendorId = UUID.randomUUID();
         request.setVendorId(vendorId);

@@ -2,6 +2,8 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
+import nl.tudelft.sem.yumyumnow.delivery.model.DeliveryVendorIdCustomCouriersPutRequest;
 import nl.tudelft.sem.yumyumnow.delivery.model.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -252,6 +254,64 @@ public class VendorServiceTest {
         BigDecimal maxZone = vendorService.getDefaultMaxDeliveryZone();
 
         assertEquals(BigDecimal.valueOf(20), maxZone);
+    }
+
+    @Test
+    public void setOwnCouriersFail(){
+        assertThrows(BadArgumentException.class, () -> vendorService.setOwnCouriers(UUID.randomUUID(), true));
+    }
+
+    @Test
+    public void setOwnCourier() throws BadArgumentException {
+        UUID vendorId = UUID.randomUUID();
+
+        Location address = new Location();
+        address.setTimestamp(null);
+        address.setLatitude(BigDecimal.valueOf(0));
+        address.setLongitude(BigDecimal.valueOf(0));
+
+        Vendor vendor = new VendorBuilder()
+                .setId(vendorId)
+                .setAllowsOnlyOwnCouriers(false)
+                .setMaxDeliveryZoneKm(BigDecimal.ZERO)
+                .setPhoneNumber("123456789")
+                .setAddress(address)
+                .create();
+
+
+        Map<String, Object> originalMap = new HashMap<>(Map.of(
+                "userID", vendorId.toString(),
+                "location", Map.of(
+                        "latitude", 0.0,
+                        "longitude", 0.0
+                ),
+                "contactInfo", Map.of(
+                        "phoneNumber", "123456789"
+                ),
+                "allowOnlyOwnCouriers", false,
+                "maxDeliveryZone", 0.0
+        ));
+
+        when(restTemplate.getForObject(
+                testWebsite + "/vendor/" + vendorId,
+                Map.class
+        )).thenReturn(originalMap);
+
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                eq(testWebsite + "/vendor/" + vendorId),
+                eq(HttpMethod.PUT),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(responseEntity);
+
+
+        DeliveryVendorIdCustomCouriersPutRequest expected = new DeliveryVendorIdCustomCouriersPutRequest();
+        expected.setVendorId(vendorId);
+        expected.setAllowsOnlyOwnCouriers(true);
+
+        assertEquals(expected, vendorService.setOwnCouriers(vendorId,true));
     }
 
 }
