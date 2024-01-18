@@ -89,6 +89,7 @@ public class AdminService {
             throw new BadArgumentException("Start date cannot be greater than end date.");
         }
         List<Delivery> deliveries = deliveryRepository.findAll();
+        if(deliveries.isEmpty()) return 0;
         List<Delivery> filteredDeliveries = deliveries.stream()
                 .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
                         && x.getEstimatedDeliveryTime().isBefore(endDate))
