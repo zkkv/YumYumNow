@@ -28,7 +28,7 @@ Below you will find useful information about how to run the project, as well as 
 ## Mocked Services
 
 The code on the `main` branch has the other two microservices mocked with WireMock Cloud. If you want to run the project
-with the actual microservices, please use the `actual` branch.
+with the actual microservices, please use the `integration` branch.
 
 ## Running the project
 To run the project, you need to have Java 15 installed on your machine. You can check your Java version by running the
