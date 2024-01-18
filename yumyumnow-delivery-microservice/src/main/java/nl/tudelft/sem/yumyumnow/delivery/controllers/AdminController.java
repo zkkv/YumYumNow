@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -49,7 +48,8 @@ public class AdminController implements AdminApi {
      * @param request HTTP Request causing an exception
      * @return Response with error
      */
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, NullPointerException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, NullPointerException.class,
+                       HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResponseEntity<Error> handleArgumentTypeMismatch(HttpServletRequest request) {
@@ -134,9 +134,11 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         AdminAnalyticsTotalDeliveriesGet200Response response =
                 new AdminAnalyticsTotalDeliveriesGet200Response();
@@ -175,9 +177,11 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         AdminAnalyticsSuccessfulDeliveriesGet200Response response =
                 new AdminAnalyticsSuccessfulDeliveriesGet200Response();
@@ -216,9 +220,11 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         AdminAnalyticsPreparationTimeGet200Response response =
                 new AdminAnalyticsPreparationTimeGet200Response();
@@ -257,9 +263,11 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         AdminAnalyticsDeliveryTimeGet200Response response = new AdminAnalyticsDeliveryTimeGet200Response();
         response.setStartDate(startDate);
@@ -287,9 +295,14 @@ public class AdminController implements AdminApi {
 
     @Override
     public ResponseEntity<AdminAnalyticsIssuesGet200Response> adminAnalyticsIssuesGet(
-            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true) @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
-            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true) @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
-            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true) @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         try {
             List<String> encounteredIssues = adminService.getEncounteredIssues(adminId, startDate, endDate);
@@ -325,9 +338,11 @@ public class AdminController implements AdminApi {
             @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
             @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
             @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
-            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
             @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+            @Valid @RequestParam(value = "endDate", required = true)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
     ) {
         AdminAnalyticsDriverEfficiencyGet200Response response = new AdminAnalyticsDriverEfficiencyGet200Response();
         response.setStartDate(startDate);

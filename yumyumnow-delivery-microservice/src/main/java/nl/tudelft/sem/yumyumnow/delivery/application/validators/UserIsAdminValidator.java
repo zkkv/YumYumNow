@@ -1,6 +1,6 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.validators;
-import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 
+import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
 import java.util.Map;
 import java.util.Objects;
 
