@@ -1,6 +1,5 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import lombok.SneakyThrows;
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.UserIsAdminValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
@@ -29,13 +28,14 @@ public class AdminService {
 
     private final String userServiceUrl;
     private final RestTemplate restTemplate;
+    private Random random;
 
     /**
      * Constructor for admin service.
      *
-     * @param orderService       the service for order
-     * @param deliveryRepository the repository for delivery
-     * @param vendorService      the service for the vendor
+     * @param orderService        the service for order
+     * @param deliveryRepository  the repository for delivery
+     * @param vendorService       the service for the vendor
      * @param restTemplateBuilder the rest template builder
      */
     @Autowired
@@ -43,12 +43,13 @@ public class AdminService {
                         DeliveryRepository deliveryRepository,
                         VendorService vendorService,
                         RestTemplateBuilder restTemplateBuilder,
-                        @Value("${user.microservice.url}") String userServiceUrl)  {
+                        @Value("${user.microservice.url}") String userServiceUrl) {
         this.orderService = orderService;
         this.deliveryRepository = deliveryRepository;
         this.vendorService = vendorService;
         this.userServiceUrl = userServiceUrl;
         this.restTemplate = restTemplateBuilder.build();
+        this.random = new Random();
     }
 
     /**
@@ -74,12 +75,12 @@ public class AdminService {
     /**
      * Get a list of encountered issues.
      *
-     * @param adminId the admin id
+     * @param adminId   the admin id
      * @param startDate the start date
-     * @param endDate the end date
+     * @param endDate   the end date
      * @return a list of encountered issues
      * @throws AccessForbiddenException if user has no right to get analytics
-     * @throws BadArgumentException if start date is greater than end date
+     * @throws BadArgumentException     if start date is greater than end date
      */
     public List<String> getEncounteredIssues(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
             throws AccessForbiddenException, BadArgumentException {
@@ -107,8 +108,11 @@ public class AdminService {
         int daysBetweenDates = (int) Duration.between(startDate, endDate).toDays();
 
         // Randomly generate a number of issues with random deliveries
-        Random random = new Random();
-        random.setSeed(0); // Set seed to 0 for reproducibility in tests
+        if (random == null) {
+            random = new Random();
+            random.setSeed(0); // Set seed to 0 for reproducibility in tests
+        }
+
         int numberOfIssues = random.nextInt(possibleIssues.size() * daysBetweenDates);
         for (int i = 0; i < numberOfIssues; i++) {
             int randomIndex = random.nextInt(possibleIssues.size());
@@ -122,7 +126,7 @@ public class AdminService {
      * Count the total number of deliveries between two given dates.
      *
      * @param startDate the start date of the period
-     * @param endDate the end date of the period
+     * @param endDate   the end date of the period
      * @return an Integer representing the total number of deliveries
      * @throws BadArgumentException when the provided arguments are wrong
      */
@@ -140,6 +144,7 @@ public class AdminService {
             return 0;
         }
         List<Delivery> filteredDeliveries = deliveries.stream()
+                .filter(x -> x.getEstimatedDeliveryTime() != null)
                 .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
                         && x.getEstimatedDeliveryTime().isBefore(endDate))
                 .collect(Collectors.toList());
@@ -149,9 +154,9 @@ public class AdminService {
     /**
      * Count the total number of successful deliveries between two given dates.
      *
-     * @param adminId the id of the admin
+     * @param adminId   the id of the admin
      * @param startDate the start date of the period
-     * @param endDate the end date of the period
+     * @param endDate   the end date of the period
      * @return an Integer representing the total number of successful deliveries
      * @throws BadArgumentException when the provided arguments are wrong
      */
@@ -176,12 +181,12 @@ public class AdminService {
     /**
      * Get the average time of order preparation between two given dates.
      *
-     * @param adminId the id of the admin
+     * @param adminId   the id of the admin
      * @param startDate the start date of the period
-     * @param endDate the end date of the period
+     * @param endDate   the end date of the period
      * @return an Integer representing the number of minutes spent on average on preparing an order
-     * @throws AccessForbiddenException when the user has no right to access the analytics
-     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws AccessForbiddenException    when the user has no right to access the analytics
+     * @throws BadArgumentException        when the provided arguments are wrong
      * @throws ServiceUnavailableException when the service does not respond
      */
     public long getPreparationTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
@@ -208,7 +213,7 @@ public class AdminService {
             if (timePlacement == null) {
                 continue;
             }
-            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            OffsetDateTime preparationFinishTime = delivery.getEstimatedPreparationFinishTime();
             // Convert both times to Instant.
             Instant startInstant = Instant.ofEpochMilli(timePlacement.longValue());
             Instant endInstant = preparationFinishTime.toInstant();
@@ -225,12 +230,12 @@ public class AdminService {
     /**
      * Get the average duration of a delivery between two given dates.
      *
-     * @param adminId the id of the admin
+     * @param adminId   the id of the admin
      * @param startDate the start date of the period
-     * @param endDate the end date of the period
+     * @param endDate   the end date of the period
      * @return an Integer representing the number of minutes spent on average delivering an order
-     * @throws AccessForbiddenException when the user has no right to access the analytics
-     * @throws BadArgumentException when the provided arguments are wrong
+     * @throws AccessForbiddenException    when the user has no right to access the analytics
+     * @throws BadArgumentException        when the provided arguments are wrong
      * @throws ServiceUnavailableException when the service does not respond
      */
     public long getDeliveryTimeAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
@@ -250,7 +255,7 @@ public class AdminService {
         long totalTime = 0;
         long numberOfDeliveries = 0;
         for (Delivery delivery : relevantDeliveries) {
-            OffsetDateTime preparationFinishTime =  delivery.getEstimatedPreparationFinishTime();
+            OffsetDateTime preparationFinishTime = delivery.getEstimatedPreparationFinishTime();
             OffsetDateTime deliveryTime = delivery.getEstimatedDeliveryTime();
             Duration difference = Duration.between(preparationFinishTime, deliveryTime);
 
@@ -287,7 +292,7 @@ public class AdminService {
     /**
      * Set a new default maximum delivery zone as an admin.
      *
-     * @param adminId the id of admin
+     * @param adminId    the id of admin
      * @param newMaxZone the new default maximum delivery zone
      * @return the response contains admin id and updated default maximum delivery zone
      */
@@ -317,11 +322,11 @@ public class AdminService {
     /**
      * Get the efficiency of the drivers between two given dates.
      *
-     * @param adminId the id of the admin
+     * @param adminId   the id of the admin
      * @param startDate the start date of the period
-     * @param endDate the end date of the period
+     * @param endDate   the end date of the period
      * @return an Integer representing the percentage of efficiency of the drivers
-     * @throws BadArgumentException if start date is greater than end date
+     * @throws BadArgumentException     if start date is greater than end date
      * @throws AccessForbiddenException if user has no right to get analytics
      */
     public long getDriverEfficiencyAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
