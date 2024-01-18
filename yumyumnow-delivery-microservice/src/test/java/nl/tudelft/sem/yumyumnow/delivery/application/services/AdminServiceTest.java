@@ -113,7 +113,7 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void getEncounteredIssuesSuccesTest() throws AccessForbiddenException, BadArgumentException {
+    public void getEncounteredIssuesSuccessTest() throws AccessForbiddenException, BadArgumentException {
         UUID adminId = UUID.randomUUID();
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
