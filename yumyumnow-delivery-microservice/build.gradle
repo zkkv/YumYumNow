@@ -161,6 +161,7 @@ pmd {
     // Exclude specific rules or files/directories
     pmdMain {
         excludes = ['**/generated/.*']
+        excludes = ['**/api/**', '**/model/**']
     }
 }
 
