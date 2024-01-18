@@ -222,7 +222,9 @@ public class AdminController implements AdminApi {
         AdminAnalyticsPreparationTimeGet200Response response =
                 new AdminAnalyticsPreparationTimeGet200Response();
         response.setStartDate(startDate);
+        System.out.println(startDate);
         response.setEndDate(endDate);
+        System.out.println(endDate);
 
         try {
             long averagePreparationTime = adminService.getPreparationTimeAnalytic(adminId, startDate, endDate);
@@ -240,7 +242,6 @@ public class AdminController implements AdminApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
         return ResponseEntity.ok(response);
     }
 

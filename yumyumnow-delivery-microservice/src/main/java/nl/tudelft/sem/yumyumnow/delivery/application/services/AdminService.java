@@ -88,7 +88,6 @@ public class AdminService {
         if (startDate.isAfter(endDate)) {
             throw new BadArgumentException("Start date cannot be greater than end date.");
         }
-
         List<Delivery> deliveries = deliveryRepository.findAll();
         List<Delivery> filteredDeliveries = deliveries.stream()
                 .filter(x -> x.getEstimatedDeliveryTime().isAfter(startDate)
@@ -167,9 +166,10 @@ public class AdminService {
             totalSum += Duration.between(startInstant, endInstant).toMinutes();
             numberOfDeliveries++;
         }
-
-        return totalSum / numberOfDeliveries;
-
+        if(numberOfDeliveries!=0) {
+            return totalSum / numberOfDeliveries;
+        }
+        return 0;
     }
 
     /**
@@ -191,7 +191,6 @@ public class AdminService {
         if (startDate.isAfter(endDate)) {
             throw new BadArgumentException("Start date cannot be greater than end date.");
         }
-
         List<Delivery> relevantDeliveries = deliveryRepository.findAll()
                 .stream()
                 .filter(x -> x.getStatus() == Delivery.StatusEnum.DELIVERED
@@ -208,7 +207,10 @@ public class AdminService {
             totalTime += difference.toMinutes();
             numberOfDeliveries++;
         }
-        return totalTime / numberOfDeliveries;
+        if(numberOfDeliveries!=0) {
+            return totalTime / numberOfDeliveries;
+        }
+        return 0;
     }
 
     /**
