@@ -1,13 +1,10 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
-import nl.tudelft.sem.yumyumnow.delivery.domain.builders.DeliveryBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.domain.builders.OrderBuilder;
+import nl.tudelft.sem.yumyumnow.delivery.domain.builders.*;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Customer;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Order;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
-import nl.tudelft.sem.yumyumnow.delivery.domain.builders.CourierBuilder;
-import nl.tudelft.sem.yumyumnow.delivery.domain.builders.VendorBuilder;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Courier;
 import nl.tudelft.sem.yumyumnow.delivery.domain.dto.Vendor;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
@@ -845,7 +842,7 @@ public class DeliveryServiceTest {
 
 
     @Test
-    public void voidGetAvailableDeliveriesAssignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+    public void getAvailableDeliveriesAssignedCourier() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
         UUID courierId = UUID.randomUUID();
         UUID delivery2vendorId = UUID.randomUUID();
         UUID delivery3vendorId = UUID.randomUUID();
@@ -928,5 +925,27 @@ public class DeliveryServiceTest {
 
         assertThat(deliveryService.getAvailableDeliveries(BigDecimal.valueOf(200), courierLocation, courierId))
                 .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    void updateLocationThrowsExceptionTest() {
+        UUID id = UUID.randomUUID();
+        when(deliveryRepository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(NoDeliveryFoundException.class, () -> deliveryService.updateLocation(id, new Location()));
+    }
+
+    @Test
+    void updateLocationTest() throws NoDeliveryFoundException {
+        UUID id = UUID.randomUUID();
+        Delivery delivery = new DeliveryBuilder()
+                .setId(id)
+                .create();
+        when(deliveryRepository.findById(id)).thenReturn(Optional.of(delivery));
+        Location location = new LocationBuilder()
+                .setLatitude(BigDecimal.ONE)
+                .setLongitude(BigDecimal.ONE)
+                .create();
+        deliveryService.updateLocation(id, location);
+        assertEquals(location, delivery.getCurrentLocation());
     }
 }

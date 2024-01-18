@@ -11,7 +11,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.model.Error;
-import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -64,7 +63,7 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Handler for Spring exception which is thrown REST request parameters have wrong format.
+     * Handler for Spring exception which is thrown when REST request parameters have wrong format.
      *
      * @param request HTTP Request causing an exception
      * @return Response with error
@@ -74,11 +73,8 @@ public class DeliveryController implements DeliveryApi {
     @ResponseBody
     public ResponseEntity<Error> handleArgumentTypeMismatch(HttpServletRequest request) {
         return ResponseEntity.badRequest().body(new Error()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message("Received parameters have incorrect format or are incomplete.")
-                .path(request.getRequestURI()));
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message("Received parameters have incorrect format or are incomplete."));
     }
 
     /**
