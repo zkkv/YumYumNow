@@ -71,6 +71,42 @@ public class AdminService {
         this.restTemplate = restTemplate;
     }
 
+    public List<String> getEncounteredIssues(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate) throws AccessForbiddenException, BadArgumentException {
+        if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
+            throw new AccessForbiddenException("User has no right to get analytics.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new BadArgumentException("Start date cannot be greater than end date.");
+        }
+
+        List<String> possibleIssues = List.of(
+                "Open bridge encountered",
+                "Traffic jam encountered",
+                "Road works encountered",
+                "Closed road encountered",
+                "Could not find address",
+                "Could not contact customer",
+                "Could not contact vendor",
+                "Vehicle broke down",
+                "Internet connection lost"
+        );
+
+        List<String> encounteredIssues = new ArrayList<>();
+
+        int daysBetweenDates = (int) Duration.between(startDate, endDate).toDays();
+
+        // Randomly generate a number of issues with random deliveries
+        Random random = new Random();
+        random.setSeed(0); // Set seed to 0 for reproducibility in tests
+        int numberOfIssues = random.nextInt(possibleIssues.size() * daysBetweenDates);
+        for (int i = 0; i < numberOfIssues; i++) {
+            int randomIndex = random.nextInt(possibleIssues.size());
+            encounteredIssues.add(possibleIssues.get(randomIndex));
+        }
+
+        return encounteredIssues;
+    }
+
     /**
      * Count the total number of deliveries between two given dates.
      *

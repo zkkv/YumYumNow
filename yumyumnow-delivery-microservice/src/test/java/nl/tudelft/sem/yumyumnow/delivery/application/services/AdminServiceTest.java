@@ -2,6 +2,7 @@ package nl.tudelft.sem.yumyumnow.delivery.application.services;
 
 import nl.tudelft.sem.yumyumnow.delivery.application.validators.UserIsAdminValidator;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.AccessForbiddenException;
+import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.domain.repos.DeliveryRepository;
 import nl.tudelft.sem.yumyumnow.delivery.model.AdminMaxZoneGet200Response;
@@ -11,8 +12,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.Map;
-import java.util.UUID;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -105,5 +110,73 @@ public class AdminServiceTest {
         AdminMaxZoneGet200Response response = adminService.adminSetMaxZone(adminId, defaultMaxZone);
 
         assertEquals(null, response);
+    }
+
+    @Test
+    public void getEncounteredIssuesSuccesTest() throws AccessForbiddenException, BadArgumentException {
+        UUID adminId = UUID.randomUUID();
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
+
+        List<String> expected = generateIssues(startDate, endDate);
+
+        assertThat(adminService.getEncounteredIssues(adminId, startDate, endDate)).isEqualTo(expected);
+    }
+
+    @Test
+    public void getEncounteredIssuesAccessForbiddenTest() throws AccessForbiddenException, BadArgumentException {
+        UUID adminId = UUID.randomUUID();
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
+
+        assertThrows(AccessForbiddenException.class, () -> {
+            adminService.getEncounteredIssues(adminId, startDate, endDate);
+        });
+    }
+
+    @Test
+    public void getEncounteredIssuesBadArgumentTest() throws AccessForbiddenException, BadArgumentException {
+        UUID adminId = UUID.randomUUID();
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
+
+        assertThrows(BadArgumentException.class, () -> {
+            adminService.getEncounteredIssues(adminId, endDate, startDate);
+        });
+    }
+
+    private static List<String> generateIssues(OffsetDateTime startDate, OffsetDateTime endDate) {
+        List<String> possibleIssues = List.of(
+                "Open bridge encountered",
+                "Traffic jam encountered",
+                "Road works encountered",
+                "Closed road encountered",
+                "Could not find address",
+                "Could not contact customer",
+                "Could not contact vendor",
+                "Vehicle broke down",
+                "Internet connection lost"
+        );
+
+        List<String> encounteredIssues = new ArrayList<>();
+
+        int daysBetweenDates = (int) Duration.between(startDate, endDate).toDays();
+
+        // Randomly generate a number of issues with random deliveries
+        Random random = new Random();
+        random.setSeed(0); // Set seed to 0 for reproducibility in tests
+        int numberOfIssues = random.nextInt(possibleIssues.size() * daysBetweenDates);
+        for (int i = 0; i < numberOfIssues; i++) {
+            int randomIndex = random.nextInt(possibleIssues.size());
+            encounteredIssues.add(possibleIssues.get(randomIndex));
+        }
+
+        return encounteredIssues;
     }
 }

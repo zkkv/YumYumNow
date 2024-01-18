@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -477,5 +478,63 @@ public class AdminControllerTest {
         assertEquals(expected.getBody().getPath(), actual.getBody().getPath());
     }
 
+    @Test
+    void encounteredIssuesGetSuccessTest() throws AccessForbiddenException, BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        List<String> encounteredIssues = List.of("Issue 1", "Issue 2");
+
+        when(adminService.getEncounteredIssues(adminId, startDate, endDate)).thenReturn(encounteredIssues);
+
+        AdminAnalyticsIssuesGet200Response response = new AdminAnalyticsIssuesGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setEncounteredIssues(encounteredIssues);
+
+        ResponseEntity<AdminAnalyticsIssuesGet200Response> expected = ResponseEntity.ok(response);
+
+        ResponseEntity<AdminAnalyticsIssuesGet200Response> actual = adminController.adminAnalyticsIssuesGet(adminId, startDate, endDate);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void encounteredIssuesGetBadArgumentExceptionTest() throws AccessForbiddenException, BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getEncounteredIssues(adminId, startDate, endDate)).thenThrow(BadArgumentException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsIssuesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void encounteredIssuesGetAccessForbiddenExceptionTest() throws AccessForbiddenException, BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2021, 1, 2, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getEncounteredIssues(adminId, startDate, endDate)).thenThrow(AccessForbiddenException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsIssuesGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    void encounteredIssuesGetGenericExceptionTest() throws AccessForbiddenException, BadArgumentException {
+        OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getEncounteredIssues(adminId, startDate, null)).thenAnswer(t -> {throw new Exception();});
+
+        assertThrows(Exception.class,
+                () -> adminController.adminAnalyticsIssuesGet(adminId, startDate, null));
+    }
 
 }
