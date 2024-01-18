@@ -1,21 +1,10 @@
 package nl.tudelft.sem.yumyumnow.delivery.application.validators;
-
-import nl.tudelft.sem.yumyumnow.delivery.application.services.CourierService;
-import nl.tudelft.sem.yumyumnow.delivery.application.services.VendorService;
-import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.BadArgumentException;
 import nl.tudelft.sem.yumyumnow.delivery.model.Delivery;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public class UserIsAdminValidator extends AuthProcessor<Map<String, Object>> {
-
-    RestTemplate restTemplate;
-    String userServiceUrl;
-
 
     /**
      * Constructor for the UserIsAdminValidator class.

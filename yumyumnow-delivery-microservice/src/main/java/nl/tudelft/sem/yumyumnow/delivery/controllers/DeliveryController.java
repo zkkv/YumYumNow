@@ -11,7 +11,6 @@ import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.NoDeliveryFoundExcept
 import nl.tudelft.sem.yumyumnow.delivery.domain.exceptions.ServiceUnavailableException;
 import nl.tudelft.sem.yumyumnow.delivery.model.*;
 import nl.tudelft.sem.yumyumnow.delivery.model.Error;
-import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -64,7 +63,7 @@ public class DeliveryController implements DeliveryApi {
 
 
     /**
-     * Handler for Spring exception which is thrown REST request parameters have wrong format.
+     * Handler for Spring exception which is thrown when REST request parameters have wrong format.
      *
      * @param request HTTP Request causing an exception
      * @return Response with error
@@ -418,9 +417,9 @@ public class DeliveryController implements DeliveryApi {
                 .setLatitude(deliveryIdLocationPutRequest.getLocation().getLatitude())
                 .setLongitude(deliveryIdLocationPutRequest.getLocation().getLongitude())
                 .create();
+        Delivery delivery = null;
         try {
-            Delivery delivery = deliveryService.updateLocation(id, location);
-            return ResponseEntity.ok(delivery);
+            delivery = deliveryService.updateLocation(id, location);
         } catch (NoDeliveryFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No delivery found by id.");
         } catch (RestClientException e) {
@@ -430,6 +429,7 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
+        return ResponseEntity.ok(delivery);
     }
 
     /**
