@@ -941,4 +941,18 @@ class DeliveryControllerTest {
         assertThrows(Exception.class,
                 () -> deliveryController.deliveryIdLocationPut(id, deliveryIdLocationPutRequest));
     }
+
+    @Test
+    void customCouriersPutTest() {
+        DeliveryVendorIdCustomCouriersPutRequest request = new DeliveryVendorIdCustomCouriersPutRequest();
+        UUID vendorId = UUID.randomUUID();
+        request.setVendorId(vendorId);
+        request.setAllowsOnlyOwnCouriers(true);
+
+        when(vendorService.setOwnCouriers(vendorId, request.getAllowsOnlyOwnCouriers())).thenReturn(request);
+
+        ResponseEntity<DeliveryVendorIdCustomCouriersPutRequest> expected = deliveryController.deliveryVendorIdCustomCouriersPut(vendorId, request);
+
+        assertEquals(ResponseEntity.ok(request), expected);
+    }
 }
