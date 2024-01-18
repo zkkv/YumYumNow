@@ -313,10 +313,7 @@ public class AdminController implements AdminApi {
         } catch (AccessForbiddenException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "User has no right to get analytics.");
-        } catch (ServiceUnavailableException | RestClientException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Server could not respond.");
-        } catch (Exception e) {
+        }  catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }

@@ -497,7 +497,7 @@ public class AdminControllerTest {
                 .isEqualTo(ResponseEntity.ok(response));
     }
     @Test
-    void getDriverEfficiencyBadArgumentExceptionTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+    void getDriverEfficiencyBadArgumentExceptionTest() throws BadArgumentException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
@@ -511,21 +511,7 @@ public class AdminControllerTest {
     }
 
     @Test
-    void getDriverEfficiencyServiceUnavailableExceptionTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
-        OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-        UUID adminId = UUID.randomUUID();
-
-        when(adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate))
-                .thenThrow(ServiceUnavailableException.class);
-
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> adminController.adminAnalyticsDriverEfficiencyGet(adminId, startDate, endDate));
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatus());
-    }
-
-    @Test
-    void getDriverEfficiencyAccessForbiddenExceptionTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+    void getDriverEfficiencyAccessForbiddenExceptionTest() throws BadArgumentException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();
@@ -539,7 +525,7 @@ public class AdminControllerTest {
     }
 
     @Test
-    void getDriverEfficiencyGenericExceptionTest() throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException {
+    void getDriverEfficiencyGenericExceptionTest() throws BadArgumentException, AccessForbiddenException {
         OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
         UUID adminId = UUID.randomUUID();

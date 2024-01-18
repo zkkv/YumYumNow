@@ -358,18 +358,6 @@ public class AnalyticsTest {
         assertThat(adminService.getDriverEfficiencyAnalytic(id, startDate, endDate)).isEqualTo(50);
     }
 
-    @Test
-    void getDriverEfficiencyServiceUnavailableExceptionTest() throws ServiceUnavailableException {
-        UUID id = UUID.randomUUID();
-        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
-        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
-
-        when(deliveryRepository.findAll()).thenThrow(ServiceUnavailableException.class);
-        assertThrows(ServiceUnavailableException.class, () -> {
-            adminService.getDriverEfficiencyAnalytic(id, startDate, endDate);
-        });
-    }
 
     @Test
     void getDriverEfficiencyBadArgumentExceptionTest() {

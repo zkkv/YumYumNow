@@ -277,7 +277,7 @@ public class AdminService {
      * @throws ServiceUnavailableException
      */
     public long getDriverEfficiencyAnalytic(UUID adminId, OffsetDateTime startDate, OffsetDateTime endDate)
-            throws AccessForbiddenException, BadArgumentException, ServiceUnavailableException {
+            throws AccessForbiddenException, BadArgumentException {
         if (!new UserIsAdminValidator(null, getAdminUser(adminId, userServiceUrl)).process(null)) {
             throw new AccessForbiddenException("User has no right to get analytics.");
         }
