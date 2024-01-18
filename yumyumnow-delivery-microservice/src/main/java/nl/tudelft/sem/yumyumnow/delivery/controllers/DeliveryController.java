@@ -73,8 +73,11 @@ public class DeliveryController implements DeliveryApi {
     @ResponseBody
     public ResponseEntity<Error> handleArgumentTypeMismatch(HttpServletRequest request) {
         return ResponseEntity.badRequest().body(new Error()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .message("Received parameters have incorrect format or are incomplete."));
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Received parameters have incorrect format or are incomplete.")
+                .path(request.getRequestURI()));
     }
 
     /**

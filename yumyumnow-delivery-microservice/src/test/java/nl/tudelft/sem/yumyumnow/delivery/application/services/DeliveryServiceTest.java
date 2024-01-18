@@ -945,7 +945,10 @@ public class DeliveryServiceTest {
                 .setLatitude(BigDecimal.ONE)
                 .setLongitude(BigDecimal.ONE)
                 .create();
+        DeliveryCurrentLocation deliveryLocation = new DeliveryCurrentLocation()
+                .latitude(BigDecimal.ONE)
+                .longitude(BigDecimal.ONE);
         deliveryService.updateLocation(id, location);
-        assertEquals(location, delivery.getCurrentLocation());
+        assertEquals(deliveryLocation, delivery.getCurrentLocation());
     }
 }
