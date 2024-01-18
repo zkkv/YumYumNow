@@ -61,7 +61,6 @@ public class DeliveryController implements DeliveryApi {
         this.emailService = emailService;
     }
 
-
     /**
      * Handler for Spring exception which is thrown when REST request parameters have wrong format.
      *
@@ -137,7 +136,6 @@ public class DeliveryController implements DeliveryApi {
         return ResponseEntity.ok(delivery);
     }
 
-
     /**
      * Add the estimated time to a delivery.
      *
@@ -158,7 +156,7 @@ public class DeliveryController implements DeliveryApi {
         } catch (NoDeliveryFoundException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
         } catch (BadArgumentException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request paramers");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request parameters");
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
@@ -167,7 +165,6 @@ public class DeliveryController implements DeliveryApi {
                     "Internal server error.");
         }
     }
-
 
     /**
      * Change the status of the delivery.
@@ -230,7 +227,7 @@ public class DeliveryController implements DeliveryApi {
         } catch (NoDeliveryFoundException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery couldn't be found by id.");
         } catch (BadArgumentException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request paramers");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request parameters");
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
@@ -239,9 +236,7 @@ public class DeliveryController implements DeliveryApi {
                     "Internal server error.");
         }
         return ResponseEntity.ok(delivery);
-
     }
-
 
     /**
      * Update the maximum delivery zone of a vendor.
@@ -262,7 +257,7 @@ public class DeliveryController implements DeliveryApi {
                    deliveryVendorIdMaxZonePutRequest, vendorService);
            return ResponseEntity.ok(response);
        }catch (BadArgumentException e){
-           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User isn't authorized for this request..");
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User isn't authorized for this request.");
        }catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Server could not respond.");
@@ -270,7 +265,6 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
     }
 
     /**
@@ -333,7 +327,6 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
         return ResponseEntity.ok(delivery);
     }
 
@@ -363,7 +356,6 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
         return ResponseEntity.ok(delivery);
     }
 
@@ -397,7 +389,6 @@ public class DeliveryController implements DeliveryApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
         return ResponseEntity.ok(deliveries);
     }
 
