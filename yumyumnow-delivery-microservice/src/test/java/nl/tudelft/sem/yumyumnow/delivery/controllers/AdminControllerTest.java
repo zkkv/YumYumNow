@@ -76,7 +76,7 @@ public class AdminControllerTest {
     void adminMaxZoneGetGenericExceptionTest() throws ServiceUnavailableException, AccessForbiddenException {
         UUID adminId = UUID.randomUUID();
 
-        when(adminService.adminGetMaxZone(adminId,adminService))
+        when(adminService.adminGetMaxZone(adminId))
                 .thenAnswer(t -> {throw new Exception();});
         assertThrows(ResponseStatusException.class, () -> adminController.adminMaxZoneGet(adminId));
     }
