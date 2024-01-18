@@ -21,6 +21,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -478,6 +480,63 @@ public class AdminControllerTest {
         assertEquals(expected.getBody().getPath(), actual.getBody().getPath());
     }
 
+    @Test
+    void getDriverEfficiencySuccessfulTest()
+            throws BadArgumentException, ServiceUnavailableException, AccessForbiddenException{
+        OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate)).thenReturn(75L);
+        //setting up the desired response
+        AdminAnalyticsDriverEfficiencyGet200Response response = new AdminAnalyticsDriverEfficiencyGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setDriverEfficiency(BigDecimal.valueOf(75));
+
+        assertThat(adminController.adminAnalyticsDriverEfficiencyGet(adminId, startDate, endDate))
+                .isEqualTo(ResponseEntity.ok(response));
+    }
+    @Test
+    void getDriverEfficiencyBadArgumentExceptionTest() throws BadArgumentException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate))
+                .thenThrow(BadArgumentException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsDriverEfficiencyGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    void getDriverEfficiencyAccessForbiddenExceptionTest() throws BadArgumentException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate))
+                .thenThrow(AccessForbiddenException.class);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> adminController.adminAnalyticsDriverEfficiencyGet(adminId, startDate, endDate));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    void getDriverEfficiencyGenericExceptionTest() throws BadArgumentException, AccessForbiddenException {
+        OffsetDateTime startDate = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2024, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        UUID adminId = UUID.randomUUID();
+
+        when(adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate))
+                .thenAnswer(t -> {throw new Exception();});
+
+        assertThrows(Exception.class,
+                () -> adminController.adminAnalyticsDriverEfficiencyGet(adminId, startDate, endDate));
+    }
     @Test
     void encounteredIssuesGetSuccessTest() throws AccessForbiddenException, BadArgumentException {
         OffsetDateTime startDate = OffsetDateTime.of(2021, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);

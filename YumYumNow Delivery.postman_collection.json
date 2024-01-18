@@ -1,0 +1,5021 @@
+{
+	"info": {
+		"_postman_id": "9410cd56-885a-49f4-8f11-e3b79ba4fbb3",
+		"name": "YumYumNow Delivery",
+		"description": "## Run instructions for the TA\n\nDear TA,\n\nIn the repository, you can find a postman file, which contains all the endpoints implemented, already set up and ready to be tested. There are however a couple things to keep in mind when running the requests:\n\n- The version on the main branch is integrated with _Wiremock Cloud_. This means that all the requests made to other microservices are sent to our mocked server which will return responses based on the API spec of the other groups. If you want to check integration with the real servers, you need to change the [<code>application.properties</code>](https://gitlab.ewi.tudelft.nl/cse2115/2023-2024/group-11/team-11b/-/blob/main/yumyumnow-delivery-microservice/src/main/resources/application.properties) file to work with localhost. This is simply done by (un)commenting the correct lines.\n    \n- Some endpoints need to be ran before the others, otherwise they will return an error response. For example, the endpoint to change delivery time depends on a preparation time to be set. The enpoint setting the latter one should be ran first to ensure correct order of events. The requests are numbered and put in order for your convenience.\n    \n- As the database doesn't autoconnect after a server is stopped (read: it's non persistent), the application will generate a sample delivery with a fixed ID every time you run the server and save it to the database. This ID is also set as a variable in postman, such that you don't need to change it for every request. If you wish to test the endpoints with a different delivery (which you can generate by running the \"_Create a delivery\"_ endpoint), you can change the variable in the upper level file in postman, under the variable tab (you'll see it in the tree structure when opened in postman).\n    \n- The mocked server returns users and orders with a specific, pre-set ID. If you change those values in request bodies, you will probably encounter errors, as the application is very resilient and checks for validity of objects for many requests. When integrating with the real services, you should keep in mind that their ID's are probably different, so you'll need to change the values.\n    \n- **Last, but not least: if you just want to check if the endpoints work, you can just run all the requests in the postman setup, without changing anything**\n    \n\nWe hope to have informed you enough about how to run and check our application. If you have any questions, feel free to reach out to us and we'll try to help.\n\nOne last thing: if you don't know how to run the server, just run the `bootRun` configuration from the Gradle menu, or set up a new IntelliJ Spring run configuration with [<code>Application.java</code>](https://gitlab.ewi.tudelft.nl/cse2115/2023-2024/group-11/team-11b/-/blob/main/yumyumnow-delivery-microservice/src/main/java/nl/tudelft/sem/yumyumnow/delivery/Application.java) as the entry point.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32371274"
+	},
+	"item": [
+		{
+			"name": "delivery",
+			"item": [
+				{
+					"name": "1. Update the location of the delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courierId\": \"57955a46-d37b-4fab-a4e9-5bb898281cfc\",\n  \"location\": {\n    \"timestamp\": \"2024-01-16T16:42:30.816+00:00\",\n    \"latitude\": \"42\",\n    \"longitude\": \"69\"\n  }\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/location",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"location"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Update the current location of the delivery (for couriers)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"location\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"location"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"location\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"location"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"location\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"location"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"location\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"location"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Update the location of the delivery",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"57955a46-d37b-4fab-a4e9-5bb898281cfc\",\n  \"location\": {\n    \"timestamp\": \"2024-01-16T16:42:30.816+00:00\",\n    \"latitude\": \"42\",\n    \"longitude\": \"69\"\n  }\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"location"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "{{deliveryId}}",
+											"description": "(Required) UUID of the delivery"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 18 Jan 2024 14:31:49 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"131304a3-693b-4550-b4e7-2438a2d686d0\",\n    \"orderId\": \"c93e6205-c256-484f-8ebf-e76d625d3444\",\n    \"courierId\": null,\n    \"vendorId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n    \"status\": \"PENDING\",\n    \"estimatedDeliveryTime\": null,\n    \"estimatedPreparationFinishTime\": null,\n    \"currentLocation\": {\n        \"timestamp\": \"2024-01-16T16:42:30.816Z\",\n        \"latitude\": 42,\n        \"longitude\": 69\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "2. Update the status of a delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n  \"status\": \"ACCEPTED\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Update the status of a delivery. Vendors can set the status to ACCEPTED, REJECTED, PREPARING, GIVEN_TO_COURIER. Couriers can set the status to IN_TRANSIT, DELIVERED."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"status\": \"GIVEN_TO_COURIER\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"status"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"status\": \"GIVEN_TO_COURIER\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"status"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"status\": \"GIVEN_TO_COURIER\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"status"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"status\": \"GIVEN_TO_COURIER\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"status"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "3. Set the prep time",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n  \"estimatedNewDeliveryTime\": \"2024-01-18T19:42:30.816+00:00\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/prepTime",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"prepTime"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Set estimated prep time of an existing delivery (for vendors)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/prepTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"prepTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/prepTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"prepTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "4. Update the prep time",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n  \"estimatedNewDeliveryTime\": \"2024-01-16T19:42:30.816+00:00\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/prepTime",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"prepTime"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Update estimated prep time of an existing delivery (for vendors)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/prepTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"prepTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/prepTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"prepTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "5. Assign the delivery to the courier",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courierId\": \"57955a46-d37b-4fab-a4e9-5bb898281cfc\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/assign",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"assign"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "The delivery is assigned to a courier."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/assign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"assign"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/assign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"assign"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/assign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"assign"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/assign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"assign"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "6. Set the delivery time",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"57955a46-d37b-4fab-a4e9-5bb898281cfc\",\n  \"estimatedNewDeliveryTime\": \"2024-01-16T19:42:30.816+00:00\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"deliveryTime"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Set estimated delivery time of an existing delivery (for couriers)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "7. Update the delivery time",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courierId\": \"57955a46-d37b-4fab-a4e9-5bb898281cfc\",\n  \"estimatedNewDeliveryTime\": \"2024-01-16T19:42:30.816+00:00\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id",
+								"deliveryTime"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Update estimated delivery time of an existing delivery (for couriers)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courierId\": \"<uuid>\",\n  \"estimatedNewDeliveryTime\": \"<dateTime>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id/deliveryTime",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id",
+										"deliveryTime"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "8. Get available deliveries in radius",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/delivery/available?radius=10&timestamp=&latitude=42&longitude=69&courierId=57955a46-d37b-4fab-a4e9-5bb898281cfc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								"available"
+							],
+							"query": [
+								{
+									"key": "radius",
+									"value": "10",
+									"description": "(Required) The maximum distance in kilometers"
+								},
+								{
+									"key": "timestamp",
+									"value": "",
+									"description": "(Required) The location for which the distances are calculated"
+								},
+								{
+									"key": "latitude",
+									"value": "42",
+									"description": "(Required) The location for which the distances are calculated"
+								},
+								{
+									"key": "longitude",
+									"value": "69",
+									"description": "(Required) The location for which the distances are calculated"
+								},
+								{
+									"key": "courierId",
+									"value": "57955a46-d37b-4fab-a4e9-5bb898281cfc",
+									"description": "(Required) The courier ID"
+								}
+							]
+						},
+						"description": "Get available deliveries in radius (for couriers). If a vendor has chosen to only deliver using its own couriers, then deliveries from that vendor will only be returned if the courier is affiliated with that vendor."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/available?radius=<number>&timestamp=<dateTime>&latitude=<number>&longitude=<number>&courierId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"available"
+									],
+									"query": [
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) The maximum distance in kilometers"
+										},
+										{
+											"key": "timestamp",
+											"value": "<dateTime>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "latitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "longitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "courierId",
+											"value": "<uuid>",
+											"description": "(Required) The courier ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<uuid>\",\n    \"orderId\": \"<uuid>\",\n    \"courierId\": \"<uuid>\",\n    \"vendorId\": \"<uuid>\",\n    \"status\": \"DELIVERED\",\n    \"estimatedDeliveryTime\": \"<dateTime>\",\n    \"estimatedPreparationFinishTime\": \"<dateTime>\",\n    \"currentLocation\": {\n      \"timestamp\": \"<dateTime>\",\n      \"latitude\": \"<number>\",\n      \"longitude\": \"<number>\"\n    }\n  },\n  {\n    \"id\": \"<uuid>\",\n    \"orderId\": \"<uuid>\",\n    \"courierId\": \"<uuid>\",\n    \"vendorId\": \"<uuid>\",\n    \"status\": \"PENDING\",\n    \"estimatedDeliveryTime\": \"<dateTime>\",\n    \"estimatedPreparationFinishTime\": \"<dateTime>\",\n    \"currentLocation\": {\n      \"timestamp\": \"<dateTime>\",\n      \"latitude\": \"<number>\",\n      \"longitude\": \"<number>\"\n    }\n  }\n]"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/available?radius=<number>&timestamp=<dateTime>&latitude=<number>&longitude=<number>&courierId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"available"
+									],
+									"query": [
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) The maximum distance in kilometers"
+										},
+										{
+											"key": "timestamp",
+											"value": "<dateTime>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "latitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "longitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "courierId",
+											"value": "<uuid>",
+											"description": "(Required) The courier ID"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/available?radius=<number>&timestamp=<dateTime>&latitude=<number>&longitude=<number>&courierId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"available"
+									],
+									"query": [
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) The maximum distance in kilometers"
+										},
+										{
+											"key": "timestamp",
+											"value": "<dateTime>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "latitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "longitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "courierId",
+											"value": "<uuid>",
+											"description": "(Required) The courier ID"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/available?radius=<number>&timestamp=<dateTime>&latitude=<number>&longitude=<number>&courierId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"available"
+									],
+									"query": [
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) The maximum distance in kilometers"
+										},
+										{
+											"key": "timestamp",
+											"value": "<dateTime>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "latitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "longitude",
+											"value": "<number>",
+											"description": "(Required) The location for which the distances are calculated"
+										},
+										{
+											"key": "courierId",
+											"value": "<uuid>",
+											"description": "(Required) The courier ID"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "9. Set whether a vendor allows only its own couriers",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendorId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n  \"allowsOnlyOwnCouriers\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/vendor/:id/customCouriers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								"vendor",
+								":id",
+								"customCouriers"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "aec02858-71ae-40d6-a252-7d8b45338d91",
+									"description": "(Required) UUID of the vendor"
+								}
+							]
+						},
+						"description": "Vendors can set whether they allow only their own couriers to deliver their food."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"allowsOnlyOwnCouriers\": \"<boolean>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/customCouriers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"customCouriers"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"vendorId\": \"<uuid>\",\n  \"allowsOnlyOwnCouriers\": \"<boolean>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"allowsOnlyOwnCouriers\": \"<boolean>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/customCouriers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"customCouriers"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "10. Set the maximum delivery zone of a vendor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendorId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\",\n  \"radiusKm\": \"10\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery/vendor/:id/max-zone",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								"vendor",
+								":id",
+								"max-zone"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "aec02858-71ae-40d6-a252-7d8b45338d91",
+									"description": "(Required) UUID of the vendor"
+								}
+							]
+						},
+						"description": "Vendors can set a maximum delivery zone for their own restaurant if they have their own drivers."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"max-zone"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"vendorId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"max-zone"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"max-zone"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendorId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery/vendor/:id/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										"vendor",
+										":id",
+										"max-zone"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "11. Create a delivery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"c93e6205-c256-484f-8ebf-e76d625d3444\",\n  \"vendorId\": \"aec02858-71ae-40d6-a252-7d8b45338d91\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/delivery",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery"
+							]
+						},
+						"description": "Create a delivery based on order data (for vendors)."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"orderId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"orderId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"orderId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"orderId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/delivery",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery"
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "12. Get a delivery",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/delivery/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"delivery",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deliveryId}}",
+									"description": "(Required) UUID of the delivery"
+								}
+							]
+						},
+						"description": "Get delivery details based on id."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"orderId\": \"<uuid>\",\n  \"courierId\": \"<uuid>\",\n  \"vendorId\": \"<uuid>\",\n  \"status\": \"DELIVERED\",\n  \"estimatedDeliveryTime\": \"<dateTime>\",\n  \"estimatedPreparationFinishTime\": \"<dateTime>\",\n  \"currentLocation\": {\n    \"timestamp\": \"<dateTime>\",\n    \"latitude\": \"<number>\",\n    \"longitude\": \"<number>\"\n  }\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/delivery/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"delivery",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "13. Set the default maximum delivery zone",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"adminId\": \"587471d3-2221-4917-abf4-554213f27f28\",\n  \"radiusKm\": \"10\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/max-zone",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"max-zone"
+							]
+						},
+						"description": "Set the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "14. Get the default maximum delivery zone",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/max-zone?adminId=587471d3-2221-4917-abf4-554213f27f28",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"max-zone"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								}
+							]
+						},
+						"description": "Get the default maximum application-wide delivery zone in kilometers for all vendors. This default value is used if a vendor has not specified the delivery zone."
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone?adminId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"adminId\": \"<uuid>\",\n  \"radiusKm\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone?adminId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone?adminId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone?adminId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/max-zone?adminId=<uuid>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"max-zone"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "15. Get preparation time analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=587471d3-2221-4917-abf4-554213f27f28&startDate=2024-04-09T10:15:30%2B01:00&endDate=2024-04-09T10:16:30%2B01:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"preparation-time"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-04-09T10:15:30%2B01:00",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "2024-04-09T10:16:30%2B01:00",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get preparation time analytics"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"preparation-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"preparationTime\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"preparation-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"preparation-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"preparation-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/preparation-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"preparation-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "16. Get delivery time analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=587471d3-2221-4917-abf4-554213f27f28&startDate=2024-04-09T10:15:30%2B01:00&endDate=2024-04-09T10:16:30%2B01:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"delivery-time"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-04-09T10:15:30%2B01:00",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "2024-04-09T10:16:30%2B01:00",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get delivery time analytics"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"delivery-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"deliveryTime\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"delivery-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"delivery-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"delivery-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/delivery-time?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"delivery-time"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "17. Get driver efficiency analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=587471d3-2221-4917-abf4-554213f27f28&startDate=2023-01-01T10:15:30%2B01:00&endDate=2024-01-01T10:15:30%2B01:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"driver-efficiency"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "2023-01-01T10:15:30%2B01:00",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-01T10:15:30%2B01:00",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get driver efficiency analytics"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"driver-efficiency"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"driverEfficiency\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"driver-efficiency"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"driver-efficiency"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"driver-efficiency"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/driver-efficiency?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"driver-efficiency"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "18. Get the total number of deliveries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=587471d3-2221-4917-abf4-554213f27f28&startDate=2024-01-17T10:15:30%2B01:00&endDate=2024-01-19T10:15:30%2B01:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"total-deliveries"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-01-17T10:15:30%2B01:00",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-19T10:15:30%2B01:00",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get the total number of deliveries"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"total-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"totalDeliveries\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"total-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"total-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"total-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/total-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"total-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "19. Get the total number of successful deliveries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=587471d3-2221-4917-abf4-554213f27f28&startDate=2024-01-17T10:15:30%2B01:00&endDate=2024-01-19T10:16:30%2B01:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"successful-deliveries"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "587471d3-2221-4917-abf4-554213f27f28",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-01-17T10:15:30%2B01:00",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-19T10:16:30%2B01:00",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get the total number of successful deliveries"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"successful-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"successfulDeliveries\": \"<number>\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"successful-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"successful-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"successful-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/successful-deliveries?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"successful-deliveries"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "20. Get the encountered issues",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"analytics",
+								"issues"
+							],
+							"query": [
+								{
+									"key": "adminId",
+									"value": "<uuid>",
+									"description": "(Required) The admin ID"
+								},
+								{
+									"key": "startDate",
+									"value": "<dateTime>",
+									"description": "(Required) Start date of the analytic."
+								},
+								{
+									"key": "endDate",
+									"value": "<dateTime>",
+									"description": "(Required) End date of the analytic."
+								}
+							]
+						},
+						"description": "Get the encountered issues"
+					},
+					"response": [
+						{
+							"name": "Successful response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"issues"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"startDate\": \"<dateTime>\",\n  \"endDate\": \"<dateTime>\",\n  \"encounteredIssues\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"issues"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"issues"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Unavailable for Legal Reasons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"issues"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"code": 451,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"name": "Service Unavailable",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/analytics/issues?adminId=<uuid>&startDate=<dateTime>&endDate=<dateTime>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"analytics",
+										"issues"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "<uuid>",
+											"description": "(Required) The admin ID"
+										},
+										{
+											"key": "startDate",
+											"value": "<dateTime>",
+											"description": "(Required) Start date of the analytic."
+										},
+										{
+											"key": "endDate",
+											"value": "<dateTime>",
+											"description": "(Required) End date of the analytic."
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"code\": \"<integer>\",\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8082"
+		},
+		{
+			"key": "deliveryId",
+			"value": "131304a3-693b-4550-b4e7-2438a2d686d0",
+			"type": "string"
+		}
+	]
+}

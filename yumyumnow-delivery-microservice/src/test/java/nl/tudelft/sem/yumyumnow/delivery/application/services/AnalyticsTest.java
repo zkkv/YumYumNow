@@ -311,4 +311,81 @@ public class AnalyticsTest {
         when(deliveryRepository.findAll()).thenReturn(deliveries);
         assertThat(adminService.getDeliveryTimeAnalytic(id, startDate, endDate)).isEqualTo(45);
     }
+
+    @Test
+    void getDriverEfficiencySuccessfulTest()
+            throws ServiceUnavailableException, BadArgumentException, AccessForbiddenException {
+        UUID id = UUID.randomUUID();
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
+
+
+        Delivery delivery1 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.IN_TRANSIT)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 17, 59, 07, 0, ZoneOffset.UTC))
+                .create();
+
+        Delivery delivery2 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.IN_TRANSIT)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 3, 15, 30, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 3, 16, 15, 07, 0, ZoneOffset.UTC))
+                .create();
+
+        Delivery delivery3 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 4, 16, 59, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 4, 17, 29, 07, 0, ZoneOffset.UTC))
+                .create();
+
+        Delivery delivery4 = new DeliveryBuilder()
+                .setId(UUID.randomUUID())
+                .setStatus(Delivery.StatusEnum.DELIVERED)
+                .setEstimatedPreparationFinishTime(OffsetDateTime.of(2023, 1, 2, 16, 00, 07, 0, ZoneOffset.UTC))
+                .setEstimatedDeliveryTime(OffsetDateTime.of(2023, 1, 2, 16, 45, 07, 0, ZoneOffset.UTC))
+                .create();
+        List<Delivery> deliveries = new ArrayList<>();
+        deliveries.add(delivery1);
+        deliveries.add(delivery2);
+        deliveries.add(delivery3);
+        deliveries.add(delivery4);
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+        assertThat(adminService.getDriverEfficiencyAnalytic(id, startDate, endDate)).isEqualTo(50);
+    }
+
+
+    @Test
+    void getDriverEfficiencyBadArgumentExceptionTest() {
+        UUID id = UUID.randomUUID();
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Admin"));
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2022, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        List<Delivery> deliveries = new ArrayList<>();
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+        assertThrows(BadArgumentException.class, () -> {
+            adminService.getDriverEfficiencyAnalytic(id, startDate, endDate);
+        });
+
+    }
+    @Test
+    void getDriverEfficiencyAccessForbiddenExceptionTest() {
+        UUID id = UUID.randomUUID();
+        when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(Map.of("userType", "Courier"));
+        OffsetDateTime startDate = OffsetDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime endDate = OffsetDateTime.of(2023, 1, 5, 12, 0, 0, 0, ZoneOffset.UTC);
+
+        List<Delivery> deliveries = new ArrayList<>();
+
+        when(deliveryRepository.findAll()).thenReturn(deliveries);
+        assertThrows(AccessForbiddenException.class, () -> {
+            adminService.getDriverEfficiencyAnalytic(id, startDate, endDate);
+        });
+    }
 }

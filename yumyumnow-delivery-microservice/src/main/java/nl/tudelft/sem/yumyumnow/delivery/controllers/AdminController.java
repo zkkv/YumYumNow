@@ -241,7 +241,6 @@ public class AdminController implements AdminApi {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error.");
         }
-
         return ResponseEntity.ok(response);
     }
 
@@ -313,4 +312,39 @@ public class AdminController implements AdminApi {
         }
     }
 
+    /**
+     * Get analytics regarding the average driver efficiency.
+     *
+     * @param adminId The admin ID (required)
+     * @param startDate Start date of the analytic. (required)
+     * @param endDate End date of the analytic. (required)
+     * @return a AdminAnalyticsDriverEfficiencyGet200Response response representing the average driver efficiency
+     */
+    @Override
+    public ResponseEntity<AdminAnalyticsDriverEfficiencyGet200Response> adminAnalyticsDriverEfficiencyGet(
+            @NotNull @Parameter(name = "adminId", description = "The admin ID", required = true)
+            @Valid @RequestParam(value = "adminId", required = true) UUID adminId,
+            @NotNull @Parameter(name = "startDate", description = "Start date of the analytic.", required = true)
+            @Valid @RequestParam(value = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
+            @NotNull @Parameter(name = "endDate", description = "End date of the analytic.", required = true)
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate
+    ) {
+        AdminAnalyticsDriverEfficiencyGet200Response response = new AdminAnalyticsDriverEfficiencyGet200Response();
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        try {
+            long averageDriverEfficiency = adminService.getDriverEfficiencyAnalytic(adminId, startDate, endDate);
+            response.setDriverEfficiency(BigDecimal.valueOf(averageDriverEfficiency));
+        } catch (BadArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date cannot be greater than end date.");
+        } catch (AccessForbiddenException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User has no right to get analytics.");
+        }  catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
+        }
+        return ResponseEntity.ok(response);
+    }
 }
